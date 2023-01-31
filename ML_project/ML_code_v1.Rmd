@@ -1,0 +1,471 @@
+---
+title: "MEDI504B_EDA"
+author: "Jacob and Hanwei"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r libraries, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
+# loading libraries
+
+library(tidyverse)
+library(ggplot2)
+library(scales)
+library(finalfit)
+library(patchwork)
+library(readr)
+library(epiR)
+library(readxl)
+library(gridExtra)
+library(janitor)
+
+library(DataExplorer)
+
+# install.packages("DataExplorer")
+
+# install.packages("janitor")
+
+
+```
+
+## Introduction and Background
+```{r Introduction, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
+```
+
+## Objectives
+Developing a model which uses physical and clinical predictors to diagnose PCOS. 
+```{r objectives, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
+```
+
+## Methods
+
+* Following our EDA, we start by splitting our datset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable)
+
+### Splitting our dataset into training and validation datasets 
+```{r methods, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
+
+# loading data
+setwd("/Users/hanweisudderuddin/Desktop/MSc Stuff/Classes/MEDI504B/Week1_lab_EDA")
+
+# PCOS_infertility <- read_csv("PCOS_infertility.csv")
+
+# reading in PCOS_data_without_infertility from excel file
+PCOS_data_without_infertility <-read_excel("PCOS_data_without_infertility.xlsx", sheet = "Full_new")
+
+## checking and cleaning dataset 
+unique(PCOS_data_without_infertility$...45)
+
+## removing column "...45" to clean dataset
+
+PCOS_data_without_infertility <- PCOS_data_without_infertility %>%
+                                    select(-...45)
+
+glimpse(PCOS_data_without_infertility)
+
+# view(PCOS_data_without_infertility)
+
+## cleaning variable names with janitor package
+
+PCOS_data_without_infertility_cleaned <- PCOS_data_without_infertility %>%
+                                          clean_names()
+
+glimpse(PCOS_data_without_infertility_cleaned)
+
+PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned %>%
+                                              mutate_at(c("sl_no",
+                                                          "patient_file_no",
+                                                          "pcos_y_n",
+                                                          "weight_gain_y_n", 
+                                                          "hair_growth_y_n",
+                                                          "hair_growth_y_n",
+                                                          "skin_darkening_y_n",
+                                                          "hair_loss_y_n",
+                                                          "pimples_y_n",
+                                                          "fast_food_y_n",
+                                                          "reg_exercise_y_n"), as.character)
+
+glimpse(PCOS_data_without_infertility_formatted)
+
+PCOS_data_without_infertility_formatted_final <- PCOS_data_without_infertility_formatted %>%
+                                              drop_na()
+
+unique(PCOS_data_without_infertility_formatted_final$pcos_y_n)
+
+# changing outcome variable to factor class 
+PCOS_data_without_infertility_formatted_final$pcos_y_n <- as.factor(PCOS_data_without_infertility_formatted_final$pcos_y_n)
+
+#####
+## setting the seed (enables randomization in a reproducible way)
+set.seed(504)
+
+data_split <- caret::createDataPartition(PCOS_data_without_infertility_formatted_final$pcos_y_n, p=0.7, list= FALSE)
+
+train.data <- PCOS_data_without_infertility_formatted_final[data_split,]
+dim(train.data)
+test.data <- PCOS_data_without_infertility_formatted_final[-data_split,]
+dim(test.data)
+
+table(train.data$pcos_y_n)
+
+# the first model we will build will include all the variables 
+#library(glmnet)
+
+logistic_model1 <- glm(pcos_y_n ~ .,
+                       data = train.data,
+                       family = binomial(link="logit")) 
+
+summary(logistic_model1)
+
+plot(logistic_model1)
+
+library(broom)
+
+# the second model we will build will only include the following variables: 
+# 5 of the hormone measurement levels we possess 
+
+logistic_model2 <-glm(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l,
+                      data = train.data,
+                      family = binomial(link="logit"))
+
+summary(logistic_model2)
+
+glimpse(PCOS_data_without_infertility_formatted_final)
+
+# the third model we will build will include the following variables:
+# 5 of the hormone measurement levels we possess
+# as well as the following physiological variables (as these are clinical symptoms associated with PCOS): 
+
+logistic_model3 <- glm(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
+                       weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n,
+                       data = train.data,
+                       family = binomial(link="logit"))
+
+summary(logistic_model3)
+
+
+## plotting ROC and AUC 
+
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model1)),
+               col = "red", 
+               main = "ROC curves: logistic model 1 (red) vs. logistic model 2 (blue)")
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model2)),
+               print.auc = T, 
+               col = "blue", 
+               add = T)
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model3)),
+               print.auc = T, 
+               col = "green", 
+               add = T)
+
+
+## cross-validation 
+
+cv_of_data <- caret::trainControl(
+  method = "repeatedcv", 
+  number = 5, #five fold cross validation 
+  repeats = 3 # repeat 3 times
+)
+
+set.seed(504)
+cv_of_model1 <- caret::train(
+                              pcos_y_n ~ ., 
+                              data = train.data, 
+                              method = "glm",
+                              family = "binomial",
+                              trControl = cv_of_data
+                            )
+
+
+
+set.seed(504)
+cv_of_model2 <- caret::train(
+                              pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l, 
+                              data = train.data, 
+                              method = "glm",
+                              family = "binomial",
+                              trControl = cv_of_data
+                            )
+
+set.seed(504)
+cv_of_model3 <- caret::train(
+                              pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
+                              weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n, 
+                              data = train.data, 
+                              method = "glm",
+                              family = "binomial",
+                              trControl = cv_of_data
+                            )
+
+summary(
+  resamples(
+    list(
+      model1 = cv_of_model1, 
+      model2 = cv_of_model2, 
+      model3 = cv_of_model3
+    )
+  )
+)$statistics$Accuracy
+
+```
+
+### Building model
+
+### Assessing model fit 
+
+## Exploratory Data Analysis
+This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA. Please refer to bullet points, figure titles and figure captions for more details. 
+
+### First steps in EDA (importing and examining dataset at a high level)
+* We start by importing the PCOS dataset
+* Once imported, we use the function glimpse() to get a high-level overview of our dataset
+* And we find that our data has n=541 rows and n=45 columns
+``` {r loading, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
+# loading data
+setwd("/Users/hanweisudderuddin/Desktop/MSc Stuff/Classes/MEDI504B/Week1_lab_EDA")
+
+# PCOS_infertility <- read_csv("PCOS_infertility.csv")
+
+# reading in PCOS_data_without_infertility from excel file
+PCOS_data_without_infertility <-read_excel("PCOS_data_without_infertility.xlsx", sheet = "Full_new")
+
+glimpse(PCOS_data_without_infertility)
+
+view(PCOS_data_without_infertility)
+
+summary(PCOS_data_without_infertility)
+
+```
+
+* Further checking of the dataset reveals an addtional column (column 45)
+* This column does not contain any useful information and is not one of our 44 features, therefore the column was removed
+* We find that our dataset has the following variables:
+Sl. No, Patient File No., PCOS (Y/N), Age (yrs), Weight (Kg), Height(Cm), BMI, Blood Group, Pulse rate(bpm), RR(breaths/min), Hb(g/dl), Cycle(R/I), Cycle length(days), Marriage Status (Yrs), Pregnant(Y/N), No. of aborptions, I   beta-HCG(mIU/mL), II    beta-HCG(mIU/mL), FSH(mIU/mL), LH(mIU/mL), FSH/LH, Hip(inch), Waist(inch), Waist:Hip Ratio, TSH (mIU/L), AMH(ng/mL), PRL(ng/mL), Vit D3 (ng/mL), PRG(ng/mL), RBS(mg/dl), Weight gain(Y/N), hair growth(Y/N), Skin darkening (Y/N), Hair loss(Y/N), Pimples(Y/N), Fast food (Y/N), Reg.Exercise(Y/N), BP _Systolic (mmHg), BP _Diastolic (mmHg), Follicle No. (L), Follicle No. (R), Avg. F size (L) (mm), Avg. F size (R) (mm), Endometrium (mm)
+```{r cleaning, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+## checking and cleaning dataset 
+unique(PCOS_data_without_infertility$...45)
+
+## removing column "...45" to clean dataset
+
+PCOS_data_without_infertility <- PCOS_data_without_infertility %>%
+                                    select(-...45)
+
+glimpse(PCOS_data_without_infertility)
+
+# view(PCOS_data_without_infertility)
+
+## cleaning variable names with janitor package
+
+PCOS_data_without_infertility_cleaned <- PCOS_data_without_infertility %>%
+                                          clean_names()
+
+glimpse(PCOS_data_without_infertility_cleaned)
+
+```
+
+* Next, we formatted the data to ensure the variables are the appropriate class type, this will enable us to perform our EDA.
+* Specifically we converted binary variables (1 or 0) into the character class type.
+```{r formatting, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results="hide"}
+## ensuring variables are in the correct format 
+
+PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned %>%
+                                              mutate_at(c("sl_no",
+                                                          "patient_file_no",
+                                                          "pcos_y_n",
+                                                          "weight_gain_y_n", 
+                                                          "hair_growth_y_n",
+                                                          "hair_growth_y_n",
+                                                          "skin_darkening_y_n",
+                                                          "hair_loss_y_n",
+                                                          "pimples_y_n",
+                                                          "fast_food_y_n",
+                                                          "reg_exercise_y_n"), as.character)
+
+glimpse(PCOS_data_without_infertility_formatted)
+
+```
+
+### Examining and dealing with missing values 
+```{r EDA1, echo=FALSE, fig.align = "center", fig.height=10, fig.width=10, message=FALSE, warning=FALSE, results="hide"}
+# checking for missing values in dataset 
+plot_missing(PCOS_data_without_infertility_formatted, title = "Plot showing missing values")
+
+# removing the missing values from the data
+
+PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_formatted %>%
+                                              drop_na()
+
+# view(PCOS_data_without_infertility_formatted)
+
+```
+* Next in our EDA we sought to identify missing values in our dataset.
+* Here, we see a plot showing our variables and the percentage of missing rows per variable.
+* This plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. 
+* The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, we will simply ignore these missing values for our subsequent analyses. 
+
+* Next, we would like to get a sense of the variation in our dataset. 
+* To do this for the continuous variables, we will plot histograms for each continuous variable using the plot_histogram() from the DataExplorer Package. 
+
+### Exploring the distribution of continuous features in our dataset 
+```{r EDA2, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+# plotting a histogram for each continuous feature 
+plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plot.title" = element_text(size = 24)), title = "Histograms for each continuous variable - to visualize distributions", )
+
+```
+
+* These plots allow us to look at the distribution for each of the continuous features in our dataset.
+* For instance, we see that the age distribution in our dataset reveals most individuals are in the range of 20 to 40 years. No individuals in the dataset are younger than 20 or older than 50. 
+* As we would expect, the BMI values follow an approximately normal distribution.
+* The most common blood type we observe is O+, which is consistent with the fact that O+ is the most frequent bloodtype globally. 
+* The most common cycle length is 5 days.
+* The endometrium thickness data suggests there are two most most common thickness values (two clear peaks in the distribution). 
+
+
+
+```{r EDA3, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+# performing a correlation analysis for continuous features 
+plot_correlation(PCOS_data_without_infertility_formatted, title = "Bivariate analysis to visualize our covariation between our continuous variables", theme_config = list("plot.title" = element_text(size = 24)), type = 'continuous')
+```
+
+* From this correlation plot, we find that several continuous variables do co-vary with one another.
+* Specifically, as we would expect, we find a positive correlation between the variables waist and hip (in inches) with weight. We find the same positive correlation for BMI. 
+* Another obvious correlation we observe is that between age (in years) and marriage (in years) 
+* 
+
+``````{r EDA4, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+# plotting bar plots for each categorical feature
+plot_bar(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "Barplots for the categorical variables in our dataset")
+
+```
+
+* These bar plots show us the relative frequencies of the categorical features in our dataset. 
+
+* Further the bar plots have been coloured to show frequencies according to our outcome variable of PCOS status. 
+
+* We can see, for instance, the proportion of individuals with weight gain and a positive PCOS status is greater than the proportion of individuals with no weight gain and a positive PCOS status. We observe similar associations for hair growth and skin darkening. We also observe a similar but much weaker association for the categorical variables of hair loss and pimples. Interestingly, we observe the inverse trend for the categorical variable for fast food consumption. 
+
+* The bar plots for regular exercise and pregnancy do not appear to show a signfiicant difference in proportion of positive PCOS cases, but we would need to perform a statistical analyses (such as an unpaired t-test) to know for sure. 
+
+* Following the global EDA of our data, to investigate relationships between our continuous variables and PCOS status (Y/N), we plotted boxplots to visualize any associations between PCOS status and a continuous variable. Please refer to the appendix for these boxplots.
+
+* For this section of the EDA, we looked more closely at the relationships between selected variables and our outcome variable of interest (for this project: yes or no for PCOS), based on how our boxplots looked initially (please refer to Appendix for all boxplots) and on some knowledge gained via our literature survey, we will highlight the relatiionship of select variables with our outcome variable (PCOS status). 
+
+* While the etiology for PCOS is not known, my literature survey suggests PCOS is associated with abnormal hormone levels. Thus, to look into this further as part of the EDA, we compared measurements of hormone levels and PCOS status to get a sense of the relationships between these variables.
+
+### Boxplots looking at relationship of hormones and PCOS status
+```{r hormonevariables, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+
+## looking more closely and the relationships between selected variables and our outcome variable of interest (PCOS yes or no)
+
+## I   beta-HCG(mIU/mL) hormone 
+
+glimpse(PCOS_data_without_infertility_formatted)
+
+eda_compare_plot1 <- PCOS_data_without_infertility_formatted %>%
+                        ggplot(aes(pcos_y_n, i_beta_hcg_m_iu_m_l)) + 
+                        geom_boxplot() +
+                        theme_bw() +
+                        theme(title = element_text(size = 22),
+                              plot.caption = element_text(hjust = 0, size = 20)) +
+                        labs(title = "Exploring relationship between beta-HCG and PCOS status",
+                             caption = "EDA exploring the associationg between beta-HCG hormone and our outocme variable PCOS status") + scale_y_log10() 
+
+eda_compare_plot1
+
+
+## follicle stimulating hormone
+
+eda_compare_plot2 <- PCOS_data_without_infertility_formatted %>%
+                        ggplot(aes(pcos_y_n, fsh_m_iu_m_l)) + 
+                        geom_boxplot() +
+                        theme_bw() +
+                        theme(title = element_text(size = 22),
+                              plot.caption = element_text(hjust = 0, size = 20)) +
+                        labs(title = "Exploring relationship between follicle stimulating hormone and PCOS status",
+                             caption = "EDA exploring the association between follicle stimulating hormone and our outcome variable PCOS status") +
+                        scale_y_log10()
+
+eda_compare_plot2
+
+
+## luteinizing hormone
+
+eda_compare_plot3 <- PCOS_data_without_infertility_formatted %>%
+                        ggplot(aes(pcos_y_n, lh_m_iu_m_l)) + 
+                        geom_boxplot() +
+                        theme_bw() +
+                        theme(title = element_text(size = 22),
+                              plot.caption = element_text(hjust = 0, size = 20)) +
+                        labs(title = "Exploring relationship between luteinizing hormone and PCOS status",
+                             caption = "EDA exploring the association between Lutenizing hormone and PCOS status.") +
+                        scale_y_log10()
+
+eda_compare_plot3
+
+## Thyroid Stimulating Hormone
+
+eda_compare_plot4 <- PCOS_data_without_infertility_formatted %>%
+                        ggplot(aes(pcos_y_n,tsh_m_iu_l)) + 
+                        geom_boxplot() +
+                        theme_bw() +
+                        theme(title = element_text(size = 22),
+                              plot.caption = element_text(hjust = 0, size = 20)) +
+                        labs(title = "Exploring relationship between Thyroid Stimulating Hormone and PCOS status") +
+                        scale_y_log10()
+
+eda_compare_plot4
+
+
+
+```
+
+* From the literature, we know that PCOS diagnosis often involves an ultrasound and endometrium thickness is measured as part of this process. Therefore, as part of our EDA, we also sought to look at the relationship between endometrium thickness and PCOS status. 
+
+```{r endothicknessvariable, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+## thickness of endometrium and PCOS
+PCOS_data_without_infertility_formatted
+
+eda_compare_plot5 <- PCOS_data_without_infertility_formatted %>%
+                        ggplot(aes(pcos_y_n,
+                                   endometrium_mm)) + 
+                        geom_boxplot() +
+                        theme_bw() +
+                        labs(title = "Exploring relationship between Endometrium thickness and PCOS status") +
+                        scale_y_log10()
+
+eda_compare_plot5
+
+## 
+
+```
+
+* From this series of boxplots, we did not observe (visually) any significant difference in the association of PCOS status and hormone levels. However, given what we know about the association of PCOS and hormone imbalances from the literature, I think it would still be useful to include these variables when we build our model. 
+
+* From the literature^2^, there is also evidence that miscarriages are associated with PCOS. Therefore, as part of our EDA, we sought to look at the relationship between PCOS status and number of abortions. 
+
+
+## References 
+
+1. R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
+2. Ajmal N, Khan SZ, Shaikh R. Polycystic ovary syndrome (PCOS) and genetic predisposition: A review article. Eur J Obstet Gynecol Reprod Biol X. 2019 Jun 8;3:100060. doi: 10.1016/j.eurox.2019.100060. PMID: 31403134; PMCID: PMC6687436.
+
+## Appendix 
+
+* Appendix Plot 1 showing boxplots generated to investigate potential associations between continuous variables and PCOS status. 
+
+```{r boxplots, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+
+plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "Boxplots for continous variables by PCOS status")
+
+
+
+```
