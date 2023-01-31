@@ -55,9 +55,9 @@ Developing a model which uses physical and clinical predictors to diagnose PCOS.
 # setwd("/Users/hanweisudderuddin/Desktop/MSc Stuff/Classes/MEDI504B/Week1_lab_EDA")
 setwd(here::here())
 # PCOS_infertility <- read_csv("PCOS_infertility.csv")
-data_loc <- paste0(here::here(), "/ML_project/data/")
+data_loc <- here::here()
 # reading in PCOS_data_without_infertility from excel file
-PCOS_data_without_infertility <-read_excel(paste0(data_loc, "PCOS_data_without_infertility.xlsx"), sheet = "Full_new")
+PCOS_data_without_infertility <-read_excel(paste0(data_loc, "/PCOS_data_without_infertility.xlsx"), sheet = "Full_new")
 
 ## checking and cleaning dataset 
 unique(PCOS_data_without_infertility$...45)
@@ -122,8 +122,8 @@ logistic_model1 <- glm(pcos_y_n ~ .,
                        family = binomial(link="logit")) 
 
 summary(logistic_model1)
-
-plot(logistic_model1)
+# removed this as not super informative for logistic models 
+# plot(logistic_model1)
 
 library(broom)
 
@@ -150,24 +150,12 @@ logistic_model3 <- glm(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m
 summary(logistic_model3)
 
 
-## plotting ROC and AUC 
 
-plot(pROC::roc(train.data$pcos_y_n,
-                   fitted(logistic_model1)),
-               col = "red", 
-               main = "ROC curves: logistic model 1 (red) vs. logistic model 2 (blue)")
-plot(pROC::roc(train.data$pcos_y_n,
-                   fitted(logistic_model2)),
-               print.auc = T, 
-               col = "blue", 
-               add = T)
-plot(pROC::roc(train.data$pcos_y_n,
-                   fitted(logistic_model3)),
-               print.auc = T, 
-               col = "green", 
-               add = T)
+```
 
+### Model cross-validation 
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 ## cross-validation 
 
 cv_of_data <- caret::trainControl(
@@ -220,7 +208,30 @@ summary(
 
 ### Building model
 
-### Assessing model fit 
+### Assessing model classification performance 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+## plotting ROC and AUC 
+
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model1)),
+               col = "red", 
+               main = "ROC curves: model 1 (red) vs. model 2 (blue) \n vs. model 3 (green)")
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model2)),
+               print.auc = T, 
+               col = "blue", 
+               add = T, 
+                print.auc.y = .6)
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model3)),
+               print.auc = T, 
+               col = "green", 
+               add = T,
+     print.auc.y=.4)
+
+```
+
 
 ## Exploratory Data Analysis
 This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA. Please refer to bullet points, figure titles and figure captions for more details. 
@@ -231,12 +242,14 @@ This section contains the steps and output for the EDA performed on the PCOS dat
 * And we find that our data has n=541 rows and n=45 columns
 ``` {r loading, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 # loading data
-setwd("/Users/hanweisudderuddin/Desktop/MSc Stuff/Classes/MEDI504B/Week1_lab_EDA")
-
+# setwd("/Users/hanweisudderuddin/Desktop/MSc Stuff/Classes/MEDI504B/Week1_lab_EDA")
+setwd(here::here())
+# PCOS_infertility <- read_csv("PCOS_infertility.csv")
+data_loc <- here::here()
+# reading in PCOS_data_without_infertility from excel file
+PCOS_data_without_infertility <-read_excel(paste0(data_loc, "/PCOS_data_without_infertility.xlsx"), sheet = "Full_new")
 # PCOS_infertility <- read_csv("PCOS_infertility.csv")
 
-# reading in PCOS_data_without_infertility from excel file
-PCOS_data_without_infertility <-read_excel("PCOS_data_without_infertility.xlsx", sheet = "Full_new")
 
 glimpse(PCOS_data_without_infertility)
 
@@ -272,8 +285,11 @@ glimpse(PCOS_data_without_infertility_cleaned)
 
 ```
 
-* Next, we formatted the data to ensure the variables are the appropriate class type, this will enable us to perform our EDA.
-* Specifically we converted binary variables (1 or 0) into the character class type.
+### Data Wrangling
+
+Next, we formatted the data to ensure the variables are the appropriate class type, this will enable us to perform our EDA.
+Specifically we converted binary variables (1 or 0) into the character class type.
+
 ```{r formatting, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results="hide"}
 ## ensuring variables are in the correct format 
 
@@ -294,7 +310,10 @@ glimpse(PCOS_data_without_infertility_formatted)
 
 ```
 
-### Examining and dealing with missing values 
+### Missing Values 
+
+Next in our EDA we sought to identify missing values in our dataset. Here, we see a plot showing our variables and the percentage of missing rows per variable.
+
 ```{r EDA1, echo=FALSE, fig.align = "center", fig.height=10, fig.width=10, message=FALSE, warning=FALSE, results="hide"}
 # checking for missing values in dataset 
 plot_missing(PCOS_data_without_infertility_formatted, title = "Plot showing missing values")
@@ -307,29 +326,28 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_formatt
 # view(PCOS_data_without_infertility_formatted)
 
 ```
-* Next in our EDA we sought to identify missing values in our dataset.
-* Here, we see a plot showing our variables and the percentage of missing rows per variable.
-* This plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. 
-* The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, we will simply ignore these missing values for our subsequent analyses. 
 
-* Next, we would like to get a sense of the variation in our dataset. 
-* To do this for the continuous variables, we will plot histograms for each continuous variable using the plot_histogram() from the DataExplorer Package. 
+The plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, we will simply ignore these missing values for our subsequent analyses. 
 
-### Exploring the distribution of continuous features in our dataset 
+
+
+### Univariate distributions for continuous variables  
+
+To get a sense of the variation in our dataset, we plotted histograms for each continuous variable using the plot_histogram() from the DataExplorer Package. 
+
 ```{r EDA2, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 # plotting a histogram for each continuous feature 
 plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plot.title" = element_text(size = 24)), title = "Histograms for each continuous variable - to visualize distributions", )
 
 ```
 
-* These plots allow us to look at the distribution for each of the continuous features in our dataset.
-* For instance, we see that the age distribution in our dataset reveals most individuals are in the range of 20 to 40 years. No individuals in the dataset are younger than 20 or older than 50. 
+* We see that the age distribution in our dataset reveals most individuals are in the range of 20 to 40 years. No individuals in the dataset are younger than 20 or older than 50. 
 * As we would expect, the BMI values follow an approximately normal distribution.
 * The most common blood type we observe is O+, which is consistent with the fact that O+ is the most frequent bloodtype globally. 
 * The most common cycle length is 5 days.
 * The endometrium thickness data suggests there are two most most common thickness values (two clear peaks in the distribution). 
 
-
+### Bivariate associations 
 
 ```{r EDA3, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 # performing a correlation analysis for continuous features 
@@ -469,3 +487,5 @@ plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "
 
 
 ```
+
+
