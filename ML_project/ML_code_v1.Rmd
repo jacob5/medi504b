@@ -52,12 +52,12 @@ Developing a model which uses physical and clinical predictors to diagnose PCOS.
 ```{r methods, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
 # loading data
-setwd("/Users/hanweisudderuddin/Desktop/MSc Stuff/Classes/MEDI504B/Week1_lab_EDA")
-
+# setwd("/Users/hanweisudderuddin/Desktop/MSc Stuff/Classes/MEDI504B/Week1_lab_EDA")
+setwd(here::here())
 # PCOS_infertility <- read_csv("PCOS_infertility.csv")
-
+data_loc <- paste0(here::here(), "/ML_project/data/")
 # reading in PCOS_data_without_infertility from excel file
-PCOS_data_without_infertility <-read_excel("PCOS_data_without_infertility.xlsx", sheet = "Full_new")
+PCOS_data_without_infertility <-read_excel(paste0(data_loc, "PCOS_data_without_infertility.xlsx"), sheet = "Full_new")
 
 ## checking and cleaning dataset 
 unique(PCOS_data_without_infertility$...45)
