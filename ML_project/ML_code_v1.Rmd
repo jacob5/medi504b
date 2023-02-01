@@ -104,7 +104,7 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned
                                                           "hair_loss_y_n",
                                                           "pimples_y_n",
                                                           "fast_food_y_n",
-                                                          "reg_exercise_y_n"), as.character)
+                                                          "reg_exercise_y_n"), as.factor)
 
 glimpse(PCOS_data_without_infertility_formatted)
 
@@ -270,16 +270,23 @@ train.data.covariates.1 <- train.data %>%
     skin_darkening_y_n,
     hair_loss_y_n ,
     pimples_y_n
-  ) %>% mutate(
+  ) %>%
+  mutate_at(c("pcos_y_n",
+              "weight_gain_y_n", 
+              "hair_growth_y_n",
+              "skin_darkening_y_n",
+              "hair_loss_y_n",
+              "pimples_y_n"),as.factor) %>% mutate(
   amh_ng_m_l = as.numeric(amh_ng_m_l))
 
 glimpse(train.data.covariates.1)
 
 set.seed(504)
-ridge_caret<- train(train.data.covariates.1[,-1], train.data.covariates.1[,1], method = "glmnet",
+ridge_caret<- train(train.data.covariates.1[,-1],train.data.covariates.1[,1], method = "glmnet",
                 trControl=cv,
                 tuneGrid = expand.grid(alpha = 0,
                                        lambda = seq(0.001,0.1,by = 0.001)))
+
 ridge_caret$bestTune
 coef(ridge_caret$finalModel, ridge_caret$bestTune$lambda)
 plot(ridge_caret)
