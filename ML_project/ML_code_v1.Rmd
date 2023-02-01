@@ -55,8 +55,9 @@ Developing a model which uses physical and clinical predictors to diagnose PCOS 
 - Model 1 included all the features in our dataset
 - Model 2 only includes physiological variables we think are of interest in PCOS, namely the hormone measurements (n=5 different types of hormones). 
 - Model 3 includes the n=5 the hormone measurement levels we in our dataset, and in addition, the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples.
+* Of our three logistic regression models, Model 3 had the lowest AIC score of 566.45. 
 
-###
+
 ```{r methods, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
 # loading data
@@ -130,6 +131,7 @@ logistic_model1 <- glm(pcos_y_n ~ .,
                        family = binomial(link="logit")) 
 
 summary(logistic_model1)
+# AIC = 758
 # removed this as not super informative for logistic models 
 # plot(logistic_model1)
 
@@ -142,7 +144,8 @@ logistic_model2 <-glm(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_
                       data = train.data,
                       family = binomial(link="logit"))
 
-summary(logistic_model2)
+summary(logistic_model2) 
+# AIC = 609.28
 
 glimpse(PCOS_data_without_infertility_formatted_final)
 
@@ -156,6 +159,7 @@ logistic_model3 <- glm(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m
                        family = binomial(link="logit"))
 
 summary(logistic_model3)
+# AIC = 566.45
 
 
 
@@ -163,6 +167,7 @@ summary(logistic_model3)
 
 ### Model cross-validation (using the caret package)
 * We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 ## cross-validation 
 
@@ -216,7 +221,10 @@ summary(
 
 ### Assessing model classification performance 
 * Assessing model performance using ROC curves 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+
+
+```{r echo=FALSE, fig.height=8, fig.width=4, message=FALSE, warning=FALSE}
 ## plotting ROC and AUC 
 
 plot(pROC::roc(train.data$pcos_y_n,
