@@ -291,7 +291,7 @@ ridge_caret$bestTune
 coef(ridge_caret$finalModel, ridge_caret$bestTune$lambda)
 plot(ridge_caret)
 
-saveRDS(train.data.covariates.1, file = "train_data.rds")
+# saveRDS(train.data.covariates.1, file = "train_data.rds")
 
 ```
 
