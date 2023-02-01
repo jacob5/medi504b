@@ -248,7 +248,118 @@ plot(pROC::roc(train.data$pcos_y_n,
 
 ### Penalized logistic regression
 
+
+
+
 ### Modelling our data using Trees and Forests 
+
+Let's select only the predictor columns we decided we wanted to include earlier. 
+From logistic model 3, here is the list of covariates: 
+* pcos_y_n 
+* i_beta_hcg_m_iu_m_l
+* fsh_m_iu_m_l 
+* lh_m_iu_m_l 
+* tsh_m_iu_l
+* amh_ng_m_l 
+* weight_gain_y_n
+* hair_growth_y_n
+* skin_darkening_y_n 
+* hair_loss_y_n 
+* pimples_y_n
+
+```{r}
+train.data.covariates <- train.data %>%
+  select(
+    pcos_y_n,
+    i_beta_hcg_m_iu_m_l,
+    fsh_m_iu_m_l ,
+    lh_m_iu_m_l ,
+    tsh_m_iu_l ,
+    amh_ng_m_l ,
+    weight_gain_y_n ,
+    hair_growth_y_n,
+    skin_darkening_y_n,
+    hair_loss_y_n ,
+    pimples_y_n
+  ) %>% mutate(
+  amh_ng_m_l = as.numeric(amh_ng_m_l),
+  pcos_labelled = as.factor(ifelse(pcos_y_n==1, "yes", "no")))
+```
+
+
+Random Forest
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#Can also fit with caret
+set.seed(123)
+caret_rf <- train(
+  pcos_labelled ~ .,
+  data = select(train.data.covariates, -pcos_y_n),                         
+  method = "ranger",
+  metric = "ROC",
+  trControl = trainControl(method = "cv", number = 5, classProbs = TRUE, summaryFunction = twoClassSummary),
+  importance="impurity"
+)
+```
+
+RF Variable Importance 
+
+```{r}
+vip::vip(caret_rf)
+```
+
+# XGboost
+
+```{r}
+set.seed(123)
+xgb_grid_1  <-  expand.grid(
+                  nrounds = 50,
+                  eta = c(0.03),
+                  max_depth = 1,
+                  gamma = 0,
+                  colsample_bytree = 0.6,
+                  min_child_weight = 1,
+                  subsample = 0.5
+                )
+
+caret_xgb <- caret::train(pcos_y_n ~., data = select(train.data.covariates, -pcos_labelled),
+                         method = "xgbTree",
+                         metric = "ROC",
+                         tuneGrid=xgb_grid_1,
+                         trControl = trainControl(method = "cv", number = 5,
+                                                  classProbs = T, summaryFunction = twoClassSummary),
+                         preProcess = c("center","scale","pca"))
+caret_xgb
+```
+Comparison code for later 
+
+```{r}
+model_list <- list(Random_Forest = caret_rf, XGBoost = caret_xgb, Rpart_DT = caret_tree, Bagging = caret_bag)
+resamples <- resamples(model_list)
+
+#box plot
+bwplot(resamples, metric="ROC")
+```
+```{r}
+dotplot(resamples, metric="ROC")
+
+```
+```{r}
+# prediction on Test data set
+pred_rf <- predict(caret_rf, valid)
+
+# Confusion Matrix 
+cm_rf <- confusionMatrix(pred_rf, valid$diabetes, positive="pos")
+
+# Prediction Probabilities
+pred_prob_rf <- predict(caret_rf, valid, type="prob")
+
+# ROC value
+roc_rf <- pROC::roc(valid$diabetes, pred_prob_rf$pos)
+
+# Confusion Matrix for Random Forest Model
+cm_rf
+```
 
 ## Exploratory Data Analysis
 This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA. Please refer to bullet points, figure titles and figure captions for more details. 
