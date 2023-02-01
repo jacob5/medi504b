@@ -36,7 +36,13 @@ library(DataExplorer)
 ```
 
 ## Introduction and Background
+
+* Our overarching goal for this project is to produce a machine learning (ML) model which can accurately predict polycystic ovary syndrome (PCOS) status (presence or absence of disease). PCOS is an endocrine (hormonal) disorder that affects females of a reproductive age. 
+
 ```{r Introduction, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
+
+
+
 ```
 
 ## Objectives
@@ -56,7 +62,7 @@ Developing a model which uses physical and clinical predictors to diagnose PCOS 
 - Model 2 only includes physiological variables we think are of interest in PCOS, namely the hormone measurements (n=5 different types of hormones). 
 - Model 3 includes the n=5 the hormone measurement levels we in our dataset, and in addition, the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples.
 * Of our three logistic regression models, Model 3 had the lowest AIC score of 566.45. 
-
+* We can also use the likelihood ratio test to compare our models. 
 
 ```{r methods, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
@@ -247,6 +253,19 @@ plot(pROC::roc(train.data$pcos_y_n,
 ```
 
 ### Penalized logistic regression
+
+``` {penalized_regression echo=FALSE, fig.height=8, fig.width=4, message=FALSE, warning=FALSE}
+
+set.seed(504)
+ridge_caret<- train(train[,-8],train[,8], method = "glmnet",
+                trControl=cv,
+                tuneGrid = expand.grid(alpha = 0,
+                                       lambda = seq(0.001,0.1,by = 0.001)))
+ridge_caret$bestTune
+coef(ridge_caret$finalModel, ridge_caret$bestTune$lambda)
+plot(ridge_caret)
+
+```
 
 ### Modelling our data using Trees and Forests 
 
