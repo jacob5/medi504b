@@ -40,7 +40,7 @@ library(DataExplorer)
 ```
 
 ## Objectives
-Developing a model which uses physical and clinical predictors to diagnose PCOS. 
+Developing a model which uses physical and clinical predictors to diagnose PCOS status. 
 ```{r objectives, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 ```
 
@@ -50,10 +50,13 @@ Developing a model which uses physical and clinical predictors to diagnose PCOS.
 
 * To ensure reproducibility, throughout this project we always set the seed to "504" whenever set.seed() was used. 
 
+### Building logistic regression models 
 * We attempted to model our data with PCOS status as the outcome variable using three different logistic regression models:
 - Model 1 included all the features in our dataset
 - Model 2 only includes physiological variables we think are of interest in PCOS, namely the hormone measurements (n=5 different types of hormones). 
 - Model 3 includes the n=5 the hormone measurement levels we in our dataset, and in addition, the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples.
+
+###
 ```{r methods, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
 # loading data
@@ -158,7 +161,7 @@ summary(logistic_model3)
 
 ```
 
-### Model cross-validation 
+### Model cross-validation (using the caret package)
 * We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 ## cross-validation 
@@ -211,10 +214,8 @@ summary(
 
 ```
 
-### Building model
-
 ### Assessing model classification performance 
-
+* Assessing model performance using ROC curves 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 ## plotting ROC and AUC 
 
@@ -237,6 +238,9 @@ plot(pROC::roc(train.data$pcos_y_n,
 
 ```
 
+### Penalized logistic regression
+
+### Modelling our data using Trees and Forests 
 
 ## Exploratory Data Analysis
 This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA. Please refer to bullet points, figure titles and figure captions for more details. 
