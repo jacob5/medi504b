@@ -46,7 +46,7 @@ Developing a model which uses physical and clinical predictors to diagnose PCOS.
 
 ## Methods
 
-* Following our EDA, we start by splitting our datset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable)
+* Following our EDA, we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable)
 
 ### Splitting our dataset into training and validation datasets 
 ```{r methods, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
