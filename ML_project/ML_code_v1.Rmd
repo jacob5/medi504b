@@ -46,17 +46,18 @@ library(DataExplorer)
 ```
 
 ## Objectives
-Developing a model which uses physical and clinical predictors to diagnose PCOS status. 
+* Developing a model which uses physical and clinical predictors to diagnose PCOS status. 
+* Try different models, and validate and select the model which most accurately predicts PCOS status. 
 ```{r objectives, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 ```
 
 ## Methods
-### Splitting our dataset into training and validation datasets
+### 1.0 Splitting our dataset into training and validation datasets
 * Following our EDA (please refer to EDA section), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable)
 
 * To ensure reproducibility, throughout this project we always set the seed to "504" whenever set.seed() was used. 
 
-### Building logistic regression models 
+### 1.1 Building logistic regression models 
 * We attempted to model our data with PCOS status as the outcome variable using three different logistic regression models:
 - Model 1 included all the features in our dataset
 - Model 2 only includes physiological variables we think are of interest in PCOS, namely the hormone measurements (n=5 different types of hormones). 
@@ -171,7 +172,7 @@ summary(logistic_model3)
 
 ```
 
-### Model cross-validation (using the caret package)
+### 1.2 Model cross-validation (using the caret package)
 * We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -225,7 +226,7 @@ summary(
 
 ```
 
-### Assessing model classification performance 
+### 1.3 Assessing model classification performance 
 * Assessing model performance using ROC curves 
 
 
@@ -295,7 +296,7 @@ plot(ridge_caret)
 
 ```
 
-### Modelling our data using Trees and Forests 
+### 1.4 Modelling our data using Trees and Forests 
 
 Let's select only the predictor columns we decided we wanted to include earlier. 
 From logistic model 3, here is the list of covariates: 
