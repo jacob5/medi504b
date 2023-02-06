@@ -256,7 +256,7 @@ plot(pROC::roc(train.data$pcos_y_n,
 ### Penalized logistic regression
 
 
-``` {r penalized_regression echo=FALSE, fig.height=8, fig.width=4, message=FALSE, warning=FALSE}
+```{r eval=FALSE, include=FALSE}
 
 train.data.covariates.1 <- train.data %>%
   select(
@@ -277,15 +277,26 @@ train.data.covariates.1 <- train.data %>%
               "hair_growth_y_n",
               "skin_darkening_y_n",
               "hair_loss_y_n",
-              "pimples_y_n"),as.factor) %>% mutate(
-  amh_ng_m_l = as.numeric(amh_ng_m_l))
+              "pimples_y_n"),as.factor) %>%
+  mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric)
 
 glimpse(train.data.covariates.1)
 
 set.seed(504)
-ridge_caret<- train(train.data.covariates.1[,-1],train.data.covariates.1[,1], method = "glmnet",
-                trControl=cv,
-                tuneGrid = expand.grid(alpha = 0,
+y = train.data.covariates.1%>%
+  mutate(pcos_labelled=as.factor(ifelse(
+  pcos_y_n==1, "yes", "no")))%>%
+  select(pcos_labelled)
+x = train.data.covariates.1[,2:11]
+ridge_caret<- train(x, y, 
+                    method = "glmnet",
+                    na.action = na.pass,
+                    tuneGrid = expand.grid(alpha = 0,
                                        lambda = seq(0.001,0.1,by = 0.001)))
 
 ridge_caret$bestTune
@@ -332,16 +343,17 @@ train.data.covariates <- train.data %>%
 ```
 
 
-Random Forest
+Random Forest -- note that I've had to remove one missing ob from amh_ng_m_l for now. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Can also fit with caret
 set.seed(123)
 caret_rf <- train(
   pcos_labelled ~ .,
-  data = select(train.data.covariates, -pcos_y_n),                         
+  data = select(filter(train.data.covariates,!is.na(amh_ng_m_l)), -pcos_y_n),                    
   method = "ranger",
   metric = "ROC",
+  na.action = na.pass,
   trControl = trainControl(method = "cv", number = 5, classProbs = TRUE, summaryFunction = twoClassSummary),
   importance="impurity"
 )
@@ -367,29 +379,30 @@ xgb_grid_1  <-  expand.grid(
                   subsample = 0.5
                 )
 
-caret_xgb <- caret::train(pcos_y_n ~., data = select(train.data.covariates, -pcos_labelled),
+caret_xgb <- caret::train(pcos_labelled ~., data = select(train.data.covariates, -(pcos_y_n)),
                          method = "xgbTree",
                          metric = "ROC",
                          tuneGrid=xgb_grid_1,
-                         trControl = trainControl(method = "cv", number = 5,
-                                                  classProbs = T, summaryFunction = twoClassSummary),
-                         preProcess = c("center","scale","pca"))
+                         na.action = na.pass,
+                         trControl = trainControl(method = "cv", number = 5,classProbs = T, summaryFunction = twoClassSummary))
 caret_xgb
+
 ```
+
 Comparison code for later 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 model_list <- list(Random_Forest = caret_rf, XGBoost = caret_xgb, Rpart_DT = caret_tree, Bagging = caret_bag)
 resamples <- resamples(model_list)
 
 #box plot
 bwplot(resamples, metric="ROC")
 ```
-```{r}
+```{r eval=FALSE, include=FALSE}
 dotplot(resamples, metric="ROC")
 
 ```
-```{r}
+```{r eval=FALSE, include=FALSE}
 # prediction on Test data set
 pred_rf <- predict(caret_rf, valid)
 
@@ -532,7 +545,7 @@ plot_correlation(PCOS_data_without_infertility_formatted, title = "Bivariate ana
 * Another obvious correlation we observe is that between age (in years) and marriage (in years) 
 * 
 
-``````{r EDA4, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+```{r EDA4, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 # plotting bar plots for each categorical feature
 plot_bar(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "Barplots for the categorical variables in our dataset")
 
