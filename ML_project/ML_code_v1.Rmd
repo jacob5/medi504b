@@ -238,16 +238,6 @@ cv_of_data <- caret::trainControl(
   repeats = 3 # repeat 3 times
 )
 
-## RIDGE cross-validation 
-fit.cv.con_model1 <-train(pcos_y_n ~ ., trControl = cv_of_data,
-                           data = train.data, method = "glmnet",
-                           lambda= 0,
-                           tuneGrid = expand.grid(alpha = 0,  
-                                                  lambda = 0),
-                           verbose = FALSE)
-
-
-fit.cv.con_model1
 
 ```
 
@@ -280,6 +270,26 @@ plot(pROC::roc(train.data$pcos_y_n,
 
 ```{r eval=FALSE, include=FALSE}
 
+glimpse(train.data)
+
+summary(train.data)
+
+train.data.covariates.all <- train.data %>% 
+                                drop_na() %>%
+                                 mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
+
+glimpse(train.data.covariates.all)
+
+baselinevars_all <- names(dplyr::select(train.data.covariates.all, 
+                         !c(pcos_y_n)))
+baselinevars_all
+
+model_formula_all <- as.formula(paste("pcos_y_n~ ", 
+                               paste(baselinevars_all, 
+                                     collapse = "+")))
+
+model_formula_all
+
 train.data.covariates.1 <- train.data %>%
   select(
     pcos_y_n,
@@ -305,22 +315,70 @@ train.data.covariates.1 <- train.data %>%
     "fsh_m_iu_m_l" ,
     "lh_m_iu_m_l" ,
     "tsh_m_iu_l" ,
-    "amh_ng_m_l"), as.numeric)
+    "amh_ng_m_l"), as.numeric) %>%
+  drop_na()
 
-glimpse(train.data.covariates.1)
+train.data.1 <- train.data.covariates.1 %>%
+                  drop_na() %>%
+                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
 
+view(train.data.1)
+
+summary(train.data.1)
+
+baselinevars <- names(dplyr::select(train.data.1, 
+                         !c(pcos_y_n)))
+baselinevars
+
+model_formula_1 <- as.formula(paste("pcos_y_n~ ", 
+                               paste(baselinevars, 
+                                     collapse = "+")))
+
+model_formula_1
+
+## RIDGE cross-validation of our logistic regression models (with binary outcome)
 set.seed(504)
-cv_of_data <- caret::trainControl(
-  method = "repeatedcv", 
-  number = 5, #five fold cross validation 
-  repeats = 3 # repeat 3 times
-)
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
 
-## RIDGE cross-validation of our logistic regression models
+
+## model 1 with all variables
+fit.cv.bin.model.all <-train(model_formula_all, trControl = ctrl,
+                                 data = train.data.covariates.all, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model.all
+
+## model 2 with only hormone variables 
+fit.cv.bin.model2 <-train(pcos_y_n ~ ., trControl = ctrl,
+                                 data = train.data.1, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model2
+
+
+## model 3 with hormone variables and clinical symptoms 
+fit.cv.bin.model3 <-train(pcos_y_n ~ ., trControl = ctrl,
+                                 data = train.data.1, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model3
+## LASSO cross-validation of our logistic regression models
+
 fit.cv.con_model1 <-train(pcos_y_n ~ ., trControl = cv_of_data,
                            data = train.data, method = "glmnet",
                            lambda= 0,
-                           tuneGrid = expand.grid(alpha = 0,  
+                           tuneGrid = expand.grid(alpha = 1,  
                                                   lambda = 0),
                            verbose = FALSE)
 
@@ -329,7 +387,7 @@ fit.cv.con_model1
 
 fit.cv.con_model2 <-train(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l, trControl = cv_of_data, data = train.data, method = "glmnet",
                            lambda= 0,
-                           tuneGrid = expand.grid(alpha = 0,  
+                           tuneGrid = expand.grid(alpha = 1,  
                                                   lambda = 0),
                            verbose = FALSE)
 
@@ -339,15 +397,12 @@ fit.cv.con_model2
 fit.cv.con_model3 <- train(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
                               weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n, trControl = cv_of_data, data = train.data, method = "glmnet",
                            lambda= 0,
-                           tuneGrid = expand.grid(alpha = 0,  
+                           tuneGrid = expand.grid(alpha = 1,  
                                                   lambda = 0),
                            verbose = FALSE)
 
 
 fit.cv.con_model3
-
-## LASSO cross-validation of our logistic regression models
-
 
 ```
 
