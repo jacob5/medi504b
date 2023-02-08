@@ -275,8 +275,8 @@ glimpse(train.data)
 summary(train.data)
 
 train.data.covariates.all <- train.data %>% 
-                                drop_na() %>%
-                                 mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
+                                 mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No")) %>%
+                                 drop_na()
 
 glimpse(train.data.covariates.all)
 
@@ -290,13 +290,23 @@ model_formula_all <- as.formula(paste("pcos_y_n~ ",
 
 model_formula_all
 
+train.data.2 <- train.data.covariates.all %>%
+                  select(pcos_y_n,
+                         i_beta_hcg_m_iu_m_l,
+                         fsh_m_iu_m_l,
+                         lh_m_iu_m_l,
+                         tsh_m_iu_l ,
+                         amh_ng_m_l)
+
+glimpse(train.data.2)
+
 train.data.covariates.1 <- train.data %>%
   select(
     pcos_y_n,
     i_beta_hcg_m_iu_m_l,
-    fsh_m_iu_m_l ,
-    lh_m_iu_m_l ,
-    tsh_m_iu_l ,
+    fsh_m_iu_m_l,
+    lh_m_iu_m_l,
+    tsh_m_iu_l,
     amh_ng_m_l ,
     weight_gain_y_n ,
     hair_growth_y_n,
@@ -315,26 +325,31 @@ train.data.covariates.1 <- train.data %>%
     "fsh_m_iu_m_l" ,
     "lh_m_iu_m_l" ,
     "tsh_m_iu_l" ,
-    "amh_ng_m_l"), as.numeric) %>%
-  drop_na()
+    "amh_ng_m_l"), as.numeric) 
 
-train.data.1 <- train.data.covariates.1 %>%
+# train.data.2 <- train.data.covariates.1 %>%
+#                  drop_na() %>%
+#                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
+
+glimpse(train.data.2)
+
+train.data.3 <- train.data.covariates.1 %>%
                   drop_na() %>%
                   mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
 
-view(train.data.1)
+# view(train.data.1)
 
-summary(train.data.1)
+# summary(train.data.1)
 
-baselinevars <- names(dplyr::select(train.data.1, 
+baselinevars_3 <- names(dplyr::select(train.data.3, 
                          !c(pcos_y_n)))
-baselinevars
+baselinevars_3
 
-model_formula_1 <- as.formula(paste("pcos_y_n~ ", 
-                               paste(baselinevars, 
+model_formula_3 <- as.formula(paste("pcos_y_n~ ", 
+                               paste(baselinevars_3, 
                                      collapse = "+")))
 
-model_formula_1
+model_formula_3
 
 ## RIDGE cross-validation of our logistic regression models (with binary outcome)
 set.seed(504)
@@ -355,7 +370,7 @@ fit.cv.bin.model.all
 
 ## model 2 with only hormone variables 
 fit.cv.bin.model2 <-train(pcos_y_n ~ ., trControl = ctrl,
-                                 data = train.data.1, method = "glmnet",
+                                 data = train.data.2, method = "glmnet",
                                  lambda= 0,
                                  tuneGrid = expand.grid(alpha = 0,  
                                                         lambda = 0),
@@ -365,44 +380,54 @@ fit.cv.bin.model2
 
 
 ## model 3 with hormone variables and clinical symptoms 
-fit.cv.bin.model3 <-train(pcos_y_n ~ ., trControl = ctrl,
-                                 data = train.data.1, method = "glmnet",
+fit.cv.bin.model3 <-train(model_formula_3, trControl = ctrl,
+                                 data = train.data.3, method = "glmnet",
                                  lambda= 0,
                                  tuneGrid = expand.grid(alpha = 0,  
                                                         lambda = 0),
                                  verbose = FALSE,
                                  metric="ROC")
 fit.cv.bin.model3
+
+
 ## LASSO cross-validation of our logistic regression models
 
-fit.cv.con_model1 <-train(pcos_y_n ~ ., trControl = cv_of_data,
-                           data = train.data, method = "glmnet",
-                           lambda= 0,
-                           tuneGrid = expand.grid(alpha = 1,  
-                                                  lambda = 0),
-                           verbose = FALSE)
+set.seed(504)
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
 
 
-fit.cv.con_model1
+## model 1 with all variables
+fit.cv.bin.model.all.lasso <-train(model_formula_all, trControl = ctrl,
+                                 data = train.data.covariates.all, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model.all.lasso
 
-fit.cv.con_model2 <-train(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l, trControl = cv_of_data, data = train.data, method = "glmnet",
-                           lambda= 0,
-                           tuneGrid = expand.grid(alpha = 1,  
-                                                  lambda = 0),
-                           verbose = FALSE)
+## model 2 with only hormone variables 
+fit.cv.bin.model2.lasso <-train(pcos_y_n ~ ., trControl = ctrl,
+                                 data = train.data.2, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model2.lasso
 
 
-fit.cv.con_model2
-
-fit.cv.con_model3 <- train(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
-                              weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n, trControl = cv_of_data, data = train.data, method = "glmnet",
-                           lambda= 0,
-                           tuneGrid = expand.grid(alpha = 1,  
-                                                  lambda = 0),
-                           verbose = FALSE)
-
-
-fit.cv.con_model3
+## model 3 with hormone variables and clinical symptoms 
+fit.cv.bin.model3.lasso <-train(model_formula_3, trControl = ctrl,
+                                 data = train.data.3, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model3.lasso
 
 ```
 
