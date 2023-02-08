@@ -53,7 +53,8 @@ Our overarching goal for this project is to produce a machine learning (ML) mode
 
 ## 2. Objectives
 * Developing a model which uses physical and clinical predictors to diagnose PCOS status. 
-* Try different models, and validate and select the model which most accurately predicts PCOS status. 
+* Try different models, and validate and select the model which most accurately predicts PCOS status.
+Therefore our overarching research question is: what factor or factors predict PCOS status with the highest accuracy?
 ```{r objectives, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 ```
 
@@ -498,19 +499,6 @@ glimpse(PCOS_data_without_infertility_formatted)
 
 Next in our EDA we sought to identify missing values in our dataset. Here, we see a plot showing our variables and the percentage of missing rows per variable.
 
-```{r EDA1, echo=FALSE, fig.align = "center", fig.height=10, fig.width=10, message=FALSE, warning=FALSE, results="hide"}
-# checking for missing values in dataset 
-plot_missing(PCOS_data_without_infertility_formatted, title = "Plot showing missing values")
-
-# removing the missing values from the data
-
-PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_formatted %>%
-                                              drop_na()
-
-# view(PCOS_data_without_infertility_formatted)
-
-```
-
 The plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, we will simply ignore these missing values for our subsequent analyses. 
 
 
@@ -532,11 +520,6 @@ plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plo
 * The endometrium thickness data suggests there are two most most common thickness values (two clear peaks in the distribution). 
 
 ### Bivariate associations 
-
-```{r EDA3, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
-# performing a correlation analysis for continuous features 
-plot_correlation(PCOS_data_without_infertility_formatted, title = "Bivariate analysis to visualize our covariation between our continuous variables", theme_config = list("plot.title" = element_text(size = 24)), type = 'continuous')
-```
 
 * From this correlation plot, we find that several continuous variables do co-vary with one another.
 * Specifically, as we would expect, we find a positive correlation between the variables waist and hip (in inches) with weight. We find the same positive correlation for BMI. 
@@ -654,7 +637,6 @@ eda_compare_plot5
 
 * From the literature^2^, there is also evidence that miscarriages are associated with PCOS. Therefore, as part of our EDA, we sought to look at the relationship between PCOS status and number of abortions. 
 
-
 ## References 
 
 1. R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
@@ -662,7 +644,28 @@ eda_compare_plot5
 
 ## Appendix 
 
-* Appendix Plot 1 showing boxplots generated to investigate potential associations between continuous variables and PCOS status. 
+* Appendix Plot 1, as part of EDA, showing missing values in our dataset
+
+```{r EDA1, echo=FALSE, fig.align = "center", fig.height=10, fig.width=10, message=FALSE, warning=FALSE, results="hide"}
+# checking for missing values in dataset 
+plot_missing(PCOS_data_without_infertility_formatted, title = "Plot showing missing values")
+
+# removing the missing values from the data
+
+PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_formatted %>%
+                                              drop_na()
+
+# view(PCOS_data_without_infertility_formatted)
+
+```
+
+* Appendix plot 2, as part of EDA, examining correlations between continuous features 
+```{r EDA3, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+# performing a correlation analysis for continuous features 
+plot_correlation(PCOS_data_without_infertility_formatted, title = "Bivariate analysis to visualize our covariation between our continuous variables", theme_config = list("plot.title" = element_text(size = 24)), type = 'continuous')
+```
+
+* Appendix Plot 3 showing boxplots generated to investigate potential associations between continuous variables and PCOS status. 
 
 ```{r boxplots, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 
