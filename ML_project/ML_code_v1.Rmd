@@ -45,6 +45,9 @@ library(DataExplorer)
 ### 1.1 Introduction
 Our overarching goal for this project is to produce a machine learning (ML) model which can accurately predict polycystic ovary syndrome (PCOS) status (presence or absence of disease). PCOS is an endocrine (hormonal) disorder that affects females of a reproductive age. Given the widespread nature of this condition and the troubling symptoms which accompany it, including infertility, it would be helpful for physicians to be able to predict individuals more likely to experience PCOS thereby enabling them to therapeutically intervene and provide care and support in a timely manner. 
 
+### 1.2 Data
+The data was acquired from 10 different hospitals in Kerala, India. 
+
 ```{r Introduction, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
 
@@ -174,7 +177,7 @@ summary(logistic_model3)
 
 ```
 
-### 3.3 Model cross-validation (using the caret package)
+### 3.3 Model cross-validation (without RIDGE or LASSO) (using the caret package)
 * We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -226,12 +229,30 @@ summary(
   )
 )$statistics$Accuracy
 
+### Cross-validation RIDGE 
+
+set.seed(504)
+cv_of_data <- caret::trainControl(
+  method = "repeatedcv", 
+  number = 5, #five fold cross validation 
+  repeats = 3 # repeat 3 times
+)
+
+## RIDGE cross-validation 
+fit.cv.con_model1 <-train(pcos_y_n ~ ., trControl = cv_of_data,
+                           data = train.data, method = "glmnet",
+                           lambda= 0,
+                           tuneGrid = expand.grid(alpha = 0,  
+                                                  lambda = 0),
+                           verbose = FALSE)
+
+
+fit.cv.con_model1
+
 ```
 
 ### 3.4 Assessing model classification performance 
 * Assessing model performance using ROC curves 
-
-
 
 ```{r echo=FALSE, fig.height=8, fig.width=4, message=FALSE, warning=FALSE}
 ## plotting ROC and AUC 
@@ -255,8 +276,7 @@ plot(pROC::roc(train.data$pcos_y_n,
 
 ```
 
-### Penalized logistic regression
-
+### Penalized logistic regression with cross-validation (RIDGE and LASSO)
 
 ```{r eval=FALSE, include=FALSE}
 
@@ -290,22 +310,44 @@ train.data.covariates.1 <- train.data %>%
 glimpse(train.data.covariates.1)
 
 set.seed(504)
-y = train.data.covariates.1%>%
-  mutate(pcos_labelled=as.factor(ifelse(
-  pcos_y_n==1, "yes", "no")))%>%
-  select(pcos_labelled)
-x = train.data.covariates.1[,2:11]
-ridge_caret<- train(x, y, 
-                    method = "glmnet",
-                    na.action = na.pass,
-                    tuneGrid = expand.grid(alpha = 0,
-                                       lambda = seq(0.001,0.1,by = 0.001)))
+cv_of_data <- caret::trainControl(
+  method = "repeatedcv", 
+  number = 5, #five fold cross validation 
+  repeats = 3 # repeat 3 times
+)
 
-ridge_caret$bestTune
-coef(ridge_caret$finalModel, ridge_caret$bestTune$lambda)
-plot(ridge_caret)
+## RIDGE cross-validation of our logistic regression models
+fit.cv.con_model1 <-train(pcos_y_n ~ ., trControl = cv_of_data,
+                           data = train.data, method = "glmnet",
+                           lambda= 0,
+                           tuneGrid = expand.grid(alpha = 0,  
+                                                  lambda = 0),
+                           verbose = FALSE)
 
-# saveRDS(train.data.covariates.1, file = "train_data.rds")
+
+fit.cv.con_model1
+
+fit.cv.con_model2 <-train(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l, trControl = cv_of_data, data = train.data, method = "glmnet",
+                           lambda= 0,
+                           tuneGrid = expand.grid(alpha = 0,  
+                                                  lambda = 0),
+                           verbose = FALSE)
+
+
+fit.cv.con_model2
+
+fit.cv.con_model3 <- train(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
+                              weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n, trControl = cv_of_data, data = train.data, method = "glmnet",
+                           lambda= 0,
+                           tuneGrid = expand.grid(alpha = 0,  
+                                                  lambda = 0),
+                           verbose = FALSE)
+
+
+fit.cv.con_model3
+
+## LASSO cross-validation of our logistic regression models
+
 
 ```
 
