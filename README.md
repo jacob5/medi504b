@@ -15,7 +15,5 @@ Authored by: Jacob Hutton and Hanwei Sudderuddin
 1. Introduction and Background
 2. Objectives
 3. Methods
-4. Results
-4a. Exploratory data analysis
-5. Supplementary information
-5a. Data dictionary
+4. Results (4a. Exploratory data analysis)
+5. Supplementary information (5a. Data dictionary)
