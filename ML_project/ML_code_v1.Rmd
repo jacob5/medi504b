@@ -45,6 +45,15 @@ library(DataExplorer)
 ### 1.1 Introduction
 Our overarching goal for this project is to produce a machine learning (ML) model which can accurately predict polycystic ovary syndrome (PCOS) status (presence or absence of disease). PCOS is an endocrine (hormonal) disorder that affects females of a reproductive age. Given the widespread nature of this condition and the troubling symptoms which accompany it, including infertility, it would be helpful for physicians to be able to predict individuals more likely to experience PCOS thereby enabling them to therapeutically intervene and provide care and support in a timely manner. 
 
+** include something about the target population and who is at risk 
+** what to do if someone is pregnant --> follow up with study doctor*
+** what to do if you have a suspicion that the patient is at risk for a life threatening medical disorder? 
+** people taking hormone therapy
+** identification of patients given the data 
+
+Labels and predictors 
+
+
 ```{r Introduction, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
 
@@ -162,8 +171,17 @@ glimpse(PCOS_data_without_infertility_formatted_final)
 # 5 of the hormone measurement levels we possess
 # as well as the following physiological variables (as these are clinical symptoms associated with PCOS): 
 
-logistic_model3 <- glm(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
-                       weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n,
+logistic_model3 <- glm(pcos_y_n ~ 
+                         i_beta_hcg_m_iu_m_l +
+                         fsh_m_iu_m_l + 
+                         lh_m_iu_m_l + 
+                         tsh_m_iu_l +
+                         amh_ng_m_l +
+                         weight_gain_y_n +
+                         hair_growth_y_n +
+                         skin_darkening_y_n +
+                         hair_loss_y_n +
+                         pimples_y_n,
                        data = train.data,
                        family = binomial(link="logit"))
 
@@ -306,6 +324,24 @@ coef(ridge_caret$finalModel, ridge_caret$bestTune$lambda)
 plot(ridge_caret)
 
 # saveRDS(train.data.covariates.1, file = "train_data.rds")
+
+```
+
+## Exhaustive searches
+```{r}
+library(bestglm)
+x_tr <- train.data.covariates.1 
+# x_tr$pcos_labelled <- ifelse(x_tr$pcos_labelled=="yes",1,0)
+colnames(x_tr)[1] <- "y"
+res.bestglm <-bestglm::bestglm(Xy = x_tr,
+            family = binomial,
+            IC = "AIC",                 # Information criteria for
+            method = "exhaustive")
+
+## Show top 5 models
+res.bestglm$BestModels
+
+summary(res.bestglm$BestModel)
 
 ```
 
