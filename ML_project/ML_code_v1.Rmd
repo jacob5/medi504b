@@ -45,6 +45,7 @@ library(DataExplorer)
 ### 1.1 Introduction
 Our overarching goal for this project is to produce a machine learning (ML) model which can accurately predict polycystic ovary syndrome (PCOS) status (presence or absence of disease). PCOS is an endocrine (hormonal) disorder that affects females of a reproductive age. Given the widespread nature of this condition and the troubling symptoms which accompany it, including infertility, it would be helpful for physicians to be able to predict individuals more likely to experience PCOS thereby enabling them to therapeutically intervene and provide care and support in a timely manner. 
 
+<<<<<<< HEAD
 ** include something about the target population and who is at risk 
 ** what to do if someone is pregnant --> follow up with study doctor*
 ** what to do if you have a suspicion that the patient is at risk for a life threatening medical disorder? 
@@ -53,6 +54,10 @@ Our overarching goal for this project is to produce a machine learning (ML) mode
 
 Labels and predictors 
 
+=======
+### 1.2 Data
+The data was acquired from 10 different hospitals in Kerala, India. 
+>>>>>>> ed7e384c111d5b135fd0d1fbc2311aeb60111afb
 
 ```{r Introduction, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
@@ -192,7 +197,7 @@ summary(logistic_model3)
 
 ```
 
-### 3.3 Model cross-validation (using the caret package)
+### 3.3 Model cross-validation (without RIDGE or LASSO) (using the caret package)
 * We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -244,12 +249,20 @@ summary(
   )
 )$statistics$Accuracy
 
+### Cross-validation RIDGE 
+
+set.seed(504)
+cv_of_data <- caret::trainControl(
+  method = "repeatedcv", 
+  number = 5, #five fold cross validation 
+  repeats = 3 # repeat 3 times
+)
+
+
 ```
 
 ### 3.4 Assessing model classification performance 
 * Assessing model performance using ROC curves 
-
-
 
 ```{r echo=FALSE, fig.height=8, fig.width=4, message=FALSE, warning=FALSE}
 ## plotting ROC and AUC 
@@ -273,18 +286,47 @@ plot(pROC::roc(train.data$pcos_y_n,
 
 ```
 
-### Penalized logistic regression
-
+### Penalized logistic regression with cross-validation (RIDGE and LASSO)
 
 ```{r eval=FALSE, include=FALSE}
+
+glimpse(train.data)
+
+summary(train.data)
+
+train.data.covariates.all <- train.data %>% 
+                                 mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No")) %>%
+                                 drop_na()
+
+glimpse(train.data.covariates.all)
+
+baselinevars_all <- names(dplyr::select(train.data.covariates.all, 
+                         !c(pcos_y_n)))
+baselinevars_all
+
+model_formula_all <- as.formula(paste("pcos_y_n~ ", 
+                               paste(baselinevars_all, 
+                                     collapse = "+")))
+
+model_formula_all
+
+train.data.2 <- train.data.covariates.all %>%
+                  select(pcos_y_n,
+                         i_beta_hcg_m_iu_m_l,
+                         fsh_m_iu_m_l,
+                         lh_m_iu_m_l,
+                         tsh_m_iu_l ,
+                         amh_ng_m_l)
+
+glimpse(train.data.2)
 
 train.data.covariates.1 <- train.data %>%
   select(
     pcos_y_n,
     i_beta_hcg_m_iu_m_l,
-    fsh_m_iu_m_l ,
-    lh_m_iu_m_l ,
-    tsh_m_iu_l ,
+    fsh_m_iu_m_l,
+    lh_m_iu_m_l,
+    tsh_m_iu_l,
     amh_ng_m_l ,
     weight_gain_y_n ,
     hair_growth_y_n,
@@ -303,27 +345,109 @@ train.data.covariates.1 <- train.data %>%
     "fsh_m_iu_m_l" ,
     "lh_m_iu_m_l" ,
     "tsh_m_iu_l" ,
-    "amh_ng_m_l"), as.numeric)
+    "amh_ng_m_l"), as.numeric) 
 
-glimpse(train.data.covariates.1)
+# train.data.2 <- train.data.covariates.1 %>%
+#                  drop_na() %>%
+#                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
+
+glimpse(train.data.2)
+
+train.data.3 <- train.data.covariates.1 %>%
+                  drop_na() %>%
+                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
+
+# view(train.data.1)
+
+# summary(train.data.1)
+
+baselinevars_3 <- names(dplyr::select(train.data.3, 
+                         !c(pcos_y_n)))
+baselinevars_3
+
+model_formula_3 <- as.formula(paste("pcos_y_n~ ", 
+                               paste(baselinevars_3, 
+                                     collapse = "+")))
+
+model_formula_3
+
+## RIDGE cross-validation of our logistic regression models (with binary outcome)
+set.seed(504)
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
+
+
+## model 1 with all variables
+fit.cv.bin.model.all <-train(model_formula_all, trControl = ctrl,
+                                 data = train.data.covariates.all, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model.all
+
+## model 2 with only hormone variables 
+fit.cv.bin.model2 <-train(pcos_y_n ~ ., trControl = ctrl,
+                                 data = train.data.2, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model2
+
+
+## model 3 with hormone variables and clinical symptoms 
+fit.cv.bin.model3 <-train(model_formula_3, trControl = ctrl,
+                                 data = train.data.3, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model3
+
+
+## LASSO cross-validation of our logistic regression models
 
 set.seed(504)
-y = train.data.covariates.1%>%
-  mutate(pcos_labelled=as.factor(ifelse(
-  pcos_y_n==1, "yes", "no")))%>%
-  select(pcos_labelled)
-x = train.data.covariates.1[,2:11]
-ridge_caret<- train(x, y, 
-                    method = "glmnet",
-                    na.action = na.pass,
-                    tuneGrid = expand.grid(alpha = 0,
-                                       lambda = seq(0.001,0.1,by = 0.001)))
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
 
-ridge_caret$bestTune
-coef(ridge_caret$finalModel, ridge_caret$bestTune$lambda)
-plot(ridge_caret)
 
-# saveRDS(train.data.covariates.1, file = "train_data.rds")
+## model 1 with all variables
+fit.cv.bin.model.all.lasso <-train(model_formula_all, trControl = ctrl,
+                                 data = train.data.covariates.all, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model.all.lasso
+
+## model 2 with only hormone variables 
+fit.cv.bin.model2.lasso <-train(pcos_y_n ~ ., trControl = ctrl,
+                                 data = train.data.2, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model2.lasso
+
+
+## model 3 with hormone variables and clinical symptoms 
+fit.cv.bin.model3.lasso <-train(model_formula_3, trControl = ctrl,
+                                 data = train.data.3, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model3.lasso
 
 ```
 
