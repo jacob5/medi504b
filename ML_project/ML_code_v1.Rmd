@@ -797,6 +797,11 @@ eda_compare_plot5
 
 * From the literature^2^, there is also evidence that miscarriages are associated with PCOS. Therefore, as part of our EDA, we sought to look at the relationship between PCOS status and number of abortions. 
 
+## 5. Discussion and Conclusions
+### 5.1 Discussion
+
+* Ethics statement 
+
 ## References 
 
 1. R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
