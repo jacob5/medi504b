@@ -454,6 +454,34 @@ fit.cv.bin.model3.lasso
 ## Exhaustive searches
 ```{r}
 library(bestglm)
+
+train.data.covariates.1 <- train.data %>%
+  select(
+    pcos_y_n,
+    i_beta_hcg_m_iu_m_l,
+    fsh_m_iu_m_l,
+    lh_m_iu_m_l,
+    tsh_m_iu_l,
+    amh_ng_m_l ,
+    weight_gain_y_n ,
+    hair_growth_y_n,
+    skin_darkening_y_n,
+    hair_loss_y_n ,
+    pimples_y_n
+  ) %>%
+  mutate_at(c("pcos_y_n",
+              "weight_gain_y_n", 
+              "hair_growth_y_n",
+              "skin_darkening_y_n",
+              "hair_loss_y_n",
+              "pimples_y_n"),as.factor) %>%
+  mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric)
+
 x_tr <- train.data.covariates.1 
 # x_tr$pcos_labelled <- ifelse(x_tr$pcos_labelled=="yes",1,0)
 colnames(x_tr)[1] <- "y"
@@ -584,7 +612,8 @@ cm_rf
 ## 4. Results
 
 ## 4a. Exploratory Data Analysis
-This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA. Please refer to bullet points, figure titles and figure captions for more details. The first steps in our EDA involved getting a high-level overview of our dataset and determining the dimension of our data: n=541 rows and n=45 columns. 
+This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA. Please refer to bullet points, figure titles and figure captions for more details. The first steps in our EDA involved getting a high-level overview of our dataset and determining the dimension of our data: n=541 rows and n=45 columns. Further checking of the dataset reveals an additional column (column 45). This column does not contain any useful information and is not one of our 44 features, therefore the column was removed. We find that our dataset has the following variables: Sl. No, Patient File No., PCOS (Y/N), Age (yrs), Weight (Kg), Height(Cm), BMI, Blood Group, Pulse rate(bpm), RR(breaths/min), Hb(g/dl), Cycle(R/I), Cycle length(days), Marriage Status (Yrs), Pregnant(Y/N), No. of aborptions, I   beta-HCG(mIU/mL), II    beta-HCG(mIU/mL), FSH(mIU/mL), LH(mIU/mL), FSH/LH, Hip(inch), Waist(inch), Waist:Hip Ratio, TSH (mIU/L), AMH(ng/mL), PRL(ng/mL), Vit D3 (ng/mL), PRG(ng/mL), RBS(mg/dl), Weight gain(Y/N), hair growth(Y/N), Skin darkening (Y/N), Hair loss(Y/N), Pimples(Y/N), Fast food (Y/N), Reg.Exercise(Y/N), BP _Systolic (mmHg), BP _Diastolic (mmHg), Follicle No. (L), Follicle No. (R), Avg. F size (L) (mm), Avg. F size (R) (mm), Endometrium (mm).
+
 ``` {r loading, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 # loading data
 # setwd("/Users/hanweisudderuddin/Desktop/MSc Stuff/Classes/MEDI504B/Week1_lab_EDA")
@@ -604,10 +633,6 @@ summary(PCOS_data_without_infertility)
 
 ```
 
-* Further checking of the dataset reveals an addtional column (column 45)
-* This column does not contain any useful information and is not one of our 44 features, therefore the column was removed
-* We find that our dataset has the following variables:
-Sl. No, Patient File No., PCOS (Y/N), Age (yrs), Weight (Kg), Height(Cm), BMI, Blood Group, Pulse rate(bpm), RR(breaths/min), Hb(g/dl), Cycle(R/I), Cycle length(days), Marriage Status (Yrs), Pregnant(Y/N), No. of aborptions, I   beta-HCG(mIU/mL), II    beta-HCG(mIU/mL), FSH(mIU/mL), LH(mIU/mL), FSH/LH, Hip(inch), Waist(inch), Waist:Hip Ratio, TSH (mIU/L), AMH(ng/mL), PRL(ng/mL), Vit D3 (ng/mL), PRG(ng/mL), RBS(mg/dl), Weight gain(Y/N), hair growth(Y/N), Skin darkening (Y/N), Hair loss(Y/N), Pimples(Y/N), Fast food (Y/N), Reg.Exercise(Y/N), BP _Systolic (mmHg), BP _Diastolic (mmHg), Follicle No. (L), Follicle No. (R), Avg. F size (L) (mm), Avg. F size (R) (mm), Endometrium (mm)
 ```{r cleaning, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 ## checking and cleaning dataset 
 unique(PCOS_data_without_infertility$...45)
@@ -655,15 +680,11 @@ glimpse(PCOS_data_without_infertility_formatted)
 
 ```
 
-### Missing Values 
+### 4a.1 Missing Values 
 
-Next in our EDA we sought to identify missing values in our dataset. Here, we see a plot showing our variables and the percentage of missing rows per variable.
+Next in our EDA we sought to identify missing values in our dataset. Here, we see a plot showing our variables and the percentage of missing rows per variable. The plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, we will simply ignore these missing values for our subsequent analyses. 
 
-The plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, we will simply ignore these missing values for our subsequent analyses. 
-
-
-
-### Univariate distributions for continuous variables  
+### 4a.2 Univariate distributions for continuous variables  
 
 To get a sense of the variation in our dataset, we plotted histograms for each continuous variable using the plot_histogram() from the DataExplorer Package. 
 
@@ -673,11 +694,7 @@ plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plo
 
 ```
 
-* We see that the age distribution in our dataset reveals most individuals are in the range of 20 to 40 years. No individuals in the dataset are younger than 20 or older than 50. 
-* As we would expect, the BMI values follow an approximately normal distribution.
-* The most common blood type we observe is O+, which is consistent with the fact that O+ is the most frequent bloodtype globally. 
-* The most common cycle length is 5 days.
-* The endometrium thickness data suggests there are two most most common thickness values (two clear peaks in the distribution). 
+We see that the age distribution in our dataset reveals most individuals are in the range of 20 to 40 years. No individuals in the dataset are younger than 20 or older than 50. As we would expect, the BMI values follow an approximately normal distribution. The most common blood type we observe is O+, which is consistent with the fact that O+ is the most frequent bloodtype globally. The most common cycle length is 5 days. The endometrium thickness data suggests there are two most most common thickness values (two clear peaks in the distribution). 
 
 ### Bivariate associations 
 
