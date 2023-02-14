@@ -74,9 +74,7 @@ Therefore our overarching research question is: what factor or factors predict P
 
 ## 3. Methods
 ### 3.1 Splitting our dataset into training and validation datasets
-* Following our EDA (please refer to EDA section), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable)
-
-* To ensure reproducibility, throughout this project we always set the seed to "504" whenever set.seed() was used. 
+Following our EDA (please refer to EDA section), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). To ensure reproducibility, throughout this project we always set the seed to "504" whenever set.seed() was used. 
 
 ### 3.2 Building logistic regression models 
 We first attempted to model our data with PCOS status as the outcome variable using three different logistic regression models: (1) Model 1 included all the features in our dataset, (2) Model 2 only includes physiological variables we think are of interest in PCOS, namely the hormone measurements (n=5 different types of hormones), and finally (3) Model 3 includes the n=5 the hormone measurement levels we in our dataset, and in addition to these features, the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples. Of our three logistic regression models, Model 3 had the lowest AIC score of 566.45. We can also use the likelihood ratio test to compare our models. 
