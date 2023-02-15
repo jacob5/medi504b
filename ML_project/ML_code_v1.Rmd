@@ -706,49 +706,49 @@ elastic_model3 <- plot(fit.cv.bin.elastic.model_3)
 
 ```
 
-## Exhaustive searches
+## Exhaustive searches (may not include?)
 ```{r}
-library(bestglm)
+# library(bestglm)
 
-train.data.covariates.1 <- train.data %>%
-  select(
-    pcos_y_n,
-    i_beta_hcg_m_iu_m_l,
-    fsh_m_iu_m_l,
-    lh_m_iu_m_l,
-    tsh_m_iu_l,
-    amh_ng_m_l ,
-    weight_gain_y_n ,
-    hair_growth_y_n,
-    skin_darkening_y_n,
-    hair_loss_y_n ,
-    pimples_y_n
-  ) %>%
-  mutate_at(c("pcos_y_n",
-              "weight_gain_y_n", 
-              "hair_growth_y_n",
-              "skin_darkening_y_n",
-              "hair_loss_y_n",
-              "pimples_y_n"),as.factor) %>%
-  mutate_at(c(
-    "i_beta_hcg_m_iu_m_l",
-    "fsh_m_iu_m_l" ,
-    "lh_m_iu_m_l" ,
-    "tsh_m_iu_l" ,
-    "amh_ng_m_l"), as.numeric)
-
-x_tr <- train.data.covariates.1 
-# x_tr$pcos_labelled <- ifelse(x_tr$pcos_labelled=="yes",1,0)
-colnames(x_tr)[1] <- "y"
-res.bestglm <-bestglm::bestglm(Xy = x_tr,
-            family = binomial,
-            IC = "AIC",                 # Information criteria for
-            method = "exhaustive")
-
-## Show top 5 models
-res.bestglm$BestModels
-
-summary(res.bestglm$BestModel)
+#train.data.covariates.1 <- train.data %>%
+#  select(
+#     pcos_y_n,
+#     i_beta_hcg_m_iu_m_l,
+#     fsh_m_iu_m_l,
+#     lh_m_iu_m_l,
+#     tsh_m_iu_l,
+#     amh_ng_m_l ,
+#     weight_gain_y_n ,
+#     hair_growth_y_n,
+#     skin_darkening_y_n,
+#     hair_loss_y_n ,
+#     pimples_y_n
+#   ) %>%
+#   mutate_at(c("pcos_y_n",
+#               "weight_gain_y_n", 
+#               "hair_growth_y_n",
+#               "skin_darkening_y_n",
+#               "hair_loss_y_n",
+#               "pimples_y_n"),as.factor) %>%
+#   mutate_at(c(
+#     "i_beta_hcg_m_iu_m_l",
+#     "fsh_m_iu_m_l" ,
+#     "lh_m_iu_m_l" ,
+#     "tsh_m_iu_l" ,
+#     "amh_ng_m_l"), as.numeric)
+# 
+# x_tr <- train.data.covariates.1 
+# # x_tr$pcos_labelled <- ifelse(x_tr$pcos_labelled=="yes",1,0)
+# colnames(x_tr)[1] <- "y"
+# res.bestglm <-bestglm::bestglm(Xy = x_tr,
+#             family = binomial,
+#             IC = "AIC",                 # Information criteria for
+#             method = "exhaustive")
+# 
+# ## Show top 5 models
+# res.bestglm$BestModels
+# 
+# summary(res.bestglm$BestModel)
 
 ```
 
@@ -923,7 +923,7 @@ Next in our EDA we sought to identify missing values in our dataset. Here, we se
 
 To get a sense of the variation in our dataset, we plotted histograms for each continuous variable using the plot_histogram() from the DataExplorer Package. 
 
-```{r EDA2, eval=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, include=FALSE, results=}
+```{r EDA2, eval=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, include=FALSE}
 # plotting a histogram for each continuous feature 
 plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plot.title" = element_text(size = 24)), title = "Histograms for each continuous variable - to visualize distributions", )
 
