@@ -72,6 +72,14 @@ The dataset consists of physical and clinical parameters collected from 10 hospi
 
 ## 2. Objectives
 
+Our objectives were twofold: 
+
+1: Develop a simple model that can predict PCOS status using clinical and physiologic data that can be acquired using a routine blood test and assessment by a general practitioner clinician. 
+
+2: Optimize the model for specificity, thus minimizing the risk of a false positive in model predications. 
+
+The rationale for objective one was based on the motivation to provide a data-based method of diagnosis that is cheaper and less invasive than current methods. As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantaegous for reasons related to clinical care and resource utilization. This influenced our variable selection, as we did not consider the inclusion of predictors that can not be measured in the above stated context in model development. 
+
 Optimizing model specificity for the prediction of PCOS is important because PCOS is associated with several negative health outcomes, including infertility, insulin resistance, and metabolic disorders. Early diagnosis and treatment of PCOS can help prevent or manage these conditions, which can ultimately improve the overall health and quality of life of those affected. However, given that PCOS is not a life-threatening condition in and of itself, it is important to balance the trade-off between maximizing sensitivity and specificity in order to minimize the number of false positives and prevent unnecessary and potentially invasive follow-up testing. By optimizing model specificity, we can ensure that those who are diagnosed with PCOS are more likely to truly have the condition, while also reducing the risk of unnecessary medical interventions for those who do not have PCOS.
 
 ## 3. Methods
