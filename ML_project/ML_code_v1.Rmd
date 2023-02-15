@@ -77,7 +77,7 @@ Our objectives were twofold:
 
 1: Develop a simple model that can predict PCOS status using clinical and physiologic data that can be acquired using a routine blood test and assessment by a general practitioner clinician. 
 
-2: Optimize the model for specificity, thus minimizing the risk of a false positive in model predications. 
+2: Optimize the model for specificity, thus minimizing the risk of a false positive in model predictions. 
 
 The rationale for objective one was based on the motivation to provide a data-based method of diagnosis that is cheaper and less invasive than current methods. As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantaegous for reasons related to clinical care and resource utilization. This influenced our variable selection, as we did not consider the inclusion of predictors that can not be measured in the above stated context in model development. 
 
@@ -114,12 +114,13 @@ data_loc <- here::here()
 # reading in PCOS_data_without_infertility from excel file
 PCOS_data_without_infertility <-read_excel(paste0(data_loc, "/PCOS_data_without_infertility.xlsx"), sheet = "Full_new")
 # PCOS_infertility <- read_csv("PCOS_infertility.csv")
-# 
-# 
+
+
+
 # glimpse(PCOS_data_without_infertility)
-# 
+
 # view(PCOS_data_without_infertility)
-# 
+
 # summary(PCOS_data_without_infertility)
 
 ```
@@ -133,7 +134,7 @@ unique(PCOS_data_without_infertility$...45)
 PCOS_data_without_infertility <- PCOS_data_without_infertility %>%
                                     select(-...45)
 
-glimpse(PCOS_data_without_infertility)
+# glimpse(PCOS_data_without_infertility)
 
 # view(PCOS_data_without_infertility)
 
@@ -142,14 +143,13 @@ glimpse(PCOS_data_without_infertility)
 PCOS_data_without_infertility_cleaned <- PCOS_data_without_infertility %>%
                                           clean_names()
 
-glimpse(PCOS_data_without_infertility_cleaned)
+# glimpse(PCOS_data_without_infertility_cleaned)
 
 ```
 
-### Data Wrangling
+### 4a.1 Data Wrangling
 
-Next, we formatted the data to ensure the variables are the appropriate class type, this will enable us to perform our EDA.
-Specifically we converted binary variables (1 or 0) into the character class type.
+The data was formatted to ensure the variables are the appropriate class type, this will enable us to perform our EDA. Specifically we converted binary variables (1 or 0) into the character class type.Next in our EDA we sought to identify missing values in our dataset. Here, we see a plot showing our variables and the percentage of missing rows per variable. The plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, missing values were simply removed for our subsequent analyses. 
 
 ```{r formatting, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results="hide"}
 ## ensuring variables are in the correct format 
@@ -167,12 +167,12 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned
                                                           "fast_food_y_n",
                                                           "reg_exercise_y_n"), as.character)
 
-glimpse(PCOS_data_without_infertility_formatted)
+# glimpse(PCOS_data_without_infertility_formatted)
 
 ```
 
 
-### Bivariate associations 
+### 4a.2 Bivariate associations 
 
 We examined associations for categorical predictors and the outcome (PCOS) by constructing bivariate plots for the predictors stratified by PCOS status. 
 
@@ -185,12 +185,9 @@ plot_bar(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "Barp
 From the figure, we can see that the proportion of individuals with weight gain and a positive PCOS status is greater than the proportion of individuals with no weight gain and a positive PCOS status. We observe similar associations for hair growth and skin darkening. We also observe a similar but much weaker association for the categorical variables of hair loss and pimples. Interestingly, we observe the inverse trend for the categorical variable for fast food consumption. As these predictors appear to be visually associated with the outcome, as well as physiologically feasible to be associated with PCOS, they should be considered for inclusion in the predictive model. 
 
 The bar plots for regular exercise and pregnancy do not appear to show a signfiicant difference in proportion of positive PCOS cases, but we would need to perform a statistical analyses (such as an unpaired t-test) to know for sure. 
-
 To ascertain the relationship between PCOS status and continuous predictors, we also plotted boxplots to visualize any associations between PCOS status and a continuous variable. Please refer to the appendix for these boxplots.
 
-* For this section of the EDA, we looked more closely at the relationships between selected variables and our outcome variable of interest (for this project: yes or no for PCOS), based on how our boxplots looked initially (please refer to Appendix for all boxplots) and on some knowledge gained via our literature survey, we will highlight the relatiionship of select variables with our outcome variable (PCOS status). 
-
-* While the etiology for PCOS is not known, my literature survey suggests PCOS is associated with abnormal hormone levels. Thus, to look into this further as part of the EDA, we compared measurements of hormone levels and PCOS status to get a sense of the relationships between these variables.
+For this section of the EDA, we looked more closely at the relationships between selected variables and our outcome variable of interest (for this project: yes or no for PCOS), based on how our boxplots looked initially (please refer to Appendix for all boxplots) and on some knowledge gained via our literature survey, we will highlight the relatiionship of select variables with our outcome variable (PCOS status). While the etiology for PCOS is not known, our literature survey suggests PCOS is associated with abnormal hormone levels. Thus, to look into this further as part of the EDA, we compared measurements of hormone levels and PCOS status to get a sense of the relationships between these variables.
 
 ### Boxplots looking at relationship of hormones and PCOS status
 ```{r hormonevariables, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
@@ -199,7 +196,7 @@ To ascertain the relationship between PCOS status and continuous predictors, we 
 
 ## I   beta-HCG(mIU/mL) hormone 
 
-glimpse(PCOS_data_without_infertility_formatted)
+# glimpse(PCOS_data_without_infertility_formatted)
 
 eda_compare_plot1 <- PCOS_data_without_infertility_formatted %>%
                         ggplot(aes(pcos_y_n, i_beta_hcg_m_iu_m_l)) + 
@@ -301,7 +298,7 @@ unique(PCOS_data_without_infertility$...45)
 PCOS_data_without_infertility <- PCOS_data_without_infertility %>%
                                     select(-...45)
 
-glimpse(PCOS_data_without_infertility)
+# glimpse(PCOS_data_without_infertility)
 
 # view(PCOS_data_without_infertility)
 
@@ -336,7 +333,7 @@ unique(PCOS_data_without_infertility_formatted_final$pcos_y_n)
 PCOS_data_without_infertility_formatted_final$pcos_y_n <- as.factor(PCOS_data_without_infertility_formatted_final$pcos_y_n)
 ```
 
-```{r, data split}
+```{r, data split, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 #####
 ## setting the seed (enables randomization in a reproducible way)
 set.seed(504)
@@ -362,7 +359,7 @@ logistic_model1 <- glm(pcos_y_n ~
                        data = train.data,
                        family = binomial(link="logit")) 
 
-# summary(logistic_model1)
+
 # AIC = 758
 # removed this as not super informative for logistic models 
 # plot(logistic_model1)
@@ -380,7 +377,7 @@ logistic_model2 <-glm(pcos_y_n ~
                       data = train.data,
                       family = binomial(link="logit"))
 
-# summary(logistic_model2) 
+
 # AIC = 609.28
 
 # glimpse(PCOS_data_without_infertility_formatted_final)
@@ -403,7 +400,7 @@ logistic_model3 <- glm(pcos_y_n ~
                        data = train.data,
                        family = binomial(link="logit"))
 
-# summary(logistic_model3)
+
 # AIC = 566.45
 
 auc1 <- pROC::roc(train.data$pcos_y_n,
@@ -737,7 +734,6 @@ elastic_model3
 
 ```
 
-## Exhaustive searches (may not include?)
 ```{r}
 # library(bestglm)
 
@@ -945,10 +941,6 @@ plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "
 
 
 ```
-
-### 4a.1 Missing Values 
-
-Next in our EDA we sought to identify missing values in our dataset. Here, we see a plot showing our variables and the percentage of missing rows per variable. The plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, we will simply ignore these missing values for our subsequent analyses. 
 
 ### 4a.2 Univariable distributions for continuous variables  
 
