@@ -48,7 +48,7 @@ Our overarching goal for this project is to produce a machine learning (ML) mode
 
 ### 1.2 Background 
 
-Polycystic ovarian syndrome (PCOS) is a common endocrine disorder affecting approximately 10-15% of reproductive-age women worldwide (Teede, H., Misso, M., Tassone, E. C., Dewailly, D., Ng, E. H., Azziz, R., ... & Norman, R. J. (2018). Recommendations from the international evidence-based guideline for the assessment and management of polycystic ovary syndrome. Human Reproduction, 33(9), 1602-1618. https://doi.org/10.1093/humrep/dey256). The condition is characterized by a complex set of symptoms, including hyperandrogenism, menstrual irregularities, and polycystic ovaries (Bozdag et al., 2016). The diagnosis of PCOS is typically based on clinical and biochemical assessments, as well as ultrasound imaging of the ovaries (Teede et al., 2018). However, the diagnosis of PCOS can be challenging due to the heterogeneous presentation of symptoms and the lack of a single diagnostic criterion (Bozdag, G., Mumusoglu, S., Zengin, D., & Karabulut, E. (2016). The prevalence and phenotypic features of polycystic ovary syndrome: a systematic review and meta-analysis. Human Reproduction, 31(12), 2841–2855. https://doi.org/10.1093/humrep/dew218).
+Polycystic ovarian syndrome (PCOS) is a common endocrine disorder affecting approximately 10-15% of reproductive-age women worldwide^1^. The condition is characterized by a complex set of symptoms, including hyperandrogenism, menstrual irregularities, and polycystic ovaries (Bozdag et al., 2016). The diagnosis of PCOS is typically based on clinical and biochemical assessments, as well as ultrasound imaging of the ovaries (Teede et al., 2018). However, the diagnosis of PCOS can be challenging due to the heterogeneous presentation of symptoms and the lack of a single diagnostic criterion (Bozdag, G., Mumusoglu, S., Zengin, D., & Karabulut, E. (2016). The prevalence and phenotypic features of polycystic ovary syndrome: a systematic review and meta-analysis. Human Reproduction, 31(12), 2841–2855. https://doi.org/10.1093/humrep/dew218).
 
 Machine learning models have shown promise as a potential tool for the accurate prediction of PCOS. Compared to traditional diagnostic methods, machine learning models can utilize large amounts of data from various sources and provide more accurate predictions. This is particularly beneficial in the case of PCOS, as traditional diagnostic methods such as tissue biopsy can be expensive and invasive. Furthermore, machine learning models can assist clinicians in identifying patients who may benefit from early intervention, which can improve long-term health outcomes (Teede et al., 2018).
 
@@ -88,15 +88,15 @@ Optimizing model specificity for the prediction of PCOS is important because PCO
 ### 3.1 Splitting our dataset into training and testing datasets
 Following our EDA (please refer to EDA section), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). We chose to partition our data into only two sets based on the relatively small overall sample size of our data and small effective sample size of our data. Further, to help determine generalizability, we believe it would be ideal for our predictive model to be validated on an external dataset derived from a different population than our training and test data.  
 
-### 3.2 Building logistic regression models 
+### 3.2 Variable selection and building logistic regression models 
 
-We first attempted to model our data with PCOS status as the outcome variable using three different logistic regression models. At this stage of variable selection, we relied on the Akaike Information Criteria (AIC) to assess model fit. Of the tested logistic regression models, we prespecified that we would select the model with the lowest AIC. The three tested models utilized the following construction:
+We first attempted to model our data with PCOS status as the outcome variable using three different logistic regression models. At this stage of variable selection, we relied on the Akaike Information Criteria (AIC) to assess model fit. Of the tested logistic regression models, we pre-specified that we would select the model with the lowest AIC. The three tested models utilized the following construction:
 
-* (1) Model 1 included all the features in our dataset
-* (2) Model 2 only includes physiological variables we think are of interest in PCOS, namely the hormone measurements (n=5 different types of hormones)
-* (3) Model 3 includes the n=5 the hormone measurement levels we in our dataset, and in addition to these features, the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples. 
+* (1) Model 1 is the physiological model which includes five hormones of interest, namely hormone measurements of n=5 different types of hormones commonly included or easily measured as a part of a standard routine blood test.
+* (2) Model 2 is the clinical model, including as variables clinical symptoms associated with PCOS, and specifically clinical symptoms which may be easily determined as a part of a routine examination by a physician. THese are the variables included in the clinical model: weight gain, hair growth + skin darkening, hair loss and pimples.
+* (3) Model 3 includes both the physiological and clinical variables, that is the n=5 the hormone measurement levels we as well as the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples. 
 
-Of our three logistic regression models, Model 3 had the lowest AIC score of 566.45. We also assessed autocorrelation and collinearity among the variables in model three. *NEED TO ADD*
+Of our three logistic regression models, Model 2 had the lowest AIC score of 317, followed by Model 3 with an AIC score of 566. For further analyses, we will limit ourselves to the variables of Model 2 and Model 3, retaining Model 3 as we believe it is clinically relevant and meaningful to have both physiological and clinical variables in our predictive model. We also assessed autocorrelation and collinearity among the variables in model three. *NEED TO ADD*
 
 ## Results 
 
@@ -184,7 +184,7 @@ plot_bar(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "Barp
 
 From the figure, we can see that the proportion of individuals with weight gain and a positive PCOS status is greater than the proportion of individuals with no weight gain and a positive PCOS status. We observe similar associations for hair growth and skin darkening. We also observe a similar but much weaker association for the categorical variables of hair loss and pimples. Interestingly, we observe the inverse trend for the categorical variable for fast food consumption. As these predictors appear to be visually associated with the outcome, as well as physiologically feasible to be associated with PCOS, they should be considered for inclusion in the predictive model. 
 
-The bar plots for regular exercise and pregnancy do not appear to show a signfiicant difference in proportion of positive PCOS cases, but we would need to perform a statistical analyses (such as an unpaired t-test) to know for sure. 
+The bar plots for regular exercise and pregnancy do not appear to show a significant difference in proportion of positive PCOS cases, but we would need to perform a statistical analyses (such as an unpaired t-test) to know for sure. 
 To ascertain the relationship between PCOS status and continuous predictors, we also plotted boxplots to visualize any associations between PCOS status and a continuous variable. Please refer to the appendix for these boxplots.
 
 For this section of the EDA, we looked more closely at the relationships between selected variables and our outcome variable of interest (for this project: yes or no for PCOS), based on how our boxplots looked initially (please refer to Appendix for all boxplots) and on some knowledge gained via our literature survey, we will highlight the relatiionship of select variables with our outcome variable (PCOS status). While the etiology for PCOS is not known, our literature survey suggests PCOS is associated with abnormal hormone levels. Thus, to look into this further as part of the EDA, we compared measurements of hormone levels and PCOS status to get a sense of the relationships between these variables.
@@ -518,7 +518,7 @@ plot(pROC::roc(train.data$pcos_y_n,
 
 ### Penalized logistic regression with cross-validation (RIDGE and LASSO)
 
-```{r eval=FALSE, include=FALSE}
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
 glimpse(train.data)
 
@@ -728,7 +728,7 @@ fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
 
 fit.cv.bin.elastic.model_3
 
-elastic_model3 <- plot(fit.cv.bin.elastic.model_3)
+elastic_model3 <- plot(fit.cv.bin.elastic.model_3, title = "Cross Validation with ElasticNet for Model 3")
 
 elastic_model3
 
@@ -839,7 +839,7 @@ vip::vip(caret_rf)
 
 # XGboost
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 set.seed(123)
 xgb_grid_1  <-  expand.grid(
                   nrounds = 50,
@@ -899,8 +899,13 @@ cm_rf
 
 ## References 
 
-1. R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
-2. Ajmal N, Khan SZ, Shaikh R. Polycystic ovary syndrome (PCOS) and genetic predisposition: A review article. Eur J Obstet Gynecol Reprod Biol X. 2019 Jun 8;3:100060. doi: 10.1016/j.eurox.2019.100060. PMID: 31403134; PMCID: PMC6687436.
+1.Teede, H., Misso, M., Tassone, E. C., Dewailly, D., Ng, E. H., Azziz, R., ... & Norman, R. J. (2018). Recommendations from the international evidence-based guideline for the assessment and management of polycystic ovary syndrome. Human Reproduction, 33(9), 1602-1618. https://doi.org/10.1093/humrep/dey256
+2.R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
+3. Ajmal N, Khan SZ, Shaikh R. Polycystic ovary syndrome (PCOS) and genetic predisposition: A review article. Eur J Obstet Gynecol Reprod Biol X. 2019 Jun 8;3:100060. doi: 10.1016/j.eurox.2019.100060. PMID: 31403134; PMCID: PMC6687436.
+4.
+5.
+6.
+7.
 
 ## Appendix 
 
