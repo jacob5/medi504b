@@ -90,13 +90,15 @@ Following our EDA (please refer to EDA section), we start by splitting our datas
 
 ### 3.2 Variable selection and building logistic regression models 
 
-We first attempted to model our data with PCOS status as the outcome variable using three different logistic regression models. At this stage of variable selection, we relied on the Akaike Information Criteria (AIC) to assess model fit. Of the tested logistic regression models, we pre-specified that we would select the model with the lowest AIC. The three tested models utilized the following construction:
+We first attempted to model our data with PCOS status as the outcome variable using three different logistic regression models. At this stage of variable selection, we undertook a combined approach to informing variable selection. The Akaike Information Criteria (AIC) was used to assess model fit, the Area Under the Receiving Operator Characteristic (AUC) was used to assess model accuracy, and the model with the best balance between both of these parameters, as well as clinical utility was used. The three tested models utilized the following construction:
 
 * (1) Model 1 is the physiological model which includes five hormones of interest, namely hormone measurements of n=5 different types of hormones commonly included or easily measured as a part of a standard routine blood test.
 * (2) Model 2 is the clinical model, including as variables clinical symptoms associated with PCOS, and specifically clinical symptoms which may be easily determined as a part of a routine examination by a physician. THese are the variables included in the clinical model: weight gain, hair growth + skin darkening, hair loss and pimples.
 * (3) Model 3 includes both the physiological and clinical variables, that is the n=5 the hormone measurement levels we as well as the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples. 
 
-Of our three logistic regression models, Model 2 had the lowest AIC score of 317, followed by Model 3 with an AIC score of 566. For further analyses, we will limit ourselves to the variables of Model 2 and Model 3, retaining Model 3 as we believe it is clinically relevant and meaningful to have both physiological and clinical variables in our predictive model. We also assessed autocorrelation and collinearity among the variables in model three. *NEED TO ADD*
+Following this initial variable selection, we selected the two best performing models and applied various machine learning training methods to optimize model performance. We then selected the best performing model as the final model. 
+
+Of our three logistic regression models, Model 2 had the lowest AIC score of 317, followed by Model 3 with an AIC score of 566. However, the predictive performance as assesed by AUC was higher for model 3 (0.99) than model 2 (0.88). While model 3 was better performing, it also required more parameters for prediction that require blood testing. The rationale for testing both models with machine learning optimization was to assess if a simpler model with clinical parameters only could approximate the classification performance of a more complex model. 
 
 ## Results 
 
@@ -857,20 +859,22 @@ xgb_grid_1  <-  expand.grid(
                   subsample = 0.5
                 )
 
-caret_xgb <- caret::train(pcos_labelled ~., data = select(train.data.covariates, -(pcos_y_n)),
+caret_xgb <- caret::train(pcos_labelled ~., data = select(train.data.covariates.model3, -(pcos_y_n)),
                          method = "xgbTree",
                          metric = "ROC",
                          tuneGrid=xgb_grid_1,
                          na.action = na.pass,
                          trControl = trainControl(method = "cv", number = 5,classProbs = T, summaryFunction = twoClassSummary))
-caret_xgb
+
 
 ```
 
 Comparison code for later 
 
 ```{r eval=FALSE, include=FALSE}
-model_list <- list(Random_Forest = caret_rf, XGBoost = caret_xgb, Rpart_DT = caret_tree, Bagging = caret_bag)
+model_list <- list(Random_Forest = caret_rf, XGBoost = caret_xgb
+                   # , Rpart_DT = caret_tree, Bagging = caret_bag
+                   )
 resamples <- resamples(model_list)
 
 #box plot
