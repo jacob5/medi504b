@@ -114,13 +114,13 @@ data_loc <- here::here()
 # reading in PCOS_data_without_infertility from excel file
 PCOS_data_without_infertility <-read_excel(paste0(data_loc, "/PCOS_data_without_infertility.xlsx"), sheet = "Full_new")
 # PCOS_infertility <- read_csv("PCOS_infertility.csv")
-
-
-glimpse(PCOS_data_without_infertility)
-
-view(PCOS_data_without_infertility)
-
-summary(PCOS_data_without_infertility)
+# 
+# 
+# glimpse(PCOS_data_without_infertility)
+# 
+# view(PCOS_data_without_infertility)
+# 
+# summary(PCOS_data_without_infertility)
 
 ```
 
@@ -207,10 +207,9 @@ eda_compare_plot1 <- PCOS_data_without_infertility_formatted %>%
                         theme_bw() +
                         theme(title = element_text(size = 22),
                               plot.caption = element_text(hjust = 0, size = 20)) +
-                        labs(title = "Exploring relationship between beta-HCG and PCOS status",
-                             caption = "EDA exploring the associationg between beta-HCG hormone and our outocme variable PCOS status") + scale_y_log10() 
+                        labs(title = "Beta-HCG and PCOS status") + scale_y_log10() 
 
-eda_compare_plot1
+# eda_compare_plot1
 
 
 ## follicle stimulating hormone
@@ -221,11 +220,10 @@ eda_compare_plot2 <- PCOS_data_without_infertility_formatted %>%
                         theme_bw() +
                         theme(title = element_text(size = 22),
                               plot.caption = element_text(hjust = 0, size = 20)) +
-                        labs(title = "Exploring relationship between follicle stimulating hormone and PCOS status",
-                             caption = "EDA exploring the association between follicle stimulating hormone and our outcome variable PCOS status") +
+                        labs(title = "Follicle stimulating hormone and PCOS status") +
                         scale_y_log10()
 
-eda_compare_plot2
+# eda_compare_plot2
 
 
 ## luteinizing hormone
@@ -236,11 +234,10 @@ eda_compare_plot3 <- PCOS_data_without_infertility_formatted %>%
                         theme_bw() +
                         theme(title = element_text(size = 22),
                               plot.caption = element_text(hjust = 0, size = 20)) +
-                        labs(title = "Exploring relationship between luteinizing hormone and PCOS status",
-                             caption = "EDA exploring the association between Lutenizing hormone and PCOS status.") +
+                        labs(title = "Luteinizing hormone and PCOS status") +
                         scale_y_log10()
 
-eda_compare_plot3
+# eda_compare_plot4
 
 ## Thyroid Stimulating Hormone
 
@@ -250,36 +247,36 @@ eda_compare_plot4 <- PCOS_data_without_infertility_formatted %>%
                         theme_bw() +
                         theme(title = element_text(size = 22),
                               plot.caption = element_text(hjust = 0, size = 20)) +
-                        labs(title = "Exploring relationship between Thyroid Stimulating Hormone and PCOS status") +
+                        labs(title = "Thyroid Stimulating Hormone and PCOS status") +
                         scale_y_log10()
 
-eda_compare_plot4
+# eda_compare_plot4
 
 
-
+cowplot::plot_grid(eda_compare_plot1, eda_compare_plot2, eda_compare_plot3, eda_compare_plot4, ncol=2, nrow=2)
 ```
 
-* From the literature, we know that PCOS diagnosis often involves an ultrasound and endometrium thickness is measured as part of this process. Therefore, as part of our EDA, we also sought to look at the relationship between endometrium thickness and PCOS status. 
+<!-- * From the literature, we know that PCOS diagnosis often involves an ultrasound and endometrium thickness is measured as part of this process. Therefore, as part of our EDA, we also sought to look at the relationship between endometrium thickness and PCOS status.  -->
 
-```{r endothicknessvariable, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
-## thickness of endometrium and PCOS
-PCOS_data_without_infertility_formatted
+<!-- ```{r endothicknessvariable, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"} -->
+<!-- ## thickness of endometrium and PCOS -->
+<!-- PCOS_data_without_infertility_formatted -->
 
-eda_compare_plot5 <- PCOS_data_without_infertility_formatted %>%
-                        ggplot(aes(pcos_y_n,
-                                   endometrium_mm)) + 
-                        geom_boxplot() +
-                        theme_bw() +
-                        labs(title = "Exploring relationship between Endometrium thickness and PCOS status") +
-                        scale_y_log10()
+<!-- eda_compare_plot5 <- PCOS_data_without_infertility_formatted %>% -->
+<!--                         ggplot(aes(pcos_y_n, -->
+<!--                                    endometrium_mm)) +  -->
+<!--                         geom_boxplot() + -->
+<!--                         theme_bw() + -->
+<!--                         labs(title = "Exploring relationship between Endometrium thickness and PCOS status") + -->
+<!--                         scale_y_log10() -->
 
-eda_compare_plot5
+<!-- eda_compare_plot5 -->
 
-## 
+<!-- ##  -->
 
-```
+<!-- ``` -->
 
-* From this series of boxplots, we did not observe (visually) any significant difference in the association of PCOS status and hormone levels. However, given what we know about the association of PCOS and hormone imbalances from the literature, I think it would still be useful to include these variables when we build our model. 
+<!-- * From this series of boxplots, we did not observe (visually) any significant difference in the association of PCOS status and hormone levels. However, given what we know about the association of PCOS and hormone imbalances from the literature, I think it would still be useful to include these variables when we build our model.  -->
 
 * From the literature^2^, there is also evidence that miscarriages are associated with PCOS. Therefore, as part of our EDA, we sought to look at the relationship between PCOS status and number of abortions. 
 
@@ -347,37 +344,46 @@ set.seed(504)
 data_split <- caret::createDataPartition(PCOS_data_without_infertility_formatted_final$pcos_y_n, p=0.7, list= FALSE)
 
 train.data <- PCOS_data_without_infertility_formatted_final[data_split,]
-dim(train.data)
+# dim(train.data)
 test.data <- PCOS_data_without_infertility_formatted_final[-data_split,]
-dim(test.data)
+# dim(test.data)
 
-table(train.data$pcos_y_n)
+# table(train.data$pcos_y_n)
 
 # the first model we will build will include all the variables 
 #library(glmnet)
 
-logistic_model1 <- glm(pcos_y_n ~ .,
+logistic_model1 <- glm(pcos_y_n ~               
+                         i_beta_hcg_m_iu_m_l +
+                         fsh_m_iu_m_l + 
+                         lh_m_iu_m_l + 
+                         tsh_m_iu_l +
+                         amh_ng_m_l,
                        data = train.data,
                        family = binomial(link="logit")) 
 
-summary(logistic_model1)
+# summary(logistic_model1)
 # AIC = 758
 # removed this as not super informative for logistic models 
 # plot(logistic_model1)
 
 library(broom)
 
-# the second model we will build will only include the following variables: 
-# 5 of the hormone measurement levels we possess 
+# the second model uses clinical data only
 
-logistic_model2 <-glm(pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l,
+logistic_model2 <-glm(pcos_y_n ~ 
+                          weight_gain_y_n +
+                         hair_growth_y_n +
+                         skin_darkening_y_n +
+                         hair_loss_y_n +
+                         pimples_y_n,
                       data = train.data,
                       family = binomial(link="logit"))
 
-summary(logistic_model2) 
+# summary(logistic_model2) 
 # AIC = 609.28
 
-glimpse(PCOS_data_without_infertility_formatted_final)
+# glimpse(PCOS_data_without_infertility_formatted_final)
 
 # the third model we will build will include the following variables:
 # 5 of the hormone measurement levels we possess
@@ -397,12 +403,32 @@ logistic_model3 <- glm(pcos_y_n ~
                        data = train.data,
                        family = binomial(link="logit"))
 
-summary(logistic_model3)
+# summary(logistic_model3)
 # AIC = 566.45
 
+auc1 <- pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model1))
+tidyr::extract_numeric(auc1$auc)
+auc2 <- pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model2))
+tidyr::extract_numeric(auc2$auc)
+auc3 <- pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model3))
+tidyr::extract_numeric(auc3$auc)
+
+knitr::kable(data.frame("Model"=c("Physiologic Model", "Clinical Model", "Physiologic and Clinical Model"),
+           "AIC"=c(logistic_model1$aic, logistic_model2$aic, logistic_model3$aic), 
+           "ROC"=c(tidyr::extract_numeric(auc1$auc), tidyr::extract_numeric(auc2$auc), tidyr::extract_numeric(auc3$auc)
+)))
+# 
+# BIC(logistic_model1)
+# BIC(logistic_model2)
+# BIC(logistic_model3)
 
 
 ```
+
+Based on these results, we will compare the clinical model to the full clinical and physiological model. While the model including clinical predictors only is more simple both technically (as evidenced by the AIC) and practically (less inputs and no blood testing required), there is an approximately 10% drop in accuracy when excluding the phsyiologic data. We will select these two models and compare performance in applying various machine learning methods below. 
 
 ### 3.3 Model cross-validation (without RIDGE or LASSO) (using the caret package)
 * We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
