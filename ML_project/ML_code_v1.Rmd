@@ -76,8 +76,8 @@ Optimizing model specificity for the prediction of PCOS is important because PCO
 
 ## 3. Methods
 
-### 3.1 Splitting our dataset into training and validation datasets
-Following our EDA (please refer to EDA section), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). 
+### 3.1 Splitting our dataset into training and testing datasets
+Following our EDA (please refer to EDA section), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). We chose to partition our data into only two sets based on the relatively small overall sample size of our data and small effective sample size of our data. Further, to help determine generalizability, we believe it would be ideal for our predictive model to be validated on an external dataset derived from a different population than our training and test data.  
 
 ### 3.2 Building logistic regression models 
 
@@ -862,7 +862,7 @@ plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "
 
 Next in our EDA we sought to identify missing values in our dataset. Here, we see a plot showing our variables and the percentage of missing rows per variable. The plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, we will simply ignore these missing values for our subsequent analyses. 
 
-### 4a.2 Univariate distributions for continuous variables  
+### 4a.2 Univariable distributions for continuous variables  
 
 To get a sense of the variation in our dataset, we plotted histograms for each continuous variable using the plot_histogram() from the DataExplorer Package. 
 
