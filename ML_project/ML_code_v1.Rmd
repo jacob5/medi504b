@@ -837,15 +837,13 @@ caret_rf_model3 <- train(
   importance="impurity"
 )
 
-caret_rf_model2
-
 
 ```
 
 RF Variable Importance 
 
 ```{r}
-vip::vip(caret_rf)
+vip::vip(caret_rf_model3)
 ```
 
 # XGboost
