@@ -28,6 +28,7 @@ library(janitor)
 library(ranger)
 library(xgboost)
 library(DataExplorer)
+library(caret)
 
 # install.packages("DataExplorer")
 
@@ -586,6 +587,8 @@ fit.cv.bin.model.all <-train(model_formula_all, trControl = ctrl,
                                  metric="ROC")
 fit.cv.bin.model.all
 
+# model 1 ROC output (RIDGE): 0.5662222
+
 ## model 2 with only hormone variables 
 fit.cv.bin.model2 <-train(pcos_y_n ~ ., trControl = ctrl,
                                  data = train.data.2, method = "glmnet",
@@ -596,6 +599,7 @@ fit.cv.bin.model2 <-train(pcos_y_n ~ ., trControl = ctrl,
                                  metric="ROC")
 fit.cv.bin.model2
 
+# model 2 ROC output (RIDGE): 0.6045425
 
 ## model 3 with hormone variables and clinical symptoms 
 fit.cv.bin.model3 <-train(model_formula_3, trControl = ctrl,
@@ -606,7 +610,7 @@ fit.cv.bin.model3 <-train(model_formula_3, trControl = ctrl,
                                  verbose = FALSE,
                                  metric="ROC")
 fit.cv.bin.model3
-
+# model 3 ROC output (RIDGE): 0.8737665
 
 ## LASSO cross-validation of our logistic regression models
 
@@ -626,6 +630,8 @@ fit.cv.bin.model.all.lasso <-train(model_formula_all, trControl = ctrl,
                                  metric="ROC")
 fit.cv.bin.model.all.lasso
 
+# model 1 output (LASSO): 0.6005752
+
 ## model 2 with only hormone variables 
 fit.cv.bin.model2.lasso <-train(pcos_y_n ~ ., trControl = ctrl,
                                  data = train.data.2, method = "glmnet",
@@ -636,6 +642,7 @@ fit.cv.bin.model2.lasso <-train(pcos_y_n ~ ., trControl = ctrl,
                                  metric="ROC")
 fit.cv.bin.model2.lasso
 
+# model 2 output (LASSO): 0.6286078
 
 ## model 3 with hormone variables and clinical symptoms 
 fit.cv.bin.model3.lasso <-train(model_formula_3, trControl = ctrl,
@@ -646,6 +653,47 @@ fit.cv.bin.model3.lasso <-train(model_formula_3, trControl = ctrl,
                                  verbose = FALSE,
                                  metric="ROC")
 fit.cv.bin.model3.lasso
+
+# model 3 output (LASSO): 0.8756765
+
+## Cross-validation using ElasticNet
+
+# CV using ElasticNet (for model 1)
+set.seed(504)
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
+
+fit.cv.bin.elastic.model_1 <-train(model_formula_all, trControl = ctrl,
+                                   data = train.data.covariates.all, method = "glmnet",
+                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
+                                                          lambda = seq(0.05,0.3,by = 0.05)),
+                                   verbose = FALSE,
+                                   metric="ROC")
+
+fit.cv.bin.elastic.model_1
+
+# CV using ElasticNet (for model 2) 
+
+fit.cv.bin.elastic.model_2 <-train(pcos_y_n ~ ., trControl = ctrl,
+                                   data = train.data.2, method = "glmnet",
+                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
+                                                          lambda = seq(0.05,0.3,by = 0.05)),
+                                   verbose = FALSE,
+                                   metric="ROC")
+
+fit.cv.bin.elastic.model_2
+
+# CV using ElasticNet (for model 3) 
+fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
+                                   data = train.data.3, method = "glmnet",
+                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
+                                                          lambda = seq(0.05,0.3,by = 0.05)),
+                                   verbose = FALSE,
+                                   metric="ROC")
+
+fit.cv.bin.elastic.model_3
+
 
 ```
 
