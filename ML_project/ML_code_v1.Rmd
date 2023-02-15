@@ -350,12 +350,15 @@ test.data <- PCOS_data_without_infertility_formatted_final[-data_split,]
 # the first model we will build will include all the variables 
 #library(glmnet)
 
-logistic_model1 <- glm(pcos_y_n ~               
-                         i_beta_hcg_m_iu_m_l +
+logistic_model1 <- glm(pcos_y_n ~amh_ng_m_l+
+                                                
+                                                                           i_beta_hcg_m_iu_m_l +
+ lh_m_iu_m_l + 
+
                          fsh_m_iu_m_l + 
-                         lh_m_iu_m_l + 
-                         tsh_m_iu_l +
-                         amh_ng_m_l,
+                          tsh_m_iu_l
+
+                                           ,
                        data = train.data,
                        family = binomial(link="logit")) 
 
@@ -440,26 +443,29 @@ cv_of_data <- caret::trainControl(
 )
 
 set.seed(504)
-cv_of_model1 <- caret::train(
-                              pcos_y_n ~ ., 
+# cv_of_model1 <- caret::train(
+#                               pcos_y_n ~ 
+#                        , 
+#                               data = train.data, 
+#                               method = "glm",
+#                               family = "binomial",
+#                               trControl = cv_of_data
+#                             )
+
+
+
+cv_of_model2 <- caret::train( pcos_y_n ~ 
+                               weight_gain_y_n +
+                              hair_growth_y_n +
+                              skin_darkening_y_n +
+                         hair_loss_y_n +
+                         pimples_y_n, 
                               data = train.data, 
                               method = "glm",
                               family = "binomial",
                               trControl = cv_of_data
                             )
 
-
-
-set.seed(504)
-cv_of_model2 <- caret::train(
-                              pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l, 
-                              data = train.data, 
-                              method = "glm",
-                              family = "binomial",
-                              trControl = cv_of_data
-                            )
-
-set.seed(504)
 cv_of_model3 <- caret::train(
                               pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
                               weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n, 
@@ -472,7 +478,7 @@ cv_of_model3 <- caret::train(
 summary(
   resamples(
     list(
-      model1 = cv_of_model1, 
+      # model1 = cv_of_model1, 
       model2 = cv_of_model2, 
       model3 = cv_of_model3
     )
@@ -497,15 +503,15 @@ cv_of_data <- caret::trainControl(
 ```{r echo=FALSE, fig.height=8, fig.width=4, message=FALSE, warning=FALSE}
 ## plotting ROC and AUC 
 
-plot(pROC::roc(train.data$pcos_y_n,
-                   fitted(logistic_model1)),
-               col = "red", 
-               main = "ROC curves: model 1 (red) vs. model 2 (blue) \n vs. model 3 (green)")
+# plot(pROC::roc(train.data$pcos_y_n,
+#                    fitted(logistic_model1)),
+#                col = "red", 
+#                main = "ROC curves: model 1 (red) vs. model 2 (blue) \n vs. model 3 (green)")
 plot(pROC::roc(train.data$pcos_y_n,
                    fitted(logistic_model2)),
                print.auc = T, 
-               col = "blue", 
-               add = T, 
+               col = "blue",
+                main = "ROC curves: clinical model (blue) \n vs. clinical and physiologic model (green)",
                 print.auc.y = .6)
 plot(pROC::roc(train.data$pcos_y_n,
                    fitted(logistic_model3)),
@@ -796,7 +802,7 @@ From logistic model 3, here is the list of covariates:
 * pimples_y_n
 
 ```{r}
-train.data.covariates <- train.data %>%
+train.data.covariates.model3 <- train.data %>%
   select(
     pcos_y_n,
     i_beta_hcg_m_iu_m_l,
@@ -818,7 +824,7 @@ train.data.covariates <- train.data %>%
 Random Forest -- note that I've had to remove one missing ob from amh_ng_m_l for now. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-#Can also fit with caret
+library(tidyverse)#Can also fit with caret
 set.seed(123)
 caret_rf <- train(
   pcos_labelled ~ .,
