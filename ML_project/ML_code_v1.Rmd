@@ -680,6 +680,8 @@ fit.cv.bin.elastic.model_1 <-train(model_formula_all, trControl = ctrl,
                                    verbose = FALSE,
                                    metric="ROC")
 
+fit.cv.bin.elastic.model_1
+
 elastic_model1 <- plot(fit.cv.bin.elastic.model_1)
 
 # CV using ElasticNet (for model 2) 
@@ -701,8 +703,11 @@ fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
                                    verbose = FALSE,
                                    metric="ROC")
 
+fit.cv.bin.elastic.model_3
+
 elastic_model3 <- plot(fit.cv.bin.elastic.model_3)
 
+elastic_model3
 
 ```
 
