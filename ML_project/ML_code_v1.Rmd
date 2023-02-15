@@ -660,6 +660,7 @@ fit.cv.bin.model3.lasso <-train(model_formula_3, trControl = ctrl,
                                                         lambda = 0),
                                  verbose = FALSE,
                                  metric="ROC")
+
 fit.cv.bin.model3.lasso
 
 # model 3 output (LASSO): 0.8756765
@@ -679,7 +680,7 @@ fit.cv.bin.elastic.model_1 <-train(model_formula_all, trControl = ctrl,
                                    verbose = FALSE,
                                    metric="ROC")
 
-fit.cv.bin.elastic.model_1
+elastic_model1 <- plot(fit.cv.bin.elastic.model_1)
 
 # CV using ElasticNet (for model 2) 
 
@@ -690,7 +691,7 @@ fit.cv.bin.elastic.model_2 <-train(pcos_y_n ~ ., trControl = ctrl,
                                    verbose = FALSE,
                                    metric="ROC")
 
-fit.cv.bin.elastic.model_2
+elastic_model2 <- plot(fit.cv.bin.elastic.model_2)
 
 # CV using ElasticNet (for model 3) 
 fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
@@ -700,7 +701,7 @@ fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
                                    verbose = FALSE,
                                    metric="ROC")
 
-fit.cv.bin.elastic.model_3
+elastic_model3 <- plot(fit.cv.bin.elastic.model_3)
 
 
 ```
