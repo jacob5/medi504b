@@ -48,7 +48,7 @@ Our overarching goal for this project is to produce a machine learning (ML) mode
 
 ### 1.2 Background 
 
-Polycystic ovarian syndrome (PCOS) is a common endocrine disorder affecting approximately 10-15% of reproductive-age women worldwide^1^. The condition is characterized by a complex set of symptoms, including hyperandrogenism, menstrual irregularities, and polycystic ovaries (Bozdag et al., 2016). The diagnosis of PCOS is typically based on clinical and biochemical assessments, as well as ultrasound imaging of the ovaries (Teede et al., 2018). However, the diagnosis of PCOS can be challenging due to the heterogeneous presentation of symptoms and the lack of a single diagnostic criterion (Bozdag, G., Mumusoglu, S., Zengin, D., & Karabulut, E. (2016). The prevalence and phenotypic features of polycystic ovary syndrome: a systematic review and meta-analysis. Human Reproduction, 31(12), 2841–2855. https://doi.org/10.1093/humrep/dew218).
+Polycystic ovarian syndrome (PCOS) is a common endocrine disorder affecting approximately 10-15% of reproductive-age women worldwide^1^. The condition is characterized by a complex set of symptoms, including hyperandrogenism, menstrual irregularities, and polycystic ovaries^2^. The diagnosis of PCOS is typically based on clinical and biochemical assessments, as well as ultrasound imaging of the ovaries^1^. However, the diagnosis of PCOS can be challenging due to the heterogeneous presentation of symptoms and the lack of a single diagnostic criterion.
 
 Machine learning models have shown promise as a potential tool for the accurate prediction of PCOS. Compared to traditional diagnostic methods, machine learning models can utilize large amounts of data from various sources and provide more accurate predictions. This is particularly beneficial in the case of PCOS, as traditional diagnostic methods such as tissue biopsy can be expensive and invasive. Furthermore, machine learning models can assist clinicians in identifying patients who may benefit from early intervention, which can improve long-term health outcomes (Teede et al., 2018).
 
@@ -174,7 +174,7 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned
 
 ### 4a.2 Bivariate associations 
 
-We examined associations for categorical predictors and the outcome (PCOS) by constructing bivariate plots for the predictors stratified by PCOS status. 
+We examined associations for categorical predictors and the outcome (PCOS) by constructing bivariate plots for the predictors stratified by PCOS status^4^. 
 
 ```{r EDA4, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 # plotting bar plots for each categorical feature
@@ -252,31 +252,6 @@ eda_compare_plot4 <- PCOS_data_without_infertility_formatted %>%
 
 cowplot::plot_grid(eda_compare_plot1, eda_compare_plot2, eda_compare_plot3, eda_compare_plot4, ncol=2, nrow=2)
 ```
-
-<!-- * From the literature, we know that PCOS diagnosis often involves an ultrasound and endometrium thickness is measured as part of this process. Therefore, as part of our EDA, we also sought to look at the relationship between endometrium thickness and PCOS status.  -->
-
-<!-- ```{r endothicknessvariable, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"} -->
-<!-- ## thickness of endometrium and PCOS -->
-<!-- PCOS_data_without_infertility_formatted -->
-
-<!-- eda_compare_plot5 <- PCOS_data_without_infertility_formatted %>% -->
-<!--                         ggplot(aes(pcos_y_n, -->
-<!--                                    endometrium_mm)) +  -->
-<!--                         geom_boxplot() + -->
-<!--                         theme_bw() + -->
-<!--                         labs(title = "Exploring relationship between Endometrium thickness and PCOS status") + -->
-<!--                         scale_y_log10() -->
-
-<!-- eda_compare_plot5 -->
-
-<!-- ##  -->
-
-<!-- ``` -->
-
-<!-- * From this series of boxplots, we did not observe (visually) any significant difference in the association of PCOS status and hormone levels. However, given what we know about the association of PCOS and hormone imbalances from the literature, I think it would still be useful to include these variables when we build our model.  -->
-
-* From the literature^2^, there is also evidence that miscarriages are associated with PCOS. Therefore, as part of our EDA, we sought to look at the relationship between PCOS status and number of abortions. 
-
 
 ### Modelling
 
@@ -433,7 +408,7 @@ Based on these results, we will compare the clinical model to the full clinical 
 ### 3.3 Model cross-validation (without RIDGE or LASSO) (using the caret package)
 * We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, results = "hide"}
 ## cross-validation 
 
 cv_of_data <- caret::trainControl(
@@ -905,8 +880,9 @@ cm_rf
 
 ## References 
 
-1.Teede, H., Misso, M., Tassone, E. C., Dewailly, D., Ng, E. H., Azziz, R., ... & Norman, R. J. (2018). Recommendations from the international evidence-based guideline for the assessment and management of polycystic ovary syndrome. Human Reproduction, 33(9), 1602-1618. https://doi.org/10.1093/humrep/dey256
-2.R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
+1. Teede, H., Misso, M., Tassone, E. C., Dewailly, D., Ng, E. H., Azziz, R., ... & Norman, R. J. (2018). Recommendations from the international evidence-based guideline for the assessment and management of polycystic ovary syndrome. Human Reproduction, 33(9), 1602-1618. https://doi.org/10.1093/humrep/dey256
+2. Bozdag, G., Mumusoglu, S., Zengin, D., & Karabulut, E. (2016). The prevalence and phenotypic features of polycystic ovary syndrome: a systematic review and meta-analysis. Human Reproduction, 31(12), 2841–2855. https://doi.org/10.1093/humrep/dew218
+3. R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
 3. Ajmal N, Khan SZ, Shaikh R. Polycystic ovary syndrome (PCOS) and genetic predisposition: A review article. Eur J Obstet Gynecol Reprod Biol X. 2019 Jun 8;3:100060. doi: 10.1016/j.eurox.2019.100060. PMID: 31403134; PMCID: PMC6687436.
 4.
 5.
