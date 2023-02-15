@@ -777,6 +777,20 @@ From logistic model 3, here is the list of covariates:
 * pimples_y_n
 
 ```{r}
+
+train.data.covariates.model2 <- train.data %>%
+  select(
+    pcos_y_n,
+    weight_gain_y_n ,
+    hair_growth_y_n,
+    skin_darkening_y_n,
+    hair_loss_y_n ,
+    pimples_y_n
+  ) %>% mutate(
+  pcos_labelled = as.factor(ifelse(pcos_y_n==1, "yes", "no")))
+
+train.data.covariates.model2
+
 train.data.covariates.model3 <- train.data %>%
   select(
     pcos_y_n,
@@ -800,16 +814,30 @@ Random Forest -- note that I've had to remove one missing ob from amh_ng_m_l for
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)#Can also fit with caret
-set.seed(123)
-caret_rf <- train(
+set.seed(504)
+
+caret_rf_model2 <- train(
   pcos_labelled ~ .,
-  data = select(filter(train.data.covariates,!is.na(amh_ng_m_l)), -pcos_y_n),                    
+  data = select(train.data.covariates.model2, -pcos_y_n),                    
+  method = "ranger",
+  metric = "ROC",
+  na.action = na.pass,
+  trControl = trainControl(method = "cv", number = 5, classProbs = TRUE, summaryFunction = twoClassSummary),
+  importance="impurity")
+
+caret_rf_model3 <- train(
+  pcos_labelled ~ .,
+  data = select(filter(train.data.covariates.model3,!is.na(amh_ng_m_l)), -pcos_y_n),                    
   method = "ranger",
   metric = "ROC",
   na.action = na.pass,
   trControl = trainControl(method = "cv", number = 5, classProbs = TRUE, summaryFunction = twoClassSummary),
   importance="impurity"
 )
+
+caret_rf_model2
+
+
 ```
 
 RF Variable Importance 
