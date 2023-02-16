@@ -1,5 +1,5 @@
 ---
-title: "MEDI504B_ML_Project"
+title: "Building a Predictive Machine Learning Model to Identify Polycystic Ovary Syndrome Using Easily Measured Clinical or Physiological Parameters"
 author: "Jacob and Hanwei"
 date: "`r Sys.Date()`"
 output:
@@ -44,32 +44,25 @@ library(caret)
 ## 1. Introduction and Background
 
 ### 1.1 Introduction
-Our overarching goal for this project is to produce a machine learning (ML) model which can accurately predict polycystic ovary syndrome (PCOS) status (presence or absence of disease). PCOS is an endocrine (hormonal) disorder that affects females of a reproductive age. Given the widespread nature of this condition and the troubling symptoms which accompany it, including infertility, it would be helpful for physicians to be able to predict individuals more likely to experience PCOS thereby enabling them to therapeutically intervene and provide care and support in a timely manner. 
+Our overarching goal for this project is to produce a machine learning (ML) model which can accurately predict polycystic ovary syndrome (PCOS) status (presence or absence of disease) using predictors easily derived from a standard blood test and routine clinical examination. PCOS is an endocrine (hormonal) disorder that affects females of a reproductive age^1^. Given the widespread nature of this condition among women of reproductive age and the troubling symptoms which accompany it, including infertility, it would be helpful for physicians to be able to predict, using just blood test results and a routine clinical exam, individuals more likely to experience PCOS thereby enabling them to therapeutically intervene and provide care and support in a timely manner, especially considering PCOS has been associated with other conditions such as endometriosis and endometrial cancer^2,5^. 
 
 ### 1.2 Background 
 
 Polycystic ovarian syndrome (PCOS) is a common endocrine disorder affecting approximately 10-15% of reproductive-age women worldwide^1^. The condition is characterized by a complex set of symptoms, including hyperandrogenism, menstrual irregularities, and polycystic ovaries^2^. The diagnosis of PCOS is typically based on clinical and biochemical assessments, as well as ultrasound imaging of the ovaries^1^. However, the diagnosis of PCOS can be challenging due to the heterogeneous presentation of symptoms and the lack of a single diagnostic criterion.
 
-Machine learning models have shown promise as a potential tool for the accurate prediction of PCOS. Compared to traditional diagnostic methods, machine learning models can utilize large amounts of data from various sources and provide more accurate predictions. This is particularly beneficial in the case of PCOS, as traditional diagnostic methods such as tissue biopsy can be expensive and invasive. Furthermore, machine learning models can assist clinicians in identifying patients who may benefit from early intervention, which can improve long-term health outcomes (Teede et al., 2018).
+Machine learning models have shown promise as a potential tool for the accurate prediction of PCOS. Compared to traditional diagnostic methods, machine learning models can utilize large amounts of data from various sources and provide more accurate predictions. This is particularly beneficial in the case of PCOS, as traditional diagnostic methods such as tissue biopsy or ultrasound imaging can be expensive and invasive. Furthermore, machine learning models can assist clinicians in identifying patients who may benefit from early intervention, which can improve long-term health outcomes (Teede et al., 2018).
 
-Overall, the use of machine learning models to predict PCOS has the potential to improve the accuracy of diagnosis and reduce the cost and invasiveness of traditional diagnostic methods. We sought to evaluate the comparative accuracy of multiple machine learning classifiers to select the optimal model for predicting PCOS, given considerations surrounding false positive and false negatives. 
+Our aim for this PCOS predictive model would be to assist clinicians with identifying women between the ages of 21-47 at highest risk or likely to develop PCOS. Moreover, we hope this predictive model may be used in both low and high resource settings, and we are therefore limiting the features used by the model to clinical and physiological parameters easily obtained via a routine clinical exam and standard blood test. 
 
+To ensure out analysis is ethical, the appropriate ethical approval was obtained for this ML project. To help ensure privacy fo this ML project, we worked with de-identified anonymized data. In the event an individual was identified as being pregnant or may be at risk of a life-threatening condition, we would follow-up immediately with the individual's physician. 
 
-### Ethics
-** include something about the target population and who is at risk 
-** what to do if someone is pregnant --> follow up with study doctor*
-** what to do if you have a suspicion that the patient is at risk for a life threatening medical disorder? 
-** people taking hormone therapy
-** identification of patients given the data 
+The rationale for developing this predictive ML model is based on the motivation to provide a data-based method of diagnosis that is cheaper and less invasive than current methods, a method which may be applied without expensive diagnostic equipment (such as an ultrasound imaging device), a method which may be used with just a blood test and the review of clinical symptoms and a method which relies minimally on self-reported data. As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantageous for reasons related to clinical care and resource utilization. This influenced our variable selection, as we did not consider the inclusion of predictors that can not be measured in the above stated context in model development. 
 
-Labels and predictors 
-
-
+Overall, the use of machine learning models to predict PCOS has the potential to improve the accuracy of diagnosis and reduce the cost and invasiveness of traditional diagnostic methods. We sought to evaluate the comparative accuracy of multiple machine learning classifiers to select the optimal model for predicting PCOS based on variables obtained via a blood test and routine clinical examination, given considerations surrounding false positive and false negatives. 
 
 ### 1.3 Data
 
-The dataset consists of physical and clinical parameters collected from 10 hospitals across Kerala, India, to determine PCOS and infertility-related issues.  The dataset contains information that can be used to analyze and understand the diagnosis and treatment of PCOS and infertility.
-
+The dataset consists of physical and clinical parameters collected from 10 hospitals across Kerala, India, to determine PCOS and infertility-related issues. The dataset contains information that can be used to analyze and understand the diagnosis and treatment of PCOS and infertility.
 
 ## 2. Objectives
 
@@ -79,14 +72,12 @@ Our objectives were twofold:
 
 2: Optimize the model for specificity, thus minimizing the risk of a false positive in model predictions. 
 
-The rationale for objective one was based on the motivation to provide a data-based method of diagnosis that is cheaper and less invasive than current methods. As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantaegous for reasons related to clinical care and resource utilization. This influenced our variable selection, as we did not consider the inclusion of predictors that can not be measured in the above stated context in model development. 
-
 Optimizing model specificity for the prediction of PCOS is important because PCOS is associated with several negative health outcomes, including infertility, insulin resistance, and metabolic disorders. Early diagnosis and treatment of PCOS can help prevent or manage these conditions, which can ultimately improve the overall health and quality of life of those affected. However, given that PCOS is not a life-threatening condition in and of itself, it is important to balance the trade-off between maximizing sensitivity and specificity in order to minimize the number of false positives and prevent unnecessary and potentially invasive follow-up testing. By optimizing model specificity, we can ensure that those who are diagnosed with PCOS are more likely to truly have the condition, while also reducing the risk of unnecessary medical interventions for those who do not have PCOS.
 
 ## 3. Methods
 
 ### 3.1 Splitting our dataset into training and testing datasets
-Following our EDA (please refer to EDA section), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). We chose to partition our data into only two sets based on the relatively small overall sample size of our data and small effective sample size of our data. Further, to help determine generalizability, we believe it would be ideal for our predictive model to be validated on an external dataset derived from a different population than our training and test data.  
+Following our Exploratory Data Analysis (EDA, please refer to Results section for EDA), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). We chose to partition our data into only two sets based on the relatively small overall sample size of our data and small effective sample size of our data. Further, to help determine generalizability, we believe it would be ideal for our predictive model to be validated on an external dataset derived from a different population than our training and test data.  
 
 ### 3.2 Variable selection and building logistic regression models 
 
@@ -94,7 +85,7 @@ We first attempted to model our data with PCOS status as the outcome variable us
 
 * (1) Model 1 is the physiological model which includes five hormones of interest, namely hormone measurements of n=5 different types of hormones commonly included or easily measured as a part of a standard routine blood test.
 * (2) Model 2 is the clinical model, including as variables clinical symptoms associated with PCOS, and specifically clinical symptoms which may be easily determined as a part of a routine examination by a physician. THese are the variables included in the clinical model: weight gain, hair growth + skin darkening, hair loss and pimples.
-* (3) Model 3 includes both the physiological and clinical variables, that is the n=5 the hormone measurement levels we as well as the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples. 
+* (3) Model 3 includes both the physiological and clinical variables, that is the n=5 the hormone measurement levels we as well as the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples (clinical symptoms which may be easily identified or tracked in a basic clinical setting). 
 
 Following this initial variable selection, we selected the two best performing models and applied various machine learning training methods to optimize model performance. We then selected the best performing model as the final model. 
 
@@ -419,79 +410,12 @@ knitr::kable(data.frame("Model"=c("Physiologic Model", "Clinical Model", "Physio
 
 ```
 
-Based on these results, we will compare the clinical model to the full clinical and physiological model. While the model including clinical predictors only is more simple both technically (as evidenced by the AIC) and practically (less inputs and no blood testing required), there is an approximately 10% drop in accuracy when excluding the phsyiologic data. We will select these two models and compare performance in applying various machine learning methods below. 
+Based on these results, we will compare the clinical model to the full clinical and physiological model. While the model including clinical predictors only is more simple both technically (as evidenced by the AIC) and practically (less inputs and no blood testing required), there is an approximately 10% drop in accuracy when excluding the physiological data. We will select these two models and compare performance in applying various machine learning methods below. 
 
-### 3.3 Model cross-validation (without RIDGE or LASSO) (using the caret package)
-* We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, results = "hide"}
-## cross-validation 
-
-cv_of_data <- caret::trainControl(
-  method = "repeatedcv", 
-  number = 5, #five fold cross validation 
-  repeats = 3 # repeat 3 times
-)
-
-set.seed(504)
-# cv_of_model1 <- caret::train(
-#                               pcos_y_n ~ 
-#                        , 
-#                               data = train.data, 
-#                               method = "glm",
-#                               family = "binomial",
-#                               trControl = cv_of_data
-#                             )
-
-
-
-cv_of_model2 <- caret::train( pcos_y_n ~ 
-                               weight_gain_y_n +
-                              hair_growth_y_n +
-                              skin_darkening_y_n +
-                         hair_loss_y_n +
-                         pimples_y_n, 
-                              data = train.data, 
-                              method = "glm",
-                              family = "binomial",
-                              trControl = cv_of_data
-                            )
-
-cv_of_model3 <- caret::train(
-                              pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
-                              weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n, 
-                              data = train.data, 
-                              method = "glm",
-                              family = "binomial",
-                              trControl = cv_of_data
-                            )
-
-summary(
-  resamples(
-    list(
-      # model1 = cv_of_model1, 
-      model2 = cv_of_model2, 
-      model3 = cv_of_model3
-    )
-  )
-)$statistics$Accuracy
-
-### Cross-validation RIDGE 
-
-set.seed(504)
-cv_of_data <- caret::trainControl(
-  method = "repeatedcv", 
-  number = 5, #five fold cross validation 
-  repeats = 3 # repeat 3 times
-)
-
-
-```
-
-### 3.4 Assessing model classification performance 
+### 3.3 Assessing model classification performance 
 * Assessing model performance using ROC curves 
 
-```{r echo=FALSE, fig.height=8, fig.width=4, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=6, fig.width=4, message=FALSE, warning=FALSE}
 ## plotting ROC and AUC 
 
 # plot(pROC::roc(train.data$pcos_y_n,
@@ -513,7 +437,7 @@ plot(pROC::roc(train.data$pcos_y_n,
 
 ```
 
-### Penalized logistic regression with cross-validation (RIDGE and LASSO)
+### 3.4 Penalized logistic regression with cross-validation (RIDGE and LASSO)
 
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
@@ -746,7 +670,7 @@ cowplot::plot_grid(elastic_model2, elastic_model3)
 
 ```
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 # library(bestglm)
 
 #train.data.covariates.1 <- train.data %>%
@@ -793,21 +717,9 @@ cowplot::plot_grid(elastic_model2, elastic_model3)
 
 ### 1.4 Modelling our data using Trees and Forests 
 
-Let's select only the predictor columns we decided we wanted to include earlier. 
-From logistic model 3, here is the list of covariates: 
-* pcos_y_n 
-* i_beta_hcg_m_iu_m_l
-* fsh_m_iu_m_l 
-* lh_m_iu_m_l 
-* tsh_m_iu_l
-* amh_ng_m_l 
-* weight_gain_y_n
-* hair_growth_y_n
-* skin_darkening_y_n 
-* hair_loss_y_n 
-* pimples_y_n
+We next pursued a Random Forest approach for our selection of variables, using both the Clinical and Clinical + Physiological Parameters for our Random Forest Modelling. Random Forest modelling was also used to examine variable importance. 
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
 train.data.covariates.model2 <- train.data %>%
   select(
@@ -876,9 +788,7 @@ knitr::kable(data.frame(
 
 ```
 
-RF Variable Importance 
-
-```{r}
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 vip::vip(caret_rf_model3)
 ```
 
@@ -1147,18 +1057,18 @@ knitr::kable(data.frame(
 ## 5. Discussion and Conclusions
 ### 5.1 Discussion
 
-* Ethics statement 
+We found the best ML model which balances accuracy, specificity and clinical utility to be the Random Forest model with clinical parameters (n=5 clinical symptoms: weight gain, hair growth + skin darkening, hair loss and pimples). This model performed with the following accuracy = XX, sensitivity = XX and specificity = XX when applied to our test dataset. We opted to use a Random Forest approach as part of trying different ML models as a recent study in the literature indicating Rnadom Forest models perform the most accurately on a wide variety of datasets^6^. 
 
 ## References 
 
 1. Teede, H., Misso, M., Tassone, E. C., Dewailly, D., Ng, E. H., Azziz, R., ... & Norman, R. J. (2018). Recommendations from the international evidence-based guideline for the assessment and management of polycystic ovary syndrome. Human Reproduction, 33(9), 1602-1618. https://doi.org/10.1093/humrep/dey256
 2. Bozdag, G., Mumusoglu, S., Zengin, D., & Karabulut, E. (2016). The prevalence and phenotypic features of polycystic ovary syndrome: a systematic review and meta-analysis. Human Reproduction, 31(12), 2841–2855. https://doi.org/10.1093/humrep/dew218
 3. R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
-3. Ajmal N, Khan SZ, Shaikh R. Polycystic ovary syndrome (PCOS) and genetic predisposition: A review article. Eur J Obstet Gynecol Reprod Biol X. 2019 Jun 8;3:100060. doi: 10.1016/j.eurox.2019.100060. PMID: 31403134; PMCID: PMC6687436.
-4.
-5.
-6.
+4. Ajmal N, Khan SZ, Shaikh R. Polycystic ovary syndrome (PCOS) and genetic predisposition: A review article. Eur J Obstet Gynecol Reprod Biol X. 2019 Jun 8;3:100060. doi: 10.1016/j.eurox.2019.100060. PMID: 31403134; PMCID: PMC6687436.
+5. Hart R, Doherty DA. The potential implications of a PCOS diagnosis on a woman's long-term health using data linkage. J Clin Endocrinol Metab. 2015 Mar;100(3):911-9. doi: 10.1210/jc.2014-3886. Epub 2014 Dec 22. Erratum in: J Clin Endocrinol Metab. 2015 Jun;100(6):2502. PMID: 25532045.
+6. Fernández-Delgado, M., Cernadas E., Barro S., Amorim D. Do we need hundreds of classifiers to solve real world classification problems? The Journal of Machine Learning Research. Volume 15. Issue 1, pp 3133–3181. 
 7.
+8.
 
 ## Appendix 
 
@@ -1183,8 +1093,6 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_formatt
 plot_correlation(PCOS_data_without_infertility_formatted, title = "Bivariate analysis to visualize our covariation between our continuous variables", theme_config = list("plot.title" = element_text(size = 24)), type = 'continuous')
 ```
 
-
-
 * From this correlation plot, we find that several continuous variables do co-vary with one another.
 * Specifically, as we would expect, we find a positive correlation between the variables waist and hip (in inches) with weight. We find the same positive correlation for BMI. 
 * Another obvious correlation we observe is that between age (in years) and marriage (in years) 
@@ -1205,5 +1113,72 @@ plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "
 ```{r EDA2, eval=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, include=FALSE}
 # plotting a histogram for each continuous feature 
 plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plot.title" = element_text(size = 24)), title = "Histograms for each continuous variable - to visualize distributions", )
+
+```
+
+### Appendix Section 5 - Model cross-validation (without RIDGE or LASSO) (using the caret package)
+* We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results = "hide"}
+## cross-validation 
+
+cv_of_data <- caret::trainControl(
+  method = "repeatedcv", 
+  number = 5, #five fold cross validation 
+  repeats = 3 # repeat 3 times
+)
+
+set.seed(504)
+# cv_of_model1 <- caret::train(
+#                               pcos_y_n ~ 
+#                        , 
+#                               data = train.data, 
+#                               method = "glm",
+#                               family = "binomial",
+#                               trControl = cv_of_data
+#                             )
+
+
+
+cv_of_model2 <- caret::train( pcos_y_n ~ 
+                               weight_gain_y_n +
+                              hair_growth_y_n +
+                              skin_darkening_y_n +
+                         hair_loss_y_n +
+                         pimples_y_n, 
+                              data = train.data, 
+                              method = "glm",
+                              family = "binomial",
+                              trControl = cv_of_data
+                            )
+
+cv_of_model3 <- caret::train(
+                              pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
+                              weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n, 
+                              data = train.data, 
+                              method = "glm",
+                              family = "binomial",
+                              trControl = cv_of_data
+                            )
+
+summary(
+  resamples(
+    list(
+      # model1 = cv_of_model1, 
+      model2 = cv_of_model2, 
+      model3 = cv_of_model3
+    )
+  )
+)$statistics$Accuracy
+
+### Cross-validation RIDGE 
+
+set.seed(504)
+cv_of_data <- caret::trainControl(
+  method = "repeatedcv", 
+  number = 5, #five fold cross validation 
+  repeats = 3 # repeat 3 times
+)
+
 
 ```
