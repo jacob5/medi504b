@@ -1,5 +1,5 @@
 ---
-title: "MEDI504B_ML_Project"
+title: "Building a Predictive Machine Learning Model to Identify Polycystic Ovary Syndrome Using Easily Measured Clinical or Physiological Parameters"
 author: "Jacob and Hanwei"
 date: "`r Sys.Date()`"
 output:
@@ -77,7 +77,7 @@ Optimizing model specificity for the prediction of PCOS is important because PCO
 ## 3. Methods
 
 ### 3.1 Splitting our dataset into training and testing datasets
-Following our EDA (please refer to EDA section), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). We chose to partition our data into only two sets based on the relatively small overall sample size of our data and small effective sample size of our data. Further, to help determine generalizability, we believe it would be ideal for our predictive model to be validated on an external dataset derived from a different population than our training and test data.  
+Following our Exploratory Data Analysis (EDA, please refer to Results section for EDA), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). We chose to partition our data into only two sets based on the relatively small overall sample size of our data and small effective sample size of our data. Further, to help determine generalizability, we believe it would be ideal for our predictive model to be validated on an external dataset derived from a different population than our training and test data.  
 
 ### 3.2 Variable selection and building logistic regression models 
 
@@ -85,7 +85,7 @@ We first attempted to model our data with PCOS status as the outcome variable us
 
 * (1) Model 1 is the physiological model which includes five hormones of interest, namely hormone measurements of n=5 different types of hormones commonly included or easily measured as a part of a standard routine blood test.
 * (2) Model 2 is the clinical model, including as variables clinical symptoms associated with PCOS, and specifically clinical symptoms which may be easily determined as a part of a routine examination by a physician. THese are the variables included in the clinical model: weight gain, hair growth + skin darkening, hair loss and pimples.
-* (3) Model 3 includes both the physiological and clinical variables, that is the n=5 the hormone measurement levels we as well as the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples. 
+* (3) Model 3 includes both the physiological and clinical variables, that is the n=5 the hormone measurement levels we as well as the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples (clinical symptoms which may be easily identified or tracked in a basic clinical setting). 
 
 Following this initial variable selection, we selected the two best performing models and applied various machine learning training methods to optimize model performance. We then selected the best performing model as the final model. 
 
@@ -643,7 +643,7 @@ elastic_model3
 
 ```
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 # library(bestglm)
 
 #train.data.covariates.1 <- train.data %>%
@@ -690,21 +690,9 @@ elastic_model3
 
 ### 1.4 Modelling our data using Trees and Forests 
 
-Let's select only the predictor columns we decided we wanted to include earlier. 
-From logistic model 3, here is the list of covariates: 
-* pcos_y_n 
-* i_beta_hcg_m_iu_m_l
-* fsh_m_iu_m_l 
-* lh_m_iu_m_l 
-* tsh_m_iu_l
-* amh_ng_m_l 
-* weight_gain_y_n
-* hair_growth_y_n
-* skin_darkening_y_n 
-* hair_loss_y_n 
-* pimples_y_n
+We next pursued a Random Forest approach for our selection of variables, using both the Clinical and Clinical + Physiological Parameters for our Random Forest Modelling. Random Forest modelling was also used to examine variable importance. 
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
 train.data.covariates.model2 <- train.data %>%
   select(
@@ -737,9 +725,6 @@ train.data.covariates.model3 <- train.data %>%
   pcos_labelled = as.factor(ifelse(pcos_y_n==1, "yes", "no")))
 ```
 
-
-Random Forest -- note that I've had to remove one missing ob from amh_ng_m_l for now. 
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)#Can also fit with caret
 set.seed(504)
@@ -766,9 +751,7 @@ caret_rf_model3 <- train(
 
 ```
 
-RF Variable Importance 
-
-```{r}
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 vip::vip(caret_rf_model3)
 ```
 
@@ -832,7 +815,7 @@ cm_rf
 ## 5. Discussion and Conclusions
 ### 5.1 Discussion
 
-* Ethics statement 
+We found the best ML model which balances accuracy, specificity and clinical utility to be the Random Forest model with clinical parameters (n=5 clinical symptoms: weight gain, hair growth + skin darkening, hair loss and pimples). This model performed with the following accuracy = XX, sensitivity = XX and specificity = XX when applied to our test dataset. We opted to use a Random Forest approach as part of trying different ML models as a recent study in the literature indicating Rnadom Forest models perform the most accurately on a wide variety of datasets^6^. 
 
 ## References 
 
@@ -841,7 +824,7 @@ cm_rf
 3. R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
 4. Ajmal N, Khan SZ, Shaikh R. Polycystic ovary syndrome (PCOS) and genetic predisposition: A review article. Eur J Obstet Gynecol Reprod Biol X. 2019 Jun 8;3:100060. doi: 10.1016/j.eurox.2019.100060. PMID: 31403134; PMCID: PMC6687436.
 5. Hart R, Doherty DA. The potential implications of a PCOS diagnosis on a woman's long-term health using data linkage. J Clin Endocrinol Metab. 2015 Mar;100(3):911-9. doi: 10.1210/jc.2014-3886. Epub 2014 Dec 22. Erratum in: J Clin Endocrinol Metab. 2015 Jun;100(6):2502. PMID: 25532045.
-6.
+6. Fernández-Delgado, M., Cernadas E., Barro S., Amorim D. Do we need hundreds of classifiers to solve real world classification problems? The Journal of Machine Learning Research. Volume 15. Issue 1, pp 3133–3181. 
 7.
 8.
 
@@ -890,7 +873,6 @@ plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "
 plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plot.title" = element_text(size = 24)), title = "Histograms for each continuous variable - to visualize distributions", )
 
 ```
-
 
 ### Appendix Section 5 - Model cross-validation (without RIDGE or LASSO) (using the caret package)
 * We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
