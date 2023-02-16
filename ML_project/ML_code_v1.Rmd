@@ -919,29 +919,22 @@ GLM Net with LASSO - Clinical Model
 pred_rf <- stats::predict(fit.cv.bin.model2.lasso, test.data, type="prob")
 # Confusion Matrix 
 pred_rf$prediction <- ifelse(pred_rf$Yes < 0.5, "No", "Yes") %>% factor()
-
 tab <- table(pred_rf$prediction, test.data$pcos_labelled)
 tn <- tab[1] # TN
 fn <- tab[2] # FN
 fp <- tab[3] # FP
 tp <- tab[4] # TP
-
-
 accuracy = (tp + tn) / (tp + tn + fp + fn)
 accuracy
-
 sensitivity = tp/(tp+fn)
-
 specificity = tn /(fp+tn)
-
-data.frame("Model"=
+clinical.lasso.row<-data.frame("Model"=
              "LASSO: Clinical Parameters", 
            "Accuracy"=accuracy, 
            "Sensitivity"=sensitivity, 
            "Specificity"=specificity)
 ```
-123 are predicted no, 37 are predicted yes
-108 are actual no, 52 are actual yes
+
 GLM Net with LASSO - Clinical and Physiologic Model
 
 ```{r  include=FALSE}
@@ -949,8 +942,20 @@ GLM Net with LASSO - Clinical and Physiologic Model
 pred_rf <- stats::predict(fit.cv.bin.model3.lasso, test.data, type="prob")
 # Confusion Matrix 
 pred_rf$prediction <- ifelse(pred_rf$Yes < 0.5, "No", "Yes") %>% factor()
-
-table(pred_rf$prediction, test.data$pcos_labelled)
+tab <- table(pred_rf$prediction, test.data$pcos_labelled)
+tn <- tab[1] # TN
+fn <- tab[2] # FN
+fp <- tab[3] # FP
+tp <- tab[4] # TP
+accuracy = (tp + tn) / (tp + tn + fp + fn)
+accuracy
+sensitivity = tp/(tp+fn)
+specificity = tn /(fp+tn)
+clinical.physiologic.lasso.row<-data.frame("Model"=
+             "LASSO: Clinical and Physiologic Parameters", 
+           "Accuracy"=accuracy, 
+           "Sensitivity"=sensitivity, 
+           "Specificity"=specificity)
 ```
 
 
@@ -1021,9 +1026,12 @@ randomForest.clinical.physiologic
 
 ### Summarised performance
 
+#### Table 2. Comparative performance of two models across three different modelling methodologies
+
 ```{r}
 
-knitr::kable(data.frame(
+knitr::kable(
+  rbind(data.frame(
   "Model"=c("Clinical Parameters: Random Forest", 
             "Clinical and Physiologic Parameters: Random Forest", 
             "Clinical Parameters: XGBoost", 
@@ -1046,8 +1054,9 @@ knitr::kable(data.frame(
     randomForest.clinical.physiologic$byClass[2], 
     xgboost.clinical$byClass[2], 
     xgboost.clinical.physiologic$byClass[2]
-  )
-))
+  )), 
+  clinical.lasso.row,
+  clinical.physiologic.lasso.row))
 # randomForest.clinical$overall[1]
 
 ```
