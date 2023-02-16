@@ -142,7 +142,7 @@ PCOS_data_without_infertility_cleaned <- PCOS_data_without_infertility %>%
 
 ### 4a.1 Data Wrangling
 
-The data was formatted to ensure the variables are the appropriate class type, this will enable us to perform our EDA. Specifically we converted binary variables (1 or 0) into the character class type.Next in our EDA we sought to identify missing values in our dataset. Here, we see a plot showing our variables and the percentage of missing rows per variable. The plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, missing values were simply removed for our subsequent analyses. 
+The data was formatted to ensure the variables are the appropriate class type, this will enable us to perform our EDA. Specifically we converted binary variables (1 or 0) into the character class type.Next in our EDA we sought to identify missing values in our dataset. Here, we see a plot showing our variables and the percentage of missing rows per variable. The plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing (please refer to Appendix Plot 1). Therefore, as this is below the generally used threshold of 5 %, missing values were simply removed for our subsequent analyses. 
 
 ```{r formatting, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results="hide"}
 ## ensuring variables are in the correct format 
@@ -827,7 +827,7 @@ Comparison code for later
 
 Data Wrangling for the test data 
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
 test.data.lasso <- test.data %>%
   select(
@@ -1028,7 +1028,8 @@ randomForest.clinical.physiologic
 
 #### Table 2. Comparative performance of two models across three different modelling methodologies
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
+
 
 knitr::kable(
   rbind(data.frame(
