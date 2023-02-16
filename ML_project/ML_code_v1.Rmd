@@ -167,7 +167,13 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned
                                                           "hair_loss_y_n",
                                                           "pimples_y_n",
                                                           "fast_food_y_n",
-                                                          "reg_exercise_y_n"), as.character)
+                                                          "reg_exercise_y_n"), as.character)%>%
+  mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric)
 
 # glimpse(PCOS_data_without_infertility_formatted)
 
@@ -299,7 +305,13 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned
                                                           "hair_loss_y_n",
                                                           "pimples_y_n",
                                                           "fast_food_y_n",
-                                                          "reg_exercise_y_n"), as.factor)
+                                                          "reg_exercise_y_n"), as.factor)%>%
+    mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric)
 
 glimpse(PCOS_data_without_infertility_formatted)
 
@@ -505,13 +517,25 @@ plot(pROC::roc(train.data$pcos_y_n,
 
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
-glimpse(train.data)
-
-summary(train.data)
+# glimpse(train.data)
+# 
+# summary(train.data)
 
 train.data.covariates.all <- train.data %>% 
                                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No")) %>%
-                                 drop_na()
+                                 drop_na()%>%
+  mutate_at(c("pcos_y_n",
+              "weight_gain_y_n", 
+              "hair_growth_y_n",
+              "skin_darkening_y_n",
+              "hair_loss_y_n",
+              "pimples_y_n"),as.factor) %>%
+  mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric) 
 
 glimpse(train.data.covariates.all)
 
@@ -531,7 +555,10 @@ train.data.2 <- train.data.covariates.all %>%
                          fsh_m_iu_m_l,
                          lh_m_iu_m_l,
                          tsh_m_iu_l ,
-                         amh_ng_m_l)
+                         amh_ng_m_l)%>%mutate(
+                           pcos_y_n=as.factor(pcos_y_n)
+                         )
+  
 
 glimpse(train.data.2)
 
@@ -715,7 +742,7 @@ fit.cv.bin.elastic.model_3
 
 elastic_model3 <- plot(fit.cv.bin.elastic.model_3, title = "Cross Validation with ElasticNet for Model 3")
 
-elastic_model3
+cowplot::plot_grid(elastic_model2, elastic_model3)
 
 ```
 
@@ -814,7 +841,7 @@ train.data.covariates.model3 <- train.data %>%
 ```
 
 
-Random Forest -- note that I've had to remove one missing ob from amh_ng_m_l for now. 
+Random Forest 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)#Can also fit with caret
@@ -839,6 +866,13 @@ caret_rf_model3 <- train(
   importance="impurity"
 )
 
+knitr::kable(data.frame(
+  "Model" = c("Clinical and Physiologic Model", 
+              "Clinical Model"),
+  "ROC"=c(mean(caret_rf_model3$resample$ROC),mean(caret_rf_model2$resample$ROC)), 
+  "Sensitivity" = c(mean(caret_rf_model3$resample$Sens), mean(caret_rf_model2$resample$Sens)),
+  "Specificity" = c(mean(caret_rf_model3$resample$Spec), mean(caret_rf_model2$resample$Spec)
+           )))
 
 ```
 
@@ -862,7 +896,14 @@ xgb_grid_1  <-  expand.grid(
                   subsample = 0.5
                 )
 
-caret_xgb <- caret::train(pcos_labelled ~., data = select(train.data.covariates.model3, -(pcos_y_n)),
+caret_xgb_model2 <- caret::train(pcos_labelled ~., data = select(train.data.covariates.model2, -(pcos_y_n)),
+                         method = "xgbTree",
+                         metric = "ROC",
+                         tuneGrid=xgb_grid_1,
+                         na.action = na.pass,
+                         trControl = trainControl(method = "cv", number = 5,classProbs = T, summaryFunction = twoClassSummary))
+
+caret_xgb_model3 <- caret::train(pcos_labelled ~., data = select(train.data.covariates.model3, -(pcos_y_n)),
                          method = "xgbTree",
                          metric = "ROC",
                          tuneGrid=xgb_grid_1,
@@ -874,8 +915,78 @@ caret_xgb <- caret::train(pcos_labelled ~., data = select(train.data.covariates.
 
 Comparison code for later 
 
-```{r eval=FALSE, include=FALSE}
-model_list <- list(Random_Forest = caret_rf, XGBoost = caret_xgb
+Data Wrangling for the test data 
+
+```{r}
+
+test.data.lasso <- test.data %>%
+  select(
+    pcos_y_n,
+    i_beta_hcg_m_iu_m_l,
+    fsh_m_iu_m_l,
+    lh_m_iu_m_l,
+    tsh_m_iu_l,
+    amh_ng_m_l ,
+    weight_gain_y_n ,
+    hair_growth_y_n,
+    skin_darkening_y_n,
+    hair_loss_y_n ,
+    pimples_y_n
+  ) %>%
+  mutate_at(c("pcos_y_n",
+              "weight_gain_y_n", 
+              "hair_growth_y_n",
+              "skin_darkening_y_n",
+              "hair_loss_y_n",
+              "pimples_y_n"),as.factor) %>%
+  mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric) %>%
+  mutate(pcos_labelled=as.factor(ifelse(pcos_y_n==1, "yes", "no")))%>%
+  select(!pcos_labelled)
+
+
+test.data <- test.data %>%
+  select(
+    pcos_y_n,
+    i_beta_hcg_m_iu_m_l,
+    fsh_m_iu_m_l,
+    lh_m_iu_m_l,
+    tsh_m_iu_l,
+    amh_ng_m_l ,
+    weight_gain_y_n ,
+    hair_growth_y_n,
+    skin_darkening_y_n,
+    hair_loss_y_n ,
+    pimples_y_n
+  ) %>%
+  mutate_at(c("pcos_y_n",
+              "weight_gain_y_n", 
+              "hair_growth_y_n",
+              "skin_darkening_y_n",
+              "hair_loss_y_n",
+              "pimples_y_n"),as.factor) %>%
+  mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric) %>%
+  mutate(pcos_labelled=as.factor(ifelse(pcos_y_n==1, "yes", "no")))%>%
+  select(!pcos_y_n)
+
+
+
+```
+
+
+
+```{r include=FALSE}
+model_list <- list(Random_Forest.Model3 = caret_rf_model3, XGBoost.model3 = caret_xgb_model3, 
+                   Random_Forest.Model2 = caret_rf_model2, XGBoost.model2 = caret_xgb_model2
                    # , Rpart_DT = caret_tree, Bagging = caret_bag
                    )
 resamples <- resamples(model_list)
@@ -883,26 +994,154 @@ resamples <- resamples(model_list)
 #box plot
 bwplot(resamples, metric="ROC")
 ```
-```{r eval=FALSE, include=FALSE}
+```{r include=FALSE}
 dotplot(resamples, metric="ROC")
 
 ```
-```{r eval=FALSE, include=FALSE}
+### Evaluating on the test set 
+
+#### Regularized Logistic Regression 
+
+GLM Net with LASSO - Clinical Model
+
+```{r  include=FALSE}
 # prediction on Test data set
-pred_rf <- predict(caret_rf, valid)
-
+pred_rf <- stats::predict(fit.cv.bin.model2.lasso, test.data, type="prob")
 # Confusion Matrix 
-cm_rf <- confusionMatrix(pred_rf, valid$diabetes, positive="pos")
+pred_rf$prediction <- ifelse(pred_rf$Yes < 0.5, "No", "Yes") %>% factor()
 
-# Prediction Probabilities
-pred_prob_rf <- predict(caret_rf, valid, type="prob")
+tab <- table(pred_rf$prediction, test.data$pcos_labelled)
+tn <- tab[1] # TN
+fn <- tab[2] # FN
+fp <- tab[3] # FP
+tp <- tab[4] # TP
 
-# ROC value
-roc_rf <- pROC::roc(valid$diabetes, pred_prob_rf$pos)
 
-# Confusion Matrix for Random Forest Model
-cm_rf
+accuracy = (tp + tn) / (tp + tn + fp + fn)
+accuracy
+
+sensitivity = tp/(tp+fn)
+
+specificity = tn /(fp+tn)
+
+data.frame("Model"=
+             "LASSO: Clinical Parameters", 
+           "Accuracy"=accuracy, 
+           "Sensitivity"=sensitivity, 
+           "Specificity"=specificity)
 ```
+123 are predicted no, 37 are predicted yes
+108 are actual no, 52 are actual yes
+GLM Net with LASSO - Clinical and Physiologic Model
+
+```{r  include=FALSE}
+# prediction on Test data set
+pred_rf <- stats::predict(fit.cv.bin.model3.lasso, test.data, type="prob")
+# Confusion Matrix 
+pred_rf$prediction <- ifelse(pred_rf$Yes < 0.5, "No", "Yes") %>% factor()
+
+table(pred_rf$prediction, test.data$pcos_labelled)
+```
+
+
+#### XGBoost
+
+XGBoost - Clinical Model 
+
+```{r  include=FALSE}
+# prediction on Test data set
+pred_rf <- predict(caret_xgb_model2, test.data)
+# Confusion Matrix 
+xgboost.clinical <- confusionMatrix(pred_rf, test.data$pcos_labelled, positive="yes")
+# Prediction Probabilities
+pred_prob_rf <- predict(caret_xgb_model2, test.data, type="prob")
+# ROC value
+roc_rf <- pROC::roc(test.data$pcos_labelled, pred_prob_rf$yes)
+# Confusion Matrix for Random Forest Model
+xgboost.clinical
+```
+
+XGBoost - Clinical and Physiologic Model 
+
+```{r  include=FALSE}
+# prediction on Test data set
+pred_rf <- predict(caret_xgb_model3, test.data)
+# Confusion Matrix 
+xgboost.clinical.physiologic <- confusionMatrix(pred_rf, test.data$pcos_labelled, positive="yes")
+# Prediction Probabilities
+pred_prob_rf <- predict(caret_xgb_model3, test.data, type="prob")
+# ROC value
+roc_rf <- pROC::roc(test.data$pcos_labelled, pred_prob_rf$yes)
+# Confusion Matrix for Random Forest Model
+xgboost.clinical.physiologic
+```
+
+#### Random Forest 
+
+Random Forest - Clinical Model 
+
+```{r  include=FALSE}
+# prediction on Test data set
+pred_rf <- predict(caret_rf_model2, test.data)
+# Confusion Matrix 
+randomForest.clinical <- confusionMatrix(pred_rf, test.data$pcos_labelled, positive="yes")
+# Prediction Probabilities
+pred_prob_rf <- predict(caret_rf_model2, test.data, type="prob")
+# ROC value
+roc_rf <- pROC::roc(test.data$pcos_labelled, pred_prob_rf$yes)
+# Confusion Matrix for Random Forest Model
+randomForest.clinical
+```
+
+
+Random Forest - Clinical and Physiologic Model 
+
+```{r  include=FALSE}
+# prediction on Test data set
+pred_rf <- predict(caret_rf_model3, test.data)
+# Confusion Matrix 
+randomForest.clinical.physiologic <- confusionMatrix(pred_rf, test.data$pcos_labelled, positive="yes")
+# Prediction Probabilities
+pred_prob_rf <- predict(caret_rf_model3, test.data, type="prob")
+# ROC value
+roc_rf <- pROC::roc(test.data$pcos_labelled, pred_prob_rf$yes)
+# Confusion Matrix for Random Forest Model
+randomForest.clinical.physiologic
+```
+
+### Summarised performance
+
+```{r}
+
+knitr::kable(data.frame(
+  "Model"=c("Clinical Parameters: Random Forest", 
+            "Clinical and Physiologic Parameters: Random Forest", 
+            "Clinical Parameters: XGBoost", 
+            "Clinical and Physiologic Parameters: XGBoost" 
+            ), 
+  "Accuracy"=c(
+    randomForest.clinical$overall[1], 
+    randomForest.clinical.physiologic$overall[1], 
+    xgboost.clinical$overall[1], 
+    xgboost.clinical.physiologic$overall[1]
+  ),
+  "Sensitivity"=c(
+    randomForest.clinical$byClass[1], 
+    randomForest.clinical.physiologic$byClass[1], 
+    xgboost.clinical$byClass[1], 
+    xgboost.clinical.physiologic$byClass[1]
+  ), 
+  "Specificity"=c(
+    randomForest.clinical$byClass[2], 
+    randomForest.clinical.physiologic$byClass[2], 
+    xgboost.clinical$byClass[2], 
+    xgboost.clinical.physiologic$byClass[2]
+  )
+))
+# randomForest.clinical$overall[1]
+
+```
+
 
 
 ## 5. Discussion and Conclusions
