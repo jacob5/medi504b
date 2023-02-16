@@ -44,15 +44,17 @@ library(caret)
 ## 1. Introduction and Background
 
 ### 1.1 Introduction
-Our overarching goal for this project is to produce a machine learning (ML) model which can accurately predict polycystic ovary syndrome (PCOS) status (presence or absence of disease). PCOS is an endocrine (hormonal) disorder that affects females of a reproductive age. Given the widespread nature of this condition and the troubling symptoms which accompany it, including infertility, it would be helpful for physicians to be able to predict individuals more likely to experience PCOS thereby enabling them to therapeutically intervene and provide care and support in a timely manner. 
+Our overarching goal for this project is to produce a machine learning (ML) model which can accurately predict polycystic ovary syndrome (PCOS) status (presence or absence of disease) using predictors easily derived from a standard blood test and routine clinical examination. PCOS is an endocrine (hormonal) disorder that affects females of a reproductive age^1^. Given the widespread nature of this condition among women of reproducitve age and the troubling symptoms which accompany it, including infertility, it would be helpful for physicians to be able to predict, using just blood test results and a routine clinical exam, individuals more likely to experience PCOS thereby enabling them to therapeutically intervene and provide care and support in a timely manner, especially considering PCOS has been associated with other conditions such as endometriosis and endometrial cancer^2,5^. 
 
 ### 1.2 Background 
 
 Polycystic ovarian syndrome (PCOS) is a common endocrine disorder affecting approximately 10-15% of reproductive-age women worldwide^1^. The condition is characterized by a complex set of symptoms, including hyperandrogenism, menstrual irregularities, and polycystic ovaries^2^. The diagnosis of PCOS is typically based on clinical and biochemical assessments, as well as ultrasound imaging of the ovaries^1^. However, the diagnosis of PCOS can be challenging due to the heterogeneous presentation of symptoms and the lack of a single diagnostic criterion.
 
-Machine learning models have shown promise as a potential tool for the accurate prediction of PCOS. Compared to traditional diagnostic methods, machine learning models can utilize large amounts of data from various sources and provide more accurate predictions. This is particularly beneficial in the case of PCOS, as traditional diagnostic methods such as tissue biopsy can be expensive and invasive. Furthermore, machine learning models can assist clinicians in identifying patients who may benefit from early intervention, which can improve long-term health outcomes (Teede et al., 2018).
+Machine learning models have shown promise as a potential tool for the accurate prediction of PCOS. Compared to traditional diagnostic methods, machine learning models can utilize large amounts of data from various sources and provide more accurate predictions. This is particularly beneficial in the case of PCOS, as traditional diagnostic methods such as tissue biopsy or ultrasound imaging can be expensive and invasive. Furthermore, machine learning models can assist clinicians in identifying patients who may benefit from early intervention, which can improve long-term health outcomes (Teede et al., 2018).
 
-Overall, the use of machine learning models to predict PCOS has the potential to improve the accuracy of diagnosis and reduce the cost and invasiveness of traditional diagnostic methods. We sought to evaluate the comparative accuracy of multiple machine learning classifiers to select the optimal model for predicting PCOS, given considerations surrounding false positive and false negatives. 
+Our aim for this PCOS predictive model would be to assist clinicians with identifying women between the ages of XX-XX at highest risk or likely to develop PCOS. Moreover, we hope this predictive model may be used in both low and high resource settings, and we are therefore limiting the features used by the model to clinical and physiological parameters easily obtained via a routine clinical exam and standard blood test. 
+
+Overall, the use of machine learning models to predict PCOS has the potential to improve the accuracy of diagnosis and reduce the cost and invasiveness of traditional diagnostic methods. We sought to evaluate the comparative accuracy of multiple machine learning classifiers to select the optimal model for predicting PCOS based on variables obtained via a blood test and routine clinical examination, given considerations surrounding false positive and false negatives. 
 
 
 ### Ethics
@@ -407,79 +409,12 @@ knitr::kable(data.frame("Model"=c("Physiologic Model", "Clinical Model", "Physio
 
 ```
 
-Based on these results, we will compare the clinical model to the full clinical and physiological model. While the model including clinical predictors only is more simple both technically (as evidenced by the AIC) and practically (less inputs and no blood testing required), there is an approximately 10% drop in accuracy when excluding the phsyiologic data. We will select these two models and compare performance in applying various machine learning methods below. 
+Based on these results, we will compare the clinical model to the full clinical and physiological model. While the model including clinical predictors only is more simple both technically (as evidenced by the AIC) and practically (less inputs and no blood testing required), there is an approximately 10% drop in accuracy when excluding the physiological data. We will select these two models and compare performance in applying various machine learning methods below. 
 
-### 3.3 Model cross-validation (without RIDGE or LASSO) (using the caret package)
-* We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, results = "hide"}
-## cross-validation 
-
-cv_of_data <- caret::trainControl(
-  method = "repeatedcv", 
-  number = 5, #five fold cross validation 
-  repeats = 3 # repeat 3 times
-)
-
-set.seed(504)
-# cv_of_model1 <- caret::train(
-#                               pcos_y_n ~ 
-#                        , 
-#                               data = train.data, 
-#                               method = "glm",
-#                               family = "binomial",
-#                               trControl = cv_of_data
-#                             )
-
-
-
-cv_of_model2 <- caret::train( pcos_y_n ~ 
-                               weight_gain_y_n +
-                              hair_growth_y_n +
-                              skin_darkening_y_n +
-                         hair_loss_y_n +
-                         pimples_y_n, 
-                              data = train.data, 
-                              method = "glm",
-                              family = "binomial",
-                              trControl = cv_of_data
-                            )
-
-cv_of_model3 <- caret::train(
-                              pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
-                              weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n, 
-                              data = train.data, 
-                              method = "glm",
-                              family = "binomial",
-                              trControl = cv_of_data
-                            )
-
-summary(
-  resamples(
-    list(
-      # model1 = cv_of_model1, 
-      model2 = cv_of_model2, 
-      model3 = cv_of_model3
-    )
-  )
-)$statistics$Accuracy
-
-### Cross-validation RIDGE 
-
-set.seed(504)
-cv_of_data <- caret::trainControl(
-  method = "repeatedcv", 
-  number = 5, #five fold cross validation 
-  repeats = 3 # repeat 3 times
-)
-
-
-```
-
-### 3.4 Assessing model classification performance 
+### 3.3 Assessing model classification performance 
 * Assessing model performance using ROC curves 
 
-```{r echo=FALSE, fig.height=8, fig.width=4, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=6, fig.width=4, message=FALSE, warning=FALSE}
 ## plotting ROC and AUC 
 
 # plot(pROC::roc(train.data$pcos_y_n,
@@ -501,7 +436,7 @@ plot(pROC::roc(train.data$pcos_y_n,
 
 ```
 
-### Penalized logistic regression with cross-validation (RIDGE and LASSO)
+### 3.4 Penalized logistic regression with cross-validation (RIDGE and LASSO)
 
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
@@ -915,11 +850,11 @@ cm_rf
 1. Teede, H., Misso, M., Tassone, E. C., Dewailly, D., Ng, E. H., Azziz, R., ... & Norman, R. J. (2018). Recommendations from the international evidence-based guideline for the assessment and management of polycystic ovary syndrome. Human Reproduction, 33(9), 1602-1618. https://doi.org/10.1093/humrep/dey256
 2. Bozdag, G., Mumusoglu, S., Zengin, D., & Karabulut, E. (2016). The prevalence and phenotypic features of polycystic ovary syndrome: a systematic review and meta-analysis. Human Reproduction, 31(12), 2841–2855. https://doi.org/10.1093/humrep/dew218
 3. R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
-3. Ajmal N, Khan SZ, Shaikh R. Polycystic ovary syndrome (PCOS) and genetic predisposition: A review article. Eur J Obstet Gynecol Reprod Biol X. 2019 Jun 8;3:100060. doi: 10.1016/j.eurox.2019.100060. PMID: 31403134; PMCID: PMC6687436.
-4.
-5.
+4. Ajmal N, Khan SZ, Shaikh R. Polycystic ovary syndrome (PCOS) and genetic predisposition: A review article. Eur J Obstet Gynecol Reprod Biol X. 2019 Jun 8;3:100060. doi: 10.1016/j.eurox.2019.100060. PMID: 31403134; PMCID: PMC6687436.
+5. Hart R, Doherty DA. The potential implications of a PCOS diagnosis on a woman's long-term health using data linkage. J Clin Endocrinol Metab. 2015 Mar;100(3):911-9. doi: 10.1210/jc.2014-3886. Epub 2014 Dec 22. Erratum in: J Clin Endocrinol Metab. 2015 Jun;100(6):2502. PMID: 25532045.
 6.
 7.
+8.
 
 ## Appendix 
 
@@ -944,8 +879,6 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_formatt
 plot_correlation(PCOS_data_without_infertility_formatted, title = "Bivariate analysis to visualize our covariation between our continuous variables", theme_config = list("plot.title" = element_text(size = 24)), type = 'continuous')
 ```
 
-
-
 * From this correlation plot, we find that several continuous variables do co-vary with one another.
 * Specifically, as we would expect, we find a positive correlation between the variables waist and hip (in inches) with weight. We find the same positive correlation for BMI. 
 * Another obvious correlation we observe is that between age (in years) and marriage (in years) 
@@ -966,5 +899,73 @@ plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "
 ```{r EDA2, eval=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, include=FALSE}
 # plotting a histogram for each continuous feature 
 plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plot.title" = element_text(size = 24)), title = "Histograms for each continuous variable - to visualize distributions", )
+
+```
+
+
+### Appendix Section 5 - Model cross-validation (without RIDGE or LASSO) (using the caret package)
+* We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results = "hide"}
+## cross-validation 
+
+cv_of_data <- caret::trainControl(
+  method = "repeatedcv", 
+  number = 5, #five fold cross validation 
+  repeats = 3 # repeat 3 times
+)
+
+set.seed(504)
+# cv_of_model1 <- caret::train(
+#                               pcos_y_n ~ 
+#                        , 
+#                               data = train.data, 
+#                               method = "glm",
+#                               family = "binomial",
+#                               trControl = cv_of_data
+#                             )
+
+
+
+cv_of_model2 <- caret::train( pcos_y_n ~ 
+                               weight_gain_y_n +
+                              hair_growth_y_n +
+                              skin_darkening_y_n +
+                         hair_loss_y_n +
+                         pimples_y_n, 
+                              data = train.data, 
+                              method = "glm",
+                              family = "binomial",
+                              trControl = cv_of_data
+                            )
+
+cv_of_model3 <- caret::train(
+                              pcos_y_n ~ i_beta_hcg_m_iu_m_l + fsh_m_iu_m_l + lh_m_iu_m_l + tsh_m_iu_l + amh_ng_m_l +
+                              weight_gain_y_n + hair_growth_y_n + skin_darkening_y_n + hair_loss_y_n + pimples_y_n, 
+                              data = train.data, 
+                              method = "glm",
+                              family = "binomial",
+                              trControl = cv_of_data
+                            )
+
+summary(
+  resamples(
+    list(
+      # model1 = cv_of_model1, 
+      model2 = cv_of_model2, 
+      model3 = cv_of_model3
+    )
+  )
+)$statistics$Accuracy
+
+### Cross-validation RIDGE 
+
+set.seed(504)
+cv_of_data <- caret::trainControl(
+  method = "repeatedcv", 
+  number = 5, #five fold cross validation 
+  repeats = 3 # repeat 3 times
+)
+
 
 ```
