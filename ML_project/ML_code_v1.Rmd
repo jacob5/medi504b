@@ -62,7 +62,7 @@ Overall, the use of machine learning models to predict PCOS has the potential to
 
 ### 1.3 Data
 
-The dataset consists of physical and clinical parameters collected from 10 hospitals across Kerala, India, to determine PCOS and infertility-related issues. The dataset contains information that can be used to analyze and understand the diagnosis and treatment of PCOS and infertility.
+The dataset consists of physical and clinical parameters collected from 10 hospitals across Kerala, India, and from 541 women, to determine PCOS and infertility-related issues. The dataset contains information that can be used to analyze and understand the diagnosis and treatment of PCOS and infertility.
 
 ## 2. Objectives
 
