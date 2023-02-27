@@ -53,7 +53,7 @@ Our overarching goal for this project is to produce a machine learning (ML) mode
 
 Polycystic ovarian syndrome (PCOS) is a common endocrine disorder affecting approximately 10-15% of reproductive-age women worldwide^1^. The condition is characterized by a complex set of symptoms, including hyperandrogenism, menstrual irregularities, and polycystic ovaries^2^. The diagnosis of PCOS is typically based on clinical and biochemical assessments, as well as ultrasound imaging of the ovaries^1^. However, the diagnosis of PCOS can be challenging due to the heterogeneous presentation of symptoms and the lack of a single diagnostic criterion.
 
-Machine learning models have shown promise as a potential tool for the accurate prediction of PCOS. Compared to traditional diagnostic methods, machine learning models can utilize large amounts of data from various sources and provide more accurate predictions. This is particularly beneficial in the case of PCOS, as traditional diagnostic methods such as tissue biopsy or ultrasound imaging can be expensive and invasive. Furthermore, machine learning models can assist clinicians in identifying patients who may benefit from early intervention, which can improve long-term health outcomes (Teede et al., 2018).
+Machine learning models have shown promise as a potential tool for the accurate prediction of PCOS. Compared to traditional diagnostic methods, machine learning models can utilize large amounts of data from various sources and provide more accurate predictions. This is particularly beneficial in the case of PCOS, as traditional diagnostic methods such as tissue biopsy or ultrasound imaging can be expensive and invasive. Furthermore, machine learning models can assist clinicians in identifying patients who may benefit from early intervention, which can improve long-term health outcomes^1^.
 
 Our aim for the PCOS predictive model we are building would be to assist clinicians with identifying women between the ages of 21-47 at highest risk or likely to develop PCOS. Since current methods of PCOS diagnosis often require specialized equipment, we sought to develop a model that used a subset of easily measurable clinical and physiological parameters to predict PCOS, thus enabling early diagnoses to be made and enabling specialized resources to be used in fewer patients as a confirmatory test. 
 
@@ -1215,7 +1215,6 @@ PCOS status can be predicted with a reasonably high level of accuracy (88.1% wit
 5. Hart R, Doherty DA. The potential implications of a PCOS diagnosis on a woman's long-term health using data linkage. J Clin Endocrinol Metab. 2015 Mar;100(3):911-9. doi: 10.1210/jc.2014-3886. Epub 2014 Dec 22. Erratum in: J Clin Endocrinol Metab. 2015 Jun;100(6):2502. PMID: 25532045.
 6. Fernández-Delgado, M., Cernadas E., Barro S., Amorim D. Do we need hundreds of classifiers to solve real world classification problems? The Journal of Machine Learning Research. Volume 15. Issue 1, pp 3133–3181. 
 7. Deswal R, Narwal V, Dang A, Pundir CS. The Prevalence of Polycystic Ovary Syndrome: A Brief Systematic Review. J Hum Reprod Sci. 2020 Oct-Dec;13(4):261-271. doi: 10.4103/jhrs.JHRS_95_18. Epub 2020 Dec 28. PMID: 33627974; PMCID: PMC7879843.
-8.
 
 ## Appendix 
 
