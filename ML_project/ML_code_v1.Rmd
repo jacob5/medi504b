@@ -247,33 +247,65 @@ data=PCOS_data_without_infertility_formatted)%>%as.data.frame()
 ```
 
 
-### Pruned table1
+### Table 1. Selected patient characteristics stratified by PCOS status
 
 For this table, we have included only the parameters we deemed eligible for the model. Thus, we have excluded self-report variables, expensive and/or invasive tests, and clinical variables not easily measured by a routine clinical examination or a blood test.   
 
 ```{r pruned_table, echo=FALSE, message=FALSE, warning=FALSE}
+
+tableData <-  PCOS_data_without_infertility_formatted %>%
+  mutate(
+"Age"=age_yrs,              
+"BMI"=bmi,                  
+"Pulse rate"=pulse_rate_bpm,      
+"Respiratory rate"=rr_breaths_min,       
+"Hemeglobin (g/dl)"=hb_g_dl,              
+"Pregnancy status"=pregnant_y_n,        
+"Human chorionic gonadotropin (IU/ml)"=as.numeric(i_beta_hcg_m_iu_m_l),  
+"Follicle stimulating hormone (IU/ml)"=as.numeric(fsh_m_iu_m_l),         
+"Lutenizing hormone (IU/ml)"=as.numeric(lh_m_iu_m_l),          
+"Thyroid stimulating hormone (IU/ml)" = as.numeric(tsh_m_iu_l),           
+"Anti-mullerian hormone (ng/ml)"=as.numeric(amh_ng_m_l),           
+"Prolactin (ng/ml)"=as.numeric(prl_ng_m_l),          
+"Vitamin D (ng/ml)" = as.numeric(vit_d3_ng_m_l),        
+"Progesterone (ng/ml)" = as.numeric(prg_ng_m_l),          
+"Random blood sugar (mg/dl)"=as.numeric(rbs_mg_dl),           
+"Recent weight gain"=weight_gain_y_n,      
+"Recent hair growth"=hair_growth_y_n,      
+"Recent skin darkening"=skin_darkening_y_n,  
+"Recent hair loss"=hair_loss_y_n, 
+"Recent onset acne"=pimples_y_n)%>%
+mutate(`Recent weight gain`=ifelse(`Recent weight gain`==1, "Yes", "No"), 
+`Recent hair growth`=ifelse(`Recent hair growth`==1, "Yes", "No"), 
+`Recent skin darkening`=ifelse(`Recent skin darkening`==1, "Yes", "No"), 
+`Recent hair loss`=ifelse(`Recent hair loss`==1, "Yes", "No"), 
+`Recent onset acne`=ifelse(`Recent onset acne`==1, "Yes", "No"), 
+`Pregnancy status`=ifelse(`Pregnancy status`==1, "Yes", "No"))
+  
 table1::table1(~
-age_yrs+              
-bmi+                  
-pulse_rate_bpm+      
-rr_breaths_min+       
-hb_g_dl+              
-pregnant_y_n+        
-as.numeric(i_beta_hcg_m_iu_m_l)+  
-as.numeric(fsh_m_iu_m_l)+         
-as.numeric(lh_m_iu_m_l)+          
-as.numeric(tsh_m_iu_l)+           
-as.numeric(amh_ng_m_l)+           
-as.numeric(prl_ng_m_l)+          
-as.numeric(vit_d3_ng_m_l)+        
-as.numeric(prg_ng_m_l)+          
-as.numeric(rbs_mg_dl)+           
-weight_gain_y_n+      
-hair_growth_y_n+      
-skin_darkening_y_n+  
-hair_loss_y_n+        
-pimples_y_n| as.factor(PCOS_Status), 
-data=PCOS_data_without_infertility_formatted)
+`Age`+
+`BMI`+
+`Pulse rate`+
+`Respiratory rate`+
+`Hemeglobin (g/dl)`+
+`Pregnancy status`+
+`Human chorionic gonadotropin (IU/ml)`+
+`Follicle stimulating hormone (IU/ml)`+
+`Lutenizing hormone (IU/ml)`+
+`Thyroid stimulating hormone (IU/ml)`+
+`Anti-mullerian hormone (ng/ml)`+
+`Prolactin (ng/ml)`+
+`Vitamin D (ng/ml)`+
+`Progesterone (ng/ml)`+
+`Random blood sugar (mg/dl)`+
+`Recent weight gain`+
+`Recent hair growth`+
+`Recent skin darkening`+
+`Recent hair loss`+
+`Recent onset acne`
+|
+  as.factor(PCOS_Status), 
+data=tableData)
 ```
 
 From table 1, we can observe some differences among women with and without PCOS in the following parameters: 
