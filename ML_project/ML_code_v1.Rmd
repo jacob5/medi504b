@@ -163,8 +163,7 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned
                                                           "hair_loss_y_n",
                                                           "pimples_y_n",
                                                           "fast_food_y_n",
-                                                          "cycle_r_i",
-                                                          "cycle_length_days", 
+                                                         
                                                                                                                     "reg_exercise_y_n"), as.character)%>%
   mutate_at(c(
     "i_beta_hcg_m_iu_m_l",
@@ -177,10 +176,12 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned
     "endometrium_mm", 
     "prg_ng_m_l", 
     "vit_d3_ng_m_l",
+     "cycle_r_i",
+                                                          "cycle_length_days", 
     "prl_ng_m_l"
     
     ), as.numeric)
-
+PCOS_data_without_infertility_formatted$PCOS_Status <- as.factor(ifelse(PCOS_data_without_infertility_formatted$pcos_y_n==1, "Positive", "Negative"))
 # glimpse(PCOS_data_without_infertility_formatted)
 
 ```
@@ -190,8 +191,8 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned
 
 Now that the data is cleaned, we can produce the standard table 1, common in biomedical research for describing the study cohort.
 
-```{r}
-PCOS_data_without_infertility_formatted$PCOS_Status <- as.factor(ifelse(PCOS_data_without_infertility_formatted$pcos_y_n==1, "Positive", "Negative"))
+```{r eval=FALSE, include=FALSE}
+
 tab1<-table1::table1(~
 age_yrs+              
 weight_kg+            
@@ -235,18 +236,20 @@ as.numeric(avg_f_size_l_mm)+
 as.numeric(avg_f_size_r_mm)+      
 as.numeric(endometrium_mm) | as.factor(PCOS_Status), 
 data=PCOS_data_without_infertility_formatted)%>%as.data.frame()
-
-tab1%>%mutate(`Standardized Difference`=
-                as.numeric(str_split_fixed(Positive, " ", 2)[,1])/as.numeric(str_split_fixed(Negative, " ", 2)[,1]))
-
-vec <- as.numeric(str_split_fixed(tab1$Positive, " ", 2)[,1])/
-  as.numeric(str_split_fixed(tab1$Negative, " ", 2)[,1])
-tab1$`Standardized Diff` <- vec
-View(tab1)
+# 
+# tab1%>%mutate(`Standardized Difference`=
+#                 as.numeric(str_split_fixed(Positive, " ", 2)[,1])/as.numeric(str_split_fixed(Negative, " ", 2)[,1]))
+# 
+# vec <- as.numeric(str_split_fixed(tab1$Positive, " ", 2)[,1])/
+#   as.numeric(str_split_fixed(tab1$Negative, " ", 2)[,1])
+# tab1$`Standardized Diff` <- vec
+# View(tab1)
 ```
 
 
 ### Pruned table1
+
+Keep in mind this is displays only the parameters we deem eligible for the model: no self-report, no invasive tests. 
 
 ```{r}
 table1::table1(~
@@ -255,14 +258,10 @@ bmi+
 pulse_rate_bpm+      
 rr_breaths_min+       
 hb_g_dl+              
-cycle_r_i+           
-cycle_length_days+    
 pregnant_y_n+        
 as.numeric(i_beta_hcg_m_iu_m_l)+  
-as.numeric(ii_beta_hcg_m_iu_m_l)+
 as.numeric(fsh_m_iu_m_l)+         
 as.numeric(lh_m_iu_m_l)+          
-fsh_lh+              
 as.numeric(tsh_m_iu_l)+           
 as.numeric(amh_ng_m_l)+           
 as.numeric(prl_ng_m_l)+          
@@ -273,14 +272,7 @@ weight_gain_y_n+
 hair_growth_y_n+      
 skin_darkening_y_n+  
 hair_loss_y_n+        
-pimples_y_n+          
-fast_food_y_n+       
-reg_exercise_y_n+     
-follicle_no_l+        
-follicle_no_r+       
-as.numeric(avg_f_size_l_mm)+     
-as.numeric(avg_f_size_r_mm)+      
-as.numeric(endometrium_mm) | as.factor(PCOS_Status), 
+pimples_y_n| as.factor(PCOS_Status), 
 data=PCOS_data_without_infertility_formatted)
 ```
 
@@ -307,7 +299,7 @@ We can visualize these distributions in the following figures.
 
 ### 4a.2 Bivariate associations 
 
-We examined associations for categorical predictors and the outcome (PCOS) by constructing bivariate plots for the predictors stratified by PCOS status^4^. 
+We visualized associations for selected categorical predictors and the outcome (PCOS) by constructing bivariate plots for the predictors stratified by PCOS status^4^. 
 
 ```{r EDA4, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 # plotting bar plots for each categorical feature
@@ -322,7 +314,7 @@ To ascertain the relationship between PCOS status and continuous predictors, we 
 
 For this section of the EDA, we looked more closely at the relationships between selected variables and our outcome variable of interest (for this project: yes or no for PCOS), based on how our boxplots looked initially (please refer to Appendix for all boxplots) and on some knowledge gained via our literature survey, we will highlight the relatiionship of select variables with our outcome variable (PCOS status). While the etiology for PCOS is not known, our literature survey suggests PCOS is associated with abnormal hormone levels. Thus, to look into this further as part of the EDA, we compared measurements of hormone levels and PCOS status to get a sense of the relationships between these variables.
 
-### Boxplots looking at relationship of hormones and PCOS status
+### Boxplots looking at relationship of selected physiologic parameters and PCOS status (note log-scale)
 ```{r hormonevariables, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 
 ## looking more closely and the relationships between selected variables and our outcome variable of interest (PCOS yes or no)
@@ -381,10 +373,30 @@ eda_compare_plot4 <- PCOS_data_without_infertility_formatted %>%
                         scale_y_log10()
 
 # eda_compare_plot4
+eda_compare_plot5 <- PCOS_data_without_infertility_formatted %>%
+                        ggplot(aes(pcos_y_n,vit_d3_ng_m_l)) + 
+                        geom_boxplot() +
+                        theme_bw() +
+                        theme(title = element_text(size = 22),
+                              plot.caption = element_text(hjust = 0, size = 20)) +
+                        labs(title = "Vitamin D and PCOS status") +
+                        scale_y_log10()
+
+eda_compare_plot6 <- PCOS_data_without_infertility_formatted %>%
+                        ggplot(aes(pcos_y_n,prg_ng_m_l)) + 
+                        geom_boxplot() +
+                        theme_bw() +
+                        theme(title = element_text(size = 22),
+                              plot.caption = element_text(hjust = 0, size = 20)) +
+                        labs(title = "Progesterone and PCOS status") +
+                        scale_y_log10()
 
 
-cowplot::plot_grid(eda_compare_plot1, eda_compare_plot2, eda_compare_plot3, eda_compare_plot4, ncol=2, nrow=2)
+cowplot::plot_grid(eda_compare_plot1, eda_compare_plot2, eda_compare_plot3, eda_compare_plot4, eda_compare_plot5, eda_compare_plot6, ncol=2, nrow=3)
 ```
+
+
+
 
 To get a sense of the variation in our dataset, we plotted histograms for each continuous variable using the plot_histogram() from the DataExplorer Package. We see that the age distribution in our dataset reveals most individuals are in the range of 20 to 40 years. No individuals in the dataset are younger than 20 or older than 50. As we would expect, the BMI values follow an approximately normal distribution. The most common blood type we observe is O+, which is consistent with the fact that O+ is the most frequent bloodtype globally. The most common cycle length is 5 days. The endometrium thickness data suggests there are two most most common thickness values (two clear peaks in the distribution).
 
