@@ -1303,8 +1303,8 @@ plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plo
 
 ```
 
-### Appendix Plot 4 - Penalized logistic regression with cross-validation (RIDGE and LASSO)
-
+### Appendix Plot 4 - Penalized logistic regression with cross-validation (RIDGE and LASSO), and Elastic Net
+* 
 ```{r echo=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, results = "hide"}
 
 # glimpse(train.data)
@@ -1532,15 +1532,13 @@ fit.cv.bin.elastic.model_3
 
 elastic_model3 <- plot(fit.cv.bin.elastic.model_3, title = "Cross Validation with ElasticNet for Model 3")
 
-cowplot::plot_grid(elastic_model2, elastic_model3)
+cowplot::plot_grid(elastic_model2, elastic_model3, title = "Elastic Net Models Comparison")
 
 ```
 
-### Appendix Section 5 - Model cross-validation (without RIDGE or LASSO) (using the caret package)
-* We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results = "hide"}
-## cross-validation 
+## cross-validation (WITHOUT RIDGE or LASSO)
 
 cv_of_data <- caret::trainControl(
   method = "repeatedcv", 
@@ -1603,7 +1601,7 @@ cv_of_data <- caret::trainControl(
 
 ```
 
-### Appendix Plot 6 - Variable importance (based on Random Forest model)
+### Appendix Plot 5 - Variable importance (based on Random Forest model)
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 vip::vip(caret_rf_model3)+theme_bw()
 ```
