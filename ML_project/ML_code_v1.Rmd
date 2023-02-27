@@ -58,7 +58,7 @@ To ensure our analysis is ethical, the appropriate ethical approval was obtained
 
 The rationale for developing this predictive ML model is based on the motivation to (1) provide a data-driven method of diagnosis that is cheaper and less invasive than current methods, (2) develop a method which may be applied without expensive diagnostic equipment (such as an ultrasound imaging device), (3) develop a method which may be used with just a blood test and the review of clinical symptoms and (4) construct a method which relies minimally on self-reported data. As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantageous for reasons related to clinical care, resource utilization and accessibility. This influenced our variable selection, as we did not consider the inclusion of predictors that cannot be measured in the above stated context in model development. We therefore, for example, exclude self-reported variables or variables which required ultrasound imaging (for example, endometrium thickness). 
 
-While accuracy was a key consideration for evaluating model performance, we also focused on optimizing the specificity of the model predictions. The rationale for optimizing specificity was based on the relatively high incidence of PCOS [[SOURCE]] as well as the relatively low mortality associated with the disease. Since patients flagged for high risk of PCOS would receive a confirmatory ultrasound, we wanted to select a model that would be biased towards reducing false positives, as one of our goals was reducing the cost of care. 
+While accuracy was a key consideration for evaluating model performance, we also focused on optimizing the specificity of the model predictions. The rationale for optimizing specificity was based on the relatively high prevalence of PCOS^7^ as well as the relatively low mortality associated with the disease^1,2,5^. Since patients flagged for high risk of PCOS would receive a confirmatory ultrasound, we wanted to select a model that would be biased towards reducing false positives, as one of our goals was reducing the cost of care. 
 
 Overall, the use of machine learning models to predict PCOS has the potential to improve the accuracy of diagnosis and reduce the cost and invasiveness of traditional diagnostic methods. We sought to evaluate the comparative accuracy of multiple machine learning classifiers to select the optimal model for predicting PCOS based on variables obtained via a blood test and routine clinical examination, given considerations surrounding false positive and false negatives.  
 
@@ -79,7 +79,7 @@ Optimizing model specificity for the prediction of PCOS is important because PCO
 ## 3. Methods
 
 ### 3.1 Splitting our dataset into training and testing datasets
-Following our Exploratory Data Analysis (EDA, please refer to Results section for EDA), we start by splitting our dataset into the training set and the validation set, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). We chose to partition our data into only two sets based on the relatively small overall sample size of our data and small effective sample size of our data. Further, to help determine generalizability, we believe it would be ideal for our predictive model to be validated on an external dataset derived from a different population than our training and test data.  
+Following our Exploratory Data Analysis (EDA, please refer to Results section for EDA), we started by splitting our dataset into the training set and the testing dataset, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). We chose to partition our data into only two sets based on the relatively small overall sample size of our data and small effective sample size of our data. Further, to help determine generalizability, we believe it would be ideal for our predictive model to be validated on an external dataset derived from a different population than our training and test data. For example, an external validation could be performed on PCOS hospital data from other Indian states such as Tamil Nadu or Karnataka. For an even better gauge of model generalizability, the external validation could be performed on PCOS hospital data from other countries.    
 
 ### 3.2 Variable selection and building logistic regression models 
 
@@ -1073,21 +1073,20 @@ knitr::kable(
 ## 5. Discussion and Conclusion
 ### 5.1 Discussion
 
-We found the best ML model which balances accuracy, specificity and clinical utility to be the Random Forest model with clinical parameters (n=5 clinical symptoms: weight gain, hair growth + skin darkening, hair loss and pimples). This model performed with the following accuracy = XX, sensitivity = XX and specificity = XX when applied to our test dataset. We opted to use a Random Forest approach as part of trying different ML models as a recent study in the literature indicating Random Forest models perform the most accurately on a wide variety of datasets^6^. 
+We found the best ML model which balances accuracy, specificity and clinical utility to be the Random Forest model with clinical parameters (n=5 clinical symptoms: weight gain, hair growth + skin darkening, hair loss and pimples). This model performed with the following accuracy = 88.1%, sensitivity = 71.2% and specificity = 96.3% when applied to our test dataset. Not only did this model have the highest accuracy of the six models we compared, the model also performed well on sensitivity and specificity. We opted to use a Random Forest approach as part of trying different ML models as a recent study in the literature indicating Random Forest models perform the most accurately on a wide variety of datasets^6^. One of the drawbacks of the Random Forest is its black box nature, making it harder to determine and/or interpret how the model is making its predictions. 
 
 ### 5.2 Conclusions
 
 PCOS status can be predicted with a high level of accuracy using a combination of clinical and physiological parameters that are easily measurable in a general practice setting. By optimizing for specificity, patients likely to be PCOS positive can be selected for more invasive testing, thus reducing the cost of care and improving patient experience for the population of at-risk women. Implementation of model-based screening should be considered particularly in resource limited settings, where access to advanced diagnostics is challenging due to cost or geography. 
 
 ## References 
-
 1. Teede, H., Misso, M., Tassone, E. C., Dewailly, D., Ng, E. H., Azziz, R., ... & Norman, R. J. (2018). Recommendations from the international evidence-based guideline for the assessment and management of polycystic ovary syndrome. Human Reproduction, 33(9), 1602-1618. https://doi.org/10.1093/humrep/dey256
 2. Bozdag, G., Mumusoglu, S., Zengin, D., & Karabulut, E. (2016). The prevalence and phenotypic features of polycystic ovary syndrome: a systematic review and meta-analysis. Human Reproduction, 31(12), 2841–2855. https://doi.org/10.1093/humrep/dew218
 3. R for Data Science by Hadley Wickham (https://r4ds.had.co.nz)
 4. Ajmal N, Khan SZ, Shaikh R. Polycystic ovary syndrome (PCOS) and genetic predisposition: A review article. Eur J Obstet Gynecol Reprod Biol X. 2019 Jun 8;3:100060. doi: 10.1016/j.eurox.2019.100060. PMID: 31403134; PMCID: PMC6687436.
 5. Hart R, Doherty DA. The potential implications of a PCOS diagnosis on a woman's long-term health using data linkage. J Clin Endocrinol Metab. 2015 Mar;100(3):911-9. doi: 10.1210/jc.2014-3886. Epub 2014 Dec 22. Erratum in: J Clin Endocrinol Metab. 2015 Jun;100(6):2502. PMID: 25532045.
 6. Fernández-Delgado, M., Cernadas E., Barro S., Amorim D. Do we need hundreds of classifiers to solve real world classification problems? The Journal of Machine Learning Research. Volume 15. Issue 1, pp 3133–3181. 
-7.
+7. Deswal R, Narwal V, Dang A, Pundir CS. The Prevalence of Polycystic Ovary Syndrome: A Brief Systematic Review. J Hum Reprod Sci. 2020 Oct-Dec;13(4):261-271. doi: 10.4103/jhrs.JHRS_95_18. Epub 2020 Dec 28. PMID: 33627974; PMCID: PMC7879843.
 8.
 
 ## Appendix 
@@ -1117,7 +1116,6 @@ plot_correlation(PCOS_data_without_infertility_formatted, title = "Bivariate ana
 * Specifically, as we would expect, we find a positive correlation between the variables waist and hip (in inches) with weight. We find the same positive correlation for BMI. 
 * Another obvious correlation we observe is that between age (in years) and marriage (in years) 
 * 
-
 * Appendix Plot 3 showing boxplots generated to investigate potential associations between continuous variables and PCOS status. 
 
 ```{r boxplots, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
