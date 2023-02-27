@@ -52,13 +52,15 @@ Polycystic ovarian syndrome (PCOS) is a common endocrine disorder affecting appr
 
 Machine learning models have shown promise as a potential tool for the accurate prediction of PCOS. Compared to traditional diagnostic methods, machine learning models can utilize large amounts of data from various sources and provide more accurate predictions. This is particularly beneficial in the case of PCOS, as traditional diagnostic methods such as tissue biopsy or ultrasound imaging can be expensive and invasive. Furthermore, machine learning models can assist clinicians in identifying patients who may benefit from early intervention, which can improve long-term health outcomes (Teede et al., 2018).
 
-Our aim for the PCOS predictive model we are building would be to assist clinicians with identifying women between the ages of 21-47 at highest risk or likely to develop PCOS. Moreover, we hope this predictive model may be used in both low and high resource settings, and we are therefore limiting the features used by the model to clinical and physiological parameters easily obtained via a routine clinical exam and standard blood test. 
+Our aim for the PCOS predictive model we are building would be to assist clinicians with identifying women between the ages of 21-47 at highest risk or likely to develop PCOS. Since current methods of PCOS diagnosis often require specialized equipment, we sought to develop a model that used a subset of easily measureable clinical and physiological parameters to predict PCOS, thus enabling early diagnoses to be made and enabling specialized resources to be used in fewer patients as a confirmatory test. 
 
 To ensure our analysis is ethical, the appropriate ethical approval was obtained for this ML project. To help ensure privacy fo this ML project, we worked with de-identified anonymized data. In the event an individual was identified as being pregnant or may be at risk of a life-threatening condition, we followed-up immediately with the individual's physician. 
 
-The rationale for developing this predictive ML model is based on the motivation to (1) provide a data-driven method of diagnosis that is cheaper and less invasive than current methods, (2) develop a method which may be applied without expensive diagnostic equipment (such as an ultrasound imaging device), (3) develop a method which may be used with just a blood test and the review of clinical symptoms and (4) construct a method which relies minimally on self-reported data. As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantageous for reasons related to clinical care, resource utilization and accessibility. This influenced our variable selection, as we did not consider the inclusion of predictors that cannot be measured in the above stated context in model development. We therefore, for example, exclude self-reported variables or variables which required ultrasound imaging (for example, endometrium thickness).  
+The rationale for developing this predictive ML model is based on the motivation to (1) provide a data-driven method of diagnosis that is cheaper and less invasive than current methods, (2) develop a method which may be applied without expensive diagnostic equipment (such as an ultrasound imaging device), (3) develop a method which may be used with just a blood test and the review of clinical symptoms and (4) construct a method which relies minimally on self-reported data. As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantageous for reasons related to clinical care, resource utilization and accessibility. This influenced our variable selection, as we did not consider the inclusion of predictors that cannot be measured in the above stated context in model development. We therefore, for example, exclude self-reported variables or variables which required ultrasound imaging (for example, endometrium thickness). 
 
-Overall, the use of machine learning models to predict PCOS has the potential to improve the accuracy of diagnosis and reduce the cost and invasiveness of traditional diagnostic methods. We sought to evaluate the comparative accuracy of multiple machine learning classifiers to select the optimal model for predicting PCOS based on variables obtained via a blood test and routine clinical examination, given considerations surrounding false positive and false negatives. 
+While accuracy was a key consideration for evaluating model performance, we also focused on optimizing the specificity of the model predictions. The rationale for optimizing specificity was based on the relatively high incidence of PCOS [[SOURCE]] as well as the relatively low mortality associated with the disease. Since patients flagged for high risk of PCOS would receive a confirmatory ultrasound, we wanted to select a model that would be biased towards reducing false positives, as one of our goals was reducing the cost of care. 
+
+Overall, the use of machine learning models to predict PCOS has the potential to improve the accuracy of diagnosis and reduce the cost and invasiveness of traditional diagnostic methods. We sought to evaluate the comparative accuracy of multiple machine learning classifiers to select the optimal model for predicting PCOS based on variables obtained via a blood test and routine clinical examination, given considerations surrounding false positive and false negatives.  
 
 ### 1.3 Data
 
@@ -84,19 +86,17 @@ Following our Exploratory Data Analysis (EDA, please refer to Results section fo
 We first attempted to model our data with PCOS status as the outcome variable using three different logistic regression models. At this stage of variable selection, we undertook a combined approach to informing variable selection. The Akaike Information Criteria (AIC) was used to assess model fit, the Area Under the Receiving Operator Characteristic (AUC) was used to assess model accuracy, and the model with the best balance between both of these parameters, as well as clinical utility was used. The three tested models utilized the following construction:
 
 * (1) Model 1 is the physiological model which includes five hormones of interest, namely hormone measurements of n=5 different types of hormones commonly included or easily measured as a part of a standard routine blood test.
-* (2) Model 2 is the clinical model, including as variables clinical symptoms associated with PCOS, and specifically clinical symptoms which may be easily determined as a part of a routine examination by a physician. THese are the variables included in the clinical model: weight gain, hair growth + skin darkening, hair loss and pimples.
+* (2) Model 2 is the clinical model, including as variables clinical symptoms associated with PCOS, and specifically clinical symptoms which may be easily determined as a part of a routine examination by a physician. These are the variables included in the clinical model: weight gain, hair growth + skin darkening, hair loss and pimples.
 * (3) Model 3 includes both the physiological and clinical variables, that is the n=5 the hormone measurement levels we as well as the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples (clinical symptoms which may be easily identified or tracked in a basic clinical setting). 
 
 Following this initial variable selection, we selected the two best performing models and applied various machine learning training methods to optimize model performance. We then selected the best performing model as the final model. 
 
 Of our three logistic regression models, Model 2 had the lowest AIC score of 317, followed by Model 3 with an AIC score of 566. However, the predictive performance as assesed by AUC was higher for model 3 (0.99) than model 2 (0.88). While model 3 was better performing, it also required more parameters for prediction that require blood testing. The rationale for testing both models with machine learning optimization was to assess if a simpler model with clinical parameters only could approximate the classification performance of a more complex model. 
 
-## Results 
-
 ## 4. Results
 
 ## 4a. Exploratory Data Analysis
-This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA. Please refer to bullet points, figure titles and figure captions for more details. The first steps in our EDA involved getting a high-level overview of our dataset and determining the dimension of our data: n=541 rows and n=45 columns. Further checking of the dataset reveals an additional column (column 45). This column does not contain any useful information and is not one of our 44 features, therefore the column was removed. We find that our dataset has the following variables: Sl. No, Patient File No., PCOS (Y/N), Age (yrs), Weight (Kg), Height(Cm), BMI, Blood Group, Pulse rate(bpm), RR(breaths/min), Hb(g/dl), Cycle(R/I), Cycle length(days), Marriage Status (Yrs), Pregnant(Y/N), No. of aborptions, I   beta-HCG(mIU/mL), II    beta-HCG(mIU/mL), FSH(mIU/mL), LH(mIU/mL), FSH/LH, Hip(inch), Waist(inch), Waist:Hip Ratio, TSH (mIU/L), AMH(ng/mL), PRL(ng/mL), Vit D3 (ng/mL), PRG(ng/mL), RBS(mg/dl), Weight gain(Y/N), hair growth(Y/N), Skin darkening (Y/N), Hair loss(Y/N), Pimples(Y/N), Fast food (Y/N), Reg.Exercise(Y/N), BP _Systolic (mmHg), BP _Diastolic (mmHg), Follicle No. (L), Follicle No. (R), Avg. F size (L) (mm), Avg. F size (R) (mm), Endometrium (mm).
+This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA. Please refer to bullet points, figure titles and figure captions for more details. The first steps in our EDA involved getting a high-level overview of our dataset and determining the dimension of our data: n=541 rows and n=45 columns. Further checking of the dataset reveals an additional column (column 45). This column does not contain any useful information and is not one of our 44 features, therefore the column was removed. 
 
 ``` {r loading, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 # loading data
@@ -142,7 +142,7 @@ PCOS_data_without_infertility_cleaned <- PCOS_data_without_infertility %>%
 
 ### 4a.1 Data Wrangling
 
-The data was formatted to ensure the variables are the appropriate class type, this will enable us to perform our EDA. Specifically we converted binary variables (1 or 0) into the character class type.Next in our EDA we sought to identify missing values in our dataset. Here, we see a plot showing our variables and the percentage of missing rows per variable. The plot shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing (please refer to Appendix Plot 1). Therefore, as this is below the generally used threshold of 5 %, missing values were simply removed for our subsequent analyses. 
+The data was formatted to ensure the variables are the appropriate class type, this will enable us to perform our EDA. Specifically we converted binary variables (1 or 0) into the character class type.Next in our EDA we sought to identify missing values in our dataset. Figure A1 in Appendix A shows the missing values in our dataset. Our EDA identified some missing values for two variables: fast food and marriage status. The analysis indicates that only 0.18% of the rows for these variables are missing. Therefore, as this is below the generally used threshold of 5 %, missing values were simply removed for our subsequent analyses. 
 
 ```{r formatting, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results="hide"}
 ## ensuring variables are in the correct format 
@@ -415,6 +415,9 @@ Based on these results, we will compare the clinical model to the full clinical 
 ### 3.3 Assessing model classification performance 
 * Assessing model performance using ROC curves 
 
+
+#### Figure 1. ROC curves: clinical model (blue) vs. clinical and physiologic model (green)
+
 ```{r echo=FALSE, fig.height=6, fig.width=4, message=FALSE, warning=FALSE}
 ## plotting ROC and AUC 
 
@@ -426,7 +429,6 @@ plot(pROC::roc(train.data$pcos_y_n,
                    fitted(logistic_model2)),
                print.auc = T, 
                col = "blue",
-                main = "ROC curves: clinical model (blue) \n vs. clinical and physiologic model (green)",
                 print.auc.y = .6)
 plot(pROC::roc(train.data$pcos_y_n,
                    fitted(logistic_model3)),
@@ -789,10 +791,10 @@ knitr::kable(data.frame(
 ```
 
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
-vip::vip(caret_rf_model3)
+vip::vip(caret_rf_model3)+theme_bw()
 ```
 
-# XGboost
+<!-- # XGboost -->
 
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 set.seed(123)
@@ -823,9 +825,9 @@ caret_xgb_model3 <- caret::train(pcos_labelled ~., data = select(train.data.cova
 
 ```
 
-Comparison code for later 
+<!-- Comparison code for later  -->
 
-Data Wrangling for the test data 
+<!-- Data Wrangling for the test data  -->
 
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 
@@ -893,10 +895,13 @@ test.data <- test.data %>%
 ```
 
 
+### Figure X. Comparative performance on the training data
 
-```{r include=FALSE}
-model_list <- list(Random_Forest.Model3 = caret_rf_model3, XGBoost.model3 = caret_xgb_model3, 
-                   Random_Forest.Model2 = caret_rf_model2, XGBoost.model2 = caret_xgb_model2
+```{r echo=FALSE, include=TRUE}
+model_list <- list(RF.Clinical.Physiological = caret_rf_model3,
+                   XG.Clinical.Physiological = caret_xgb_model3, 
+                   RF.Cinical = caret_rf_model2,
+                   XG.Clinical = caret_xgb_model2
                    # , Rpart_DT = caret_tree, Bagging = caret_bag
                    )
 resamples <- resamples(model_list)
@@ -904,17 +909,17 @@ resamples <- resamples(model_list)
 #box plot
 bwplot(resamples, metric="ROC")
 ```
-```{r include=FALSE}
+```{r echo=FALSE, include=FALSE, results='hide'}
 dotplot(resamples, metric="ROC")
 
 ```
-### Evaluating on the test set 
+<!-- ### Evaluating on the test set  -->
 
-#### Regularized Logistic Regression 
+<!-- #### Regularized Logistic Regression  -->
 
-GLM Net with LASSO - Clinical Model
+<!-- GLM Net with LASSO - Clinical Model -->
 
-```{r  include=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, include=TRUE, results='hide'}
 # prediction on Test data set
 pred_rf <- stats::predict(fit.cv.bin.model2.lasso, test.data, type="prob")
 # Confusion Matrix 
@@ -935,9 +940,9 @@ clinical.lasso.row<-data.frame("Model"=
            "Specificity"=specificity)
 ```
 
-GLM Net with LASSO - Clinical and Physiologic Model
+<!-- GLM Net with LASSO - Clinical and Physiologic Model -->
 
-```{r  include=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, include=TRUE, results='hide'}
 # prediction on Test data set
 pred_rf <- stats::predict(fit.cv.bin.model3.lasso, test.data, type="prob")
 # Confusion Matrix 
@@ -959,11 +964,12 @@ clinical.physiologic.lasso.row<-data.frame("Model"=
 ```
 
 
-#### XGBoost
+<!-- #### XGBoost -->
 
-XGBoost - Clinical Model 
+<!-- XGBoost - Clinical Model  -->
 
-```{r  include=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, include=TRUE, results='hide'}
+
 # prediction on Test data set
 pred_rf <- predict(caret_xgb_model2, test.data)
 # Confusion Matrix 
@@ -976,9 +982,9 @@ roc_rf <- pROC::roc(test.data$pcos_labelled, pred_prob_rf$yes)
 xgboost.clinical
 ```
 
-XGBoost - Clinical and Physiologic Model 
+<!-- XGBoost - Clinical and Physiologic Model  -->
 
-```{r  include=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, include=TRUE, results='hide'}
 # prediction on Test data set
 pred_rf <- predict(caret_xgb_model3, test.data)
 # Confusion Matrix 
@@ -991,11 +997,11 @@ roc_rf <- pROC::roc(test.data$pcos_labelled, pred_prob_rf$yes)
 xgboost.clinical.physiologic
 ```
 
-#### Random Forest 
+<!-- #### Random Forest  -->
 
-Random Forest - Clinical Model 
+<!-- Random Forest - Clinical Model  -->
 
-```{r  include=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, include=TRUE, results='hide'}
 # prediction on Test data set
 pred_rf <- predict(caret_rf_model2, test.data)
 # Confusion Matrix 
@@ -1009,9 +1015,9 @@ randomForest.clinical
 ```
 
 
-Random Forest - Clinical and Physiologic Model 
+<!-- Random Forest - Clinical and Physiologic Model  -->
 
-```{r  include=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, include=TRUE, results='hide'}
 # prediction on Test data set
 pred_rf <- predict(caret_rf_model3, test.data)
 # Confusion Matrix 
@@ -1028,7 +1034,7 @@ randomForest.clinical.physiologic
 
 #### Table 2. Comparative performance of two models across three different modelling methodologies
 
-```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
+```{r echo=FALSE, message=FALSE, warning = FALSE}
 
 
 knitr::kable(
@@ -1064,10 +1070,14 @@ knitr::kable(
 
 
 
-## 5. Discussion and Conclusions
+## 5. Discussion and Conclusion
 ### 5.1 Discussion
 
 We found the best ML model which balances accuracy, specificity and clinical utility to be the Random Forest model with clinical parameters (n=5 clinical symptoms: weight gain, hair growth + skin darkening, hair loss and pimples). This model performed with the following accuracy = XX, sensitivity = XX and specificity = XX when applied to our test dataset. We opted to use a Random Forest approach as part of trying different ML models as a recent study in the literature indicating Random Forest models perform the most accurately on a wide variety of datasets^6^. 
+
+### 5.2 Conclusions
+
+PCOS status can be predicted with a high level of accuracy using a combination of clinical and physiological parameters that are easily measurable in a general practice setting. By optimizing for specificity, patients likely to be PCOS positive can be selected for more invasive testing, thus reducing the cost of care and improving patient experience for the population of at-risk women. Implementation of model-based screening should be considered particularly in resource limited settings, where access to advanced diagnostics is challenging due to cost or geography. 
 
 ## References 
 
