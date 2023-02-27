@@ -277,23 +277,9 @@ data=PCOS_data_without_infertility_formatted)
 ```
 
 From table 1, we can observe some differences among women with and without PCOS in the following parameters: 
-Clinical: 
-* cycle_r_i
-* cycle_length_days
-* weight_gain_y_n
-* hair_growth_y_n
-* skin_darkening_y_n
-* hair_loss_y_n
-* pimples_y_n
-* reg_exercise_y_n
+Clinical: cycle_r_i, cycle_length_days, weight_gain_y_n, hair_growth_y_n, skin_darkening_y_n, hair_loss_y_n, pimples_y_n, reg_exercise_y_n
 
-Physiologic:
-* i_beta_hcg_m_iu_m_l: Human chorionic gonadotropin 
-* fsh_m_iu_m_l: Follicle Stimulating hormone
-* lh_m_iu_m_l: Lutenizing hormone
-* amh_ng_m_l: Anti-mullerian hormone   
-* vit_d3_ng_m_l: Vitamin D
-* prg_ng_m_l: Progesterone 
+Physiologic: i_beta_hcg_m_iu_m_l (Human chorionic gonadotropin), fsh_m_iu_m_l (Follicle Stimulating hormone), lh_m_iu_m_l (Lutenizing hormone), amh_ng_m_l (Anti-mullerian hormone), vit_d3_ng_m_l (Vitamin D), prg_ng_m_l (Progesterone). 
 
 We can visualize these distributions in the following figures. 
 
@@ -1501,7 +1487,7 @@ cowplot::plot_grid(elastic_model2, elastic_model3)
 
 ```
 
-### Appendix Section 6 - Model cross-validation (without RIDGE or LASSO) (using the caret package)
+### Appendix Section 5 - Model cross-validation (without RIDGE or LASSO) (using the caret package)
 * We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results = "hide"}
@@ -1568,7 +1554,7 @@ cv_of_data <- caret::trainControl(
 
 ```
 
-### Appendix Plot 7 - Variable importance (based on Random Forest model)
+### Appendix Plot 6 - Variable importance (based on Random Forest model)
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 vip::vip(caret_rf_model3)+theme_bw()
 ```
