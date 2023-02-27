@@ -273,7 +273,7 @@ hair_growth_y_n+
 skin_darkening_y_n+  
 hair_loss_y_n+        
 pimples_y_n| as.factor(PCOS_Status), 
-data=PCOS_data_without_infertility_formatted)
+data=PCOS_data_without_infertility_formatted) %>% as.data.frame()%>%knitr::kable()
 ```
 
 From table 1, we can observe some differences among women with and without PCOS in the following parameters: 
