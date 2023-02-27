@@ -57,7 +57,7 @@ Machine learning models have shown promise as a potential tool for the accurate 
 
 Our aim for the PCOS predictive model we are building would be to assist clinicians with identifying women between the ages of 21-47 at highest risk or likely to develop PCOS. Since current methods of PCOS diagnosis often require specialized equipment, we sought to develop a model that used a subset of easily measurable clinical and physiological parameters to predict PCOS, thus enabling early diagnoses to be made and enabling specialized resources to be used in fewer patients as a confirmatory test. 
 
-To ensure our analysis is ethical, the appropriate ethical approval was obtained for this ML project. To help ensure privacy fo this ML project, we worked with de-identified anonymized data. In the event an individual was identified as being pregnant or may be at risk of a life-threatening condition, we followed-up immediately with the individual's physician. 
+The appropriate ethical approval from Ethics Research Boards was obtained for this ML project. To help ensure privacy fo this ML project, we worked with de-identified anonymized data. In the event an individual was identified as being pregnant or may be at risk of a life-threatening condition, we followed-up immediately with the individual's physician. 
 
 The rationale for developing this predictive ML model is based on the motivation to (1) provide a data-driven method of diagnosis that is cheaper and less invasive than current methods, (2) develop a method which may be applied without expensive diagnostic equipment (such as an ultrasound imaging device), (3) develop a method which may be used with just a blood test and the review of clinical symptoms and (4) construct a method which relies minimally on self-reported data (as this data can be highly variable and sometimes unreliable). As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantageous for reasons related to clinical care, resource utilization and accessibility. This influenced our variable selection, as we did not consider the inclusion of predictors that cannot be measured in the above stated context in model development. We therefore, for example, exclude self-reported variables or variables which required ultrasound imaging (for example, endometrium thickness). 
 
@@ -82,7 +82,7 @@ Optimizing model specificity for the prediction of PCOS is important because PCO
 ## 3. Methods
 
 ### 3.1 Splitting our dataset into training and testing datasets
-Following our Exploratory Data Analysis (EDA, please refer to Results section for EDA), we started by splitting our dataset into the training set and the testing dataset, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). We chose to partition our data into only two sets based on the relatively small overall sample size of our data and small effective sample size of our data. Further, to help determine generalizability, we believe it would be ideal for our predictive model to be validated on an external dataset derived from a different population than our training and test data. For example, an external validation could be performed on PCOS hospital data from other Indian states such as Tamil Nadu or Karnataka. For an even better gauge of model generalizability, the external validation could be performed on PCOS hospital data from other countries.    
+To ensure data privacy, we worked with de-identified anonymized data. Following our Exploratory Data Analysis (EDA, please refer to Results section for EDA), we started by splitting our dataset into the training set and the testing dataset, followed by building a simple model aimed at using our data to find factors that predict PCOS status (our outcome variable). We chose to partition our data into only two sets based on the relatively small overall sample size of our data and small effective sample size of our data. Further, to help determine generalizability, we believe it would be ideal for our predictive model to be validated on an external dataset derived from a different population than our training and test data. For example, an external validation could be performed on PCOS hospital data from other southern Indian states such as Tamil Nadu or Karnataka. For an even better gauge of model generalizability, the external validation could be performed on PCOS hospital data from other countries.    
 
 ### 3.2 Variable selection and building logistic regression models 
 
@@ -120,7 +120,7 @@ PCOS_data_without_infertility <-read_excel(paste0(data_loc, "/PCOS_data_without_
 
 
 ### 4a. Exploratory Data Analysis (EDA)
-This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA. Please refer to bullet points, figure titles and figure captions for more details. The first steps in our EDA involved getting a high-level overview of our dataset and determining the dimension of our data: n=541 rows and n=45 columns. Further checking of the dataset reveals an additional column (column 45). This column does not contain any useful information and is not one of our 44 features, therefore the column was removed. 
+This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA (please see Appendix for more details). The first steps in our EDA involved getting a high-level overview of our dataset and determining the dimension of our data: n=541 rows and n=45 columns. Further checking of the dataset reveals an additional column (column 45). This column does not contain any useful information and is not one of our 44 features, therefore the column was removed. 
 
 
 ```{r cleaning, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
@@ -249,9 +249,9 @@ data=PCOS_data_without_infertility_formatted)%>%as.data.frame()
 
 ### Pruned table1
 
-Keep in mind this is displays only the parameters we deem eligible for the model: no self-report, no invasive tests. 
+For this table, we have included only the parameters we deemed eligible for the model. Thus, we have excluded self-report variables, expensive and/or invasive tests, and clinical variables not easily measured by a routine clinical examination or a blood test.   
 
-```{r}
+```{r pruned_table, echo=FALSE, message=FALSE, warning=FALSE, results="hide"}
 table1::table1(~
 age_yrs+              
 bmi+                  
@@ -394,8 +394,6 @@ eda_compare_plot6 <- PCOS_data_without_infertility_formatted %>%
 
 cowplot::plot_grid(eda_compare_plot1, eda_compare_plot2, eda_compare_plot3, eda_compare_plot4, eda_compare_plot5, eda_compare_plot6, ncol=2, nrow=3)
 ```
-
-
 
 
 To get a sense of the variation in our dataset, we plotted histograms for each continuous variable using the plot_histogram() from the DataExplorer Package. We see that the age distribution in our dataset reveals most individuals are in the range of 20 to 40 years. No individuals in the dataset are younger than 20 or older than 50. As we would expect, the BMI values follow an approximately normal distribution. The most common blood type we observe is O+, which is consistent with the fact that O+ is the most frequent bloodtype globally. The most common cycle length is 5 days. The endometrium thickness data suggests there are two most most common thickness values (two clear peaks in the distribution).
@@ -558,34 +556,8 @@ knitr::kable(data.frame("Model"=c("Physiologic Model", "Clinical Model", "Physio
 
 Based on these results, we will compare the clinical model to the full clinical and physiological model. While the model including clinical predictors only is more simple both technically (as evidenced by the AIC) and practically (less inputs and no blood testing required), there is an approximately 10% drop in accuracy when excluding the physiological data. We will select these two models and compare performance in applying various machine learning methods below. 
 
-### 3.3 Assessing model classification performance 
+### 4.1 Assessing model classification performance 
 * Assessing model performance using ROC curves 
-
-
-#### Figure 1. ROC curves: clinical model (blue) vs. clinical and physiologic model (green)
-
-```{r echo=FALSE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE}
-## plotting ROC and AUC 
-
-# plot(pROC::roc(train.data$pcos_y_n,
-#                    fitted(logistic_model1)),
-#                col = "red", 
-#                main = "ROC curves: model 1 (red) vs. model 2 (blue) \n vs. model 3 (green)")
-plot(pROC::roc(train.data$pcos_y_n,
-                   fitted(logistic_model2)),
-               print.auc = T, 
-               col = "blue",
-                print.auc.y = .6)
-plot(pROC::roc(train.data$pcos_y_n,
-                   fitted(logistic_model3)),
-               print.auc = T, 
-               col = "green", 
-               add = T,
-     print.auc.y=.4)
-
-```
-
-### 3.4 Penalized logistic regression with cross-validation (RIDGE and LASSO)
 
 ```{r echo=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, results = "hide"}
 
@@ -812,9 +784,32 @@ fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
 
 fit.cv.bin.elastic.model_3
 
-elastic_model3 <- plot(fit.cv.bin.elastic.model_3, title = "Cross Validation with ElasticNet for Model 3")
+# elastic_model3 <- plot(fit.cv.bin.elastic.model_3, title = "Cross Validation with ElasticNet for Model 3")
 
-cowplot::plot_grid(elastic_model2, elastic_model3)
+# cowplot::plot_grid(elastic_model2, elastic_model3)
+
+```
+
+#### Figure 1. ROC curves: clinical model (blue) vs. clinical and physiologic model (green)
+
+```{r echo=FALSE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE}
+## plotting ROC and AUC 
+
+# plot(pROC::roc(train.data$pcos_y_n,
+#                    fitted(logistic_model1)),
+#                col = "red", 
+#                main = "ROC curves: model 1 (red) vs. model 2 (blue) \n vs. model 3 (green)")
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model2)),
+               print.auc = T, 
+               col = "blue",
+                print.auc.y = .6)
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model3)),
+               print.auc = T, 
+               col = "green", 
+               add = T,
+     print.auc.y=.4)
 
 ```
 
@@ -863,7 +858,7 @@ cowplot::plot_grid(elastic_model2, elastic_model3)
 
 ```
 
-### 1.4 Modelling our data using Trees and Forests 
+### 4.2 Modelling our data using Trees and Forests 
 
 We next pursued a Random Forest approach for our selection of variables, using both the Clinical and Clinical + Physiological Parameters for our Random Forest Modelling. Random Forest modelling was also used to examine variable importance. 
 
@@ -934,10 +929,6 @@ knitr::kable(data.frame(
   "Specificity" = c(mean(caret_rf_model3$resample$Spec), mean(caret_rf_model2$resample$Spec)
            )))
 
-```
-
-```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
-vip::vip(caret_rf_model3)+theme_bw()
 ```
 
 <!-- # XGboost -->
@@ -1214,16 +1205,14 @@ knitr::kable(
 
 ```
 
-
-
 ## 5. Discussion and Conclusion
 ### 5.1 Discussion
 
-We found the best ML model which balances accuracy, specificity and clinical utility to be the Random Forest model with clinical parameters (n=5 clinical symptoms: weight gain, hair growth + skin darkening, hair loss and pimples). This model performed with the following accuracy = 88.1%, sensitivity = 71.2% and specificity = 96.3% when applied to our test dataset. Not only did this model have the highest accuracy of the six models we compared, the model also performed well on sensitivity and specificity. We opted to use a Random Forest approach as part of trying different ML models as a recent study in the literature indicating Random Forest models perform the most accurately on a wide variety of datasets^6^. One of the drawbacks of the Random Forest is its black box nature, making it harder to determine and/or interpret how the model is making its predictions. This could pose a challenge to clinicians trying to troubleshoot our improve upon the model.  
+We found the best ML model which balances accuracy, specificity and clinical utility to be the Random Forest model with clinical parameters (n=5 clinical symptoms: weight gain, hair growth + skin darkening, hair loss and pimples). This model performed with the following accuracy = 88.1%, sensitivity = 71.2% and specificity = 96.3% when applied to our test dataset. Not only did this model have the highest accuracy of the six models we compared, the model also performed well on sensitivity and specificity. We opted to use a Random Forest approach as part of trying different ML models as a recent study in the literature indicating Random Forest models perform the most accurately on a wide variety of datasets^6^. One of the drawbacks of the Random Forest is its black box nature, making it harder to determine and/or interpret how the model is making its predictions. This could pose a challenge to clinicians trying to troubleshoot our improve upon the model. Given our use of physiological parameters such as the hormones human chorionic gonadotropin (HCG) and anti-mullerian hormone (AMH), which may be used as proxies to determine pregnancy status and fertility respectively, it is important that privacy is maintained and also physicians have access to the model's de-anonymized input data.   
 
 ### 5.2 Conclusions
 
-PCOS status can be predicted with a high level of accuracy using a combination of clinical and physiological parameters that are easily measurable in a general practice setting. By optimizing for specificity, patients likely to be PCOS positive can be selected for more invasive testing, thus reducing the cost of care and improving patient experience for the population of at-risk women. Implementation of model-based screening should be considered particularly in resource limited settings, where access to advanced diagnostics is challenging due to cost or geography. 
+PCOS status can be predicted with a reasonably high level of accuracy (88.1% with our model) using a combination of clinical and physiological parameters that are easily measurable in a general clinical practice setting. By optimizing for specificity, patients likely to be PCOS positive can be selected for more expensive and invasive testing, thus reducing the cost of care and improving patient experience for the population of at-risk women. Implementation of model-based screening should be considered particularly in resource-limited settings, where access to advanced diagnostics is challenging due to cost or geography. 
 
 ## References 
 1. Teede, H., Misso, M., Tassone, E. C., Dewailly, D., Ng, E. H., Azziz, R., ... & Norman, R. J. (2018). Recommendations from the international evidence-based guideline for the assessment and management of polycystic ovary syndrome. Human Reproduction, 33(9), 1602-1618. https://doi.org/10.1093/humrep/dey256
@@ -1263,6 +1252,8 @@ plot_correlation(PCOS_data_without_infertility_formatted, title = "Bivariate ana
 * Another obvious correlation we observe is that between age (in years) and marriage (in years) 
 * Appendix Plot 3 showing boxplots generated to investigate potential associations between continuous variables and PCOS status. 
 
+### Appendix Plot 3 - Univariable distributions for continuous variables  
+
 ```{r boxplots, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 
 plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "Boxplots for continous variables by PCOS status")
@@ -1271,15 +1262,246 @@ plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "
 
 ```
 
-### Appendix Plot 4 - Univariable distributions for continuous variables  
-
 ```{r EDA2, eval=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, include=FALSE}
 # plotting a histogram for each continuous feature 
 plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plot.title" = element_text(size = 24)), title = "Histograms for each continuous variable - to visualize distributions", )
 
 ```
 
-### Appendix Section 5 - Model cross-validation (without RIDGE or LASSO) (using the caret package)
+### Appendix Plot 4 - Penalized logistic regression with cross-validation (RIDGE and LASSO)
+
+```{r echo=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, results = "hide"}
+
+# glimpse(train.data)
+# 
+# summary(train.data)
+
+train.data.covariates.all <- train.data %>% 
+                                 mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No")) %>%
+                                 drop_na()%>%
+  mutate_at(c("pcos_y_n",
+              "weight_gain_y_n", 
+              "hair_growth_y_n",
+              "skin_darkening_y_n",
+              "hair_loss_y_n",
+              "pimples_y_n"),as.factor) %>%
+  mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric) 
+
+glimpse(train.data.covariates.all)
+
+baselinevars_all <- names(dplyr::select(train.data.covariates.all, 
+                         !c(pcos_y_n)))
+baselinevars_all
+
+model_formula_all <- as.formula(paste("pcos_y_n~ ", 
+                               paste(baselinevars_all, 
+                                     collapse = "+")))
+
+model_formula_all
+
+train.data.2 <- train.data.covariates.all %>%
+                  select(pcos_y_n,
+                         i_beta_hcg_m_iu_m_l,
+                         fsh_m_iu_m_l,
+                         lh_m_iu_m_l,
+                         tsh_m_iu_l ,
+                         amh_ng_m_l)%>%mutate(
+                           pcos_y_n=as.factor(pcos_y_n)
+                         )
+  
+
+glimpse(train.data.2)
+
+train.data.covariates.1 <- train.data %>%
+  select(
+    pcos_y_n,
+    i_beta_hcg_m_iu_m_l,
+    fsh_m_iu_m_l,
+    lh_m_iu_m_l,
+    tsh_m_iu_l,
+    amh_ng_m_l ,
+    weight_gain_y_n ,
+    hair_growth_y_n,
+    skin_darkening_y_n,
+    hair_loss_y_n ,
+    pimples_y_n
+  ) %>%
+  mutate_at(c("pcos_y_n",
+              "weight_gain_y_n", 
+              "hair_growth_y_n",
+              "skin_darkening_y_n",
+              "hair_loss_y_n",
+              "pimples_y_n"),as.factor) %>%
+  mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric) 
+
+# train.data.2 <- train.data.covariates.1 %>%
+#                  drop_na() %>%
+#                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
+
+glimpse(train.data.2)
+
+train.data.3 <- train.data.covariates.1 %>%
+                  drop_na() %>%
+                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
+
+# view(train.data.1)
+
+# summary(train.data.1)
+
+baselinevars_3 <- names(dplyr::select(train.data.3, 
+                         !c(pcos_y_n)))
+baselinevars_3
+
+model_formula_3 <- as.formula(paste("pcos_y_n~ ", 
+                               paste(baselinevars_3, 
+                                     collapse = "+")))
+
+model_formula_3
+
+## RIDGE cross-validation of our logistic regression models (with binary outcome)
+set.seed(504)
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
+
+
+## model 1 with all variables
+fit.cv.bin.model.all <-train(model_formula_all, trControl = ctrl,
+                                 data = train.data.covariates.all, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model.all
+
+# model 1 ROC output (RIDGE): 0.5662222
+
+## model 2 with only hormone variables 
+fit.cv.bin.model2 <-train(pcos_y_n ~ ., trControl = ctrl,
+                                 data = train.data.2, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model2
+
+# model 2 ROC output (RIDGE): 0.6045425
+
+## model 3 with hormone variables and clinical symptoms 
+fit.cv.bin.model3 <-train(model_formula_3, trControl = ctrl,
+                                 data = train.data.3, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model3
+# model 3 ROC output (RIDGE): 0.8737665
+
+## LASSO cross-validation of our logistic regression models
+
+set.seed(504)
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
+
+
+## model 1 with all variables
+fit.cv.bin.model.all.lasso <-train(model_formula_all, trControl = ctrl,
+                                 data = train.data.covariates.all, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model.all.lasso
+
+# model 1 output (LASSO): 0.6005752
+
+## model 2 with only hormone variables 
+fit.cv.bin.model2.lasso <-train(pcos_y_n ~ ., trControl = ctrl,
+                                 data = train.data.2, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model2.lasso
+
+# model 2 output (LASSO): 0.6286078
+
+## model 3 with hormone variables and clinical symptoms 
+fit.cv.bin.model3.lasso <-train(model_formula_3, trControl = ctrl,
+                                 data = train.data.3, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+
+fit.cv.bin.model3.lasso
+
+# model 3 output (LASSO): 0.8756765
+
+## Cross-validation using ElasticNet
+
+# CV using ElasticNet (for model 1)
+set.seed(504)
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
+
+fit.cv.bin.elastic.model_1 <-train(model_formula_all, trControl = ctrl,
+                                   data = train.data.covariates.all, method = "glmnet",
+                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
+                                                          lambda = seq(0.05,0.3,by = 0.05)),
+                                   verbose = FALSE,
+                                   metric="ROC")
+
+fit.cv.bin.elastic.model_1
+
+elastic_model1 <- plot(fit.cv.bin.elastic.model_1)
+
+# CV using ElasticNet (for model 2) 
+
+fit.cv.bin.elastic.model_2 <-train(pcos_y_n ~ ., trControl = ctrl,
+                                   data = train.data.2, method = "glmnet",
+                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
+                                                          lambda = seq(0.05,0.3,by = 0.05)),
+                                   verbose = FALSE,
+                                   metric="ROC")
+
+elastic_model2 <- plot(fit.cv.bin.elastic.model_2)
+
+# CV using ElasticNet (for model 3) 
+fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
+                                   data = train.data.3, method = "glmnet",
+                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
+                                                          lambda = seq(0.05,0.3,by = 0.05)),
+                                   verbose = FALSE,
+                                   metric="ROC")
+
+fit.cv.bin.elastic.model_3
+
+elastic_model3 <- plot(fit.cv.bin.elastic.model_3, title = "Cross Validation with ElasticNet for Model 3")
+
+cowplot::plot_grid(elastic_model2, elastic_model3)
+
+```
+
+### Appendix Section 6 - Model cross-validation (without RIDGE or LASSO) (using the caret package)
 * We performed model cross-validation on our three logistic regression models and generated a summary of the cross-validation results. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results = "hide"}
@@ -1344,4 +1566,9 @@ cv_of_data <- caret::trainControl(
 )
 
 
+```
+
+### Appendix Plot 7 - Variable importance (based on Random Forest model)
+```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
+vip::vip(caret_rf_model3)+theme_bw()
 ```
