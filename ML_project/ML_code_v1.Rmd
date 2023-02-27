@@ -445,6 +445,7 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned
     "fsh_m_iu_m_l" ,
     "lh_m_iu_m_l" ,
     "tsh_m_iu_l" ,
+    "vit_d3_ng_m_l", 
     "amh_ng_m_l"), as.numeric)
 
 glimpse(PCOS_data_without_infertility_formatted)
@@ -475,15 +476,12 @@ test.data <- PCOS_data_without_infertility_formatted_final[-data_split,]
 # the first model we will build will include all the variables 
 #library(glmnet)
 
-logistic_model1 <- glm(pcos_y_n ~amh_ng_m_l+
-                                                
-                                                                           i_beta_hcg_m_iu_m_l +
- lh_m_iu_m_l + 
-
+logistic_model1 <- glm(pcos_y_n ~
+                         amh_ng_m_l+                                                                           i_beta_hcg_m_iu_m_l +
+                         lh_m_iu_m_l + 
                          fsh_m_iu_m_l + 
-                          tsh_m_iu_l
-
-                                           ,
+                          tsh_m_iu_l+
+                         vit_d3_ng_m_l,
                        data = train.data,
                        family = binomial(link="logit")) 
 
@@ -520,6 +518,7 @@ logistic_model3 <- glm(pcos_y_n ~
                          lh_m_iu_m_l + 
                          tsh_m_iu_l +
                          amh_ng_m_l +
+                         vit_d3_ng_m_l+
                          weight_gain_y_n +
                          hair_growth_y_n +
                          skin_darkening_y_n +
@@ -624,7 +623,8 @@ train.data.2 <- train.data.covariates.all %>%
                          fsh_m_iu_m_l,
                          lh_m_iu_m_l,
                          tsh_m_iu_l ,
-                         amh_ng_m_l)%>%mutate(
+                         amh_ng_m_l,
+                         vit_d3_ng_m_l)%>%mutate(
                            pcos_y_n=as.factor(pcos_y_n)
                          )
   
@@ -639,6 +639,7 @@ train.data.covariates.1 <- train.data %>%
     lh_m_iu_m_l,
     tsh_m_iu_l,
     amh_ng_m_l ,
+    vit_d3_ng_m_l,
     weight_gain_y_n ,
     hair_growth_y_n,
     skin_darkening_y_n,
@@ -656,6 +657,7 @@ train.data.covariates.1 <- train.data %>%
     "fsh_m_iu_m_l" ,
     "lh_m_iu_m_l" ,
     "tsh_m_iu_l" ,
+    "vit_d3_ng_m_l",
     "amh_ng_m_l"), as.numeric) 
 
 # train.data.2 <- train.data.covariates.1 %>%
@@ -887,6 +889,7 @@ train.data.covariates.model3 <- train.data %>%
     lh_m_iu_m_l ,
     tsh_m_iu_l ,
     amh_ng_m_l ,
+    vit_d3_ng_m_l,
     weight_gain_y_n ,
     hair_growth_y_n,
     skin_darkening_y_n,
@@ -982,6 +985,7 @@ test.data.lasso <- test.data %>%
     lh_m_iu_m_l,
     tsh_m_iu_l,
     amh_ng_m_l ,
+    vit_d3_ng_m_l,
     weight_gain_y_n ,
     hair_growth_y_n,
     skin_darkening_y_n,
@@ -999,6 +1003,7 @@ test.data.lasso <- test.data %>%
     "fsh_m_iu_m_l" ,
     "lh_m_iu_m_l" ,
     "tsh_m_iu_l" ,
+    "vit_d3_ng_m_l",
     "amh_ng_m_l"), as.numeric) %>%
   mutate(pcos_labelled=as.factor(ifelse(pcos_y_n==1, "yes", "no")))%>%
   select(!pcos_labelled)
@@ -1012,6 +1017,7 @@ test.data <- test.data %>%
     lh_m_iu_m_l,
     tsh_m_iu_l,
     amh_ng_m_l ,
+    vit_d3_ng_m_l, 
     weight_gain_y_n ,
     hair_growth_y_n,
     skin_darkening_y_n,
@@ -1026,6 +1032,7 @@ test.data <- test.data %>%
               "pimples_y_n"),as.factor) %>%
   mutate_at(c(
     "i_beta_hcg_m_iu_m_l",
+    "vit_d3_ng_m_l", 
     "fsh_m_iu_m_l" ,
     "lh_m_iu_m_l" ,
     "tsh_m_iu_l" ,
@@ -1043,7 +1050,7 @@ test.data <- test.data %>%
 ```{r echo=FALSE, include=TRUE}
 model_list <- list(RF.Clinical.Physiological = caret_rf_model3,
                    XG.Clinical.Physiological = caret_xgb_model3, 
-                   RF.Cinical = caret_rf_model2,
+                   RF.Clinical = caret_rf_model2,
                    XG.Clinical = caret_xgb_model2
                    # , Rpart_DT = caret_tree, Bagging = caret_bag
                    )
