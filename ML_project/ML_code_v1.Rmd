@@ -86,15 +86,14 @@ To ensure data privacy, we worked with de-identified anonymized data. Following 
 
 ### 3.2 Variable selection and building logistic regression models 
 
-We first attempted to model our data with PCOS status as the outcome variable using three different logistic regression models. At this stage of variable selection, we undertook a combined approach to informing variable selection. The Akaike Information Criteria (AIC) was used to assess model fit, the Area Under the Receiving Operator Characteristic (AUC) was used to assess model accuracy, and the model with the best balance between both of these parameters, as well as clinical utility was used. The three tested models utilized the following construction:
+The rationale for our variable selection and model building incorporated a mix of clinical and statistical perspectives. Within our constraints of using easily obtainable data that did not include self-reported measures, We chose initially to construct three models, one using physiological data only, one using clinical data only, and one using a mix of both. Variables for the models were identified as potentially relevant using a mix of exploratory data analysis and background knowledge. The resulting three models are described below: 
 
 * (1) Model 1 is the physiological model which includes five hormones of interest, namely hormone measurements of n=5 different types of hormones commonly included or easily measured/acquired as a part of a standard routine blood test.
 * (2) Model 2 is the clinical model, including as variables clinical symptoms associated with PCOS, and specifically clinical symptoms which may be easily determined as a part of a routine examination by a physician. These are the variables included in the clinical model: weight gain, hair growth + skin darkening, hair loss and pimples.
 * (3) Model 3 includes both the physiological and clinical variables, that is the n=5 the hormone measurement levels we as well as the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples (clinical symptoms which may be easily identified or tracked in a basic clinical setting). 
 
-Following this initial variable selection, we selected the two best performing models and applied various machine learning training methods to optimize model performance. We then selected the best performing model as the final model. 
+To assess the relative fit and performance of these three models, we utilized the Akaike Information Criteria (AIC) as well as the Area Under the Receiving Operator Characteristic (AUC). At this stage, the model with the best balance between both of these parameters, as well as clinical utility was used. Following this initial selection, we selected the two best performing models and applied various machine learning training methods to optimize model performance. The rationale for testing both models with machine learning optimization was to assess if a simpler model with clinical parameters only could approximate the classification performance of a more complex model. The final model was selected based on a balance of accuracy, specificity, and clinical ease of use. 
 
-Of our three logistic regression models, Model 2 had the lowest AIC score of 317, followed by Model 3 with an AIC score of 566. However, the predictive performance as assesed by AUC was higher for model 3 (0.99) than model 2 (0.88). While model 3 was better performing, it also required more parameters for prediction that require blood testing. The rationale for testing both models with machine learning optimization was to assess if a simpler model with clinical parameters only could approximate the classification performance of a more complex model. 
 
 ## 4. Results
 
@@ -582,7 +581,8 @@ knitr::kable(data.frame("Model"=c("Physiologic Model", "Clinical Model", "Physio
 Based on these results, we will compare the clinical model to the full clinical and physiological model. While the model including clinical predictors only is more simple both technically (as evidenced by the AIC) and practically (less inputs and no blood testing required), there is an approximately 10% drop in accuracy when excluding the physiological data. We will select these two models and compare performance in applying various machine learning methods below. 
 
 ### 4.1 Assessing model classification performance 
-* Assessing model performance using ROC curves 
+
+Of our three logistic regression models, Model 2 had the lowest AIC score of 317, followed by Model 3 with an AIC score of 566. However, the predictive performance as assesed by AUC was higher for model 3 (0.99) than model 2 (0.88). While model 3 was better performing, it also required more parameters for prediction that require blood testing. 
 
 ```{r echo=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, results = "hide"}
 
@@ -818,6 +818,8 @@ fit.cv.bin.elastic.model_3
 # cowplot::plot_grid(elastic_model2, elastic_model3)
 
 ```
+
+
 
 #### Figure 1. ROC curves: clinical model (blue) vs. clinical and physiologic model (green)
 
