@@ -328,7 +328,8 @@ barPlotdata <- PCOS_data_without_infertility_formatted %>% select(
 
 plot_bar(barPlotdata,
          by = "PCOS_Status",
-         title = "Barplots for the categorical variables in our dataset")
+         title = "Barplots for the categorical variables in our dataset",
+         ggtheme = theme_bw())
 
 ```
 
@@ -1241,7 +1242,7 @@ knitr::kable(
 ## 5. Discussion and Conclusion
 ### 5.1 Discussion
 
-We found the best ML model which balances accuracy, specificity and clinical utility to be the Random Forest model with clinical parameters (n=5 clinical symptoms: weight gain, hair growth + skin darkening, hair loss and pimples). This model performed with the following accuracy = 88.1%, sensitivity = 71.2% and specificity = 96.3% when applied to our test dataset. Not only did this model have the highest accuracy of the six models we compared, the model also performed well on sensitivity and specificity. We opted to use a Random Forest approach as part of trying different ML models as a recent study in the literature indicating Random Forest models perform the most accurately on a wide variety of datasets^6^. One of the drawbacks of the Random Forest is its black box nature, making it harder to determine and/or interpret how the model is making its predictions. This could pose a challenge to clinicians trying to troubleshoot our improve upon the model. Given our use of physiological parameters such as the hormones human chorionic gonadotropin (HCG) and anti-mullerian hormone (AMH), which may be used as proxies to determine pregnancy status and fertility respectively, it is important that privacy is maintained and also physicians have access to the model's de-anonymized input data.   
+We found the best ML model which balances accuracy, specificity and clinical utility to be the Random Forest model with clinical parameters (n=5 clinical symptoms: weight gain, hair growth + skin darkening, hair loss and pimples). This model performed with the following accuracy = 88.1%, sensitivity = 71.2% and specificity = 96.3% when applied to our test dataset. Not only did this model have the highest accuracy of the six models we compared, the model also performed well on sensitivity and specificity. We opted to use a Random Forest approach as part of trying different ML models as a recent study in the literature indicated Random Forest models perform the most accurately on a wide variety of datasets^6^. One of the drawbacks of the Random Forest is its black box nature, making it harder to determine and/or interpret how the model is making its predictions. This could pose a challenge to clinicians trying to troubleshoot or improve upon the model. Given our use of physiological parameters such as the hormones human chorionic gonadotropin (HCG) and anti-mullerian hormone (AMH), which may be used as indicators/proxies to determine pregnancy status and fertility respectively, it is important that privacy is maintained and also only physicians or appropriate healthcare professionals have access to the model's de-anonymized input data.   
 
 ### 5.2 Conclusions
 
