@@ -29,6 +29,9 @@ library(ranger)
 library(xgboost)
 library(DataExplorer)
 library(caret)
+library(table1)
+
+# install.packages("table1")
 
 # install.packages("DataExplorer")
 
@@ -116,7 +119,7 @@ PCOS_data_without_infertility <-read_excel(paste0(data_loc, "/PCOS_data_without_
 ```
 
 
-### 4a. Exploratory Data Analysis
+### 4a. Exploratory Data Analysis (EDA)
 This section contains the steps and output for the EDA performed on the PCOS dataset. The section proceeds sequentially with each step of EDA. Please refer to bullet points, figure titles and figure captions for more details. The first steps in our EDA involved getting a high-level overview of our dataset and determining the dimension of our data: n=541 rows and n=45 columns. Further checking of the dataset reveals an additional column (column 45). This column does not contain any useful information and is not one of our 44 features, therefore the column was removed. 
 
 
@@ -183,7 +186,7 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_cleaned
 ```
 
 
-### Table 1: Characteristics of the study cohort
+### Table 1: Clinical and sociodemographic characteristics of the study cohort (n=541, women from Kerala, India)
 
 Now that the data is cleaned, we can produce the standard table 1, common in biomedical research for describing the study cohort.
 
