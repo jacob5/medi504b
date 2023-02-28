@@ -3,9 +3,9 @@ title: "Building a Predictive Machine Learning Model to Identify Polycystic Ovar
 author: "Jacob and Hanwei"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
-  html_document: default
   word_document: default
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -55,13 +55,13 @@ Polycystic ovarian syndrome (PCOS) is a common endocrine disorder affecting appr
 
 Machine learning models have shown promise as a potential tool for the accurate prediction of PCOS. Compared to traditional diagnostic methods, machine learning models can utilize large amounts of data from various sources and provide more accurate predictions. This is particularly beneficial in the case of PCOS, as traditional diagnostic methods such as tissue biopsy or ultrasound imaging can be expensive and invasive. Furthermore, machine learning models can assist clinicians in identifying patients who may benefit from early intervention, which can improve long-term health outcomes^1^.
 
-Our aim for the PCOS predictive model we are building would be to assist clinicians with identifying women between the ages of 21-47 at highest risk or likely to develop PCOS. Since current methods of PCOS diagnosis often require specialized equipment, we sought to develop a model that used a subset of easily measurable clinical and physiological parameters to predict PCOS, thus enabling early diagnoses to be made and enabling specialized resources to be used in fewer patients as a confirmatory test. 
+We sought to build a PCOS predictive model that could be used to assist clinicians with identifying women between the ages of 21-47 at highest risk or likely to develop PCOS. Since current methods of PCOS diagnosis often require specialized equipment, we sought to develop a model that used a subset of easily measurable clinical and physiological parameters to predict PCOS, thus enabling early diagnoses to be made and enabling specialized resources to be used in fewer patients as a confirmatory test.
 
 The appropriate ethical approval from Ethics Research Boards was obtained for this ML project. To help ensure privacy fo this ML project, we worked with de-identified anonymized data. In the event an individual was identified as being pregnant or may be at risk of a life-threatening condition, we followed-up immediately with the individual's physician. 
 
-The rationale for developing this predictive ML model is based on the motivation to (1) provide a data-driven method of diagnosis that is cheaper and less invasive than current methods, (2) develop a method which may be applied without expensive diagnostic equipment (such as an ultrasound imaging device), (3) develop a method which may be used with just a blood test and the review of clinical symptoms and (4) construct a method which relies minimally on self-reported data (as this data can be highly variable and sometimes unreliable). As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantageous for reasons related to clinical care, resource utilization and accessibility. This influenced our variable selection, as we did not consider the inclusion of predictors that cannot be measured in the above stated context in model development. We therefore, for example, exclude self-reported variables or variables which required ultrasound imaging (for example, endometrium thickness). 
+The rationale for developing this predictive  model is based on the motivation to (1) provide a data-driven method of diagnosis that is cheaper and less invasive than current methods, (2) develop a method which may be applied without expensive diagnostic equipment (such as an ultrasound imaging device), (3) develop a method which may be used with just a blood test and the review of clinical symptoms and (4) construct a method which relies minimally on self-reported data (as this data can be highly variable and sometimes unreliable). As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantageous for reasons related to clinical care, resource utilization and accessibility. This influenced our variable selection, as we did not consider the inclusion of predictors that cannot be measured in the above stated context in model development. We therefore, for example, exclude self-reported variables or variables which required ultrasound imaging (for example, endometrium thickness). 
 
-While accuracy was a key consideration for evaluating model performance, we also focused on optimizing the specificity of the model predictions. The rationale for optimizing specificity was based on the relatively high prevalence of PCOS^7^ as well as the relatively low mortality associated with the disease^1,2,5^. Since patients flagged for high risk of PCOS would receive a confirmatory ultrasound, we wanted to select a model that would be biased towards reducing false positives, as one of our goals was reducing the cost of care. 
+While accuracy was a key consideration for evaluating model performance, we also focused on optimizing the specificity of the model predictions. The rationale for optimizing specificity was based on the relatively high prevalence of PCOS^7^ as well as the relatively low mortality associated with the disease^1,2,5^. Since patients flagged for high risk of PCOS would receive a confirmatory ultrasound, we wanted to select a model that would be biased towards reducing false positives, as one of our goals was reducing the cost and burden of care. 
 
 Overall, the use of machine learning models to predict PCOS has the potential to improve the accuracy of diagnosis and reduce the cost and invasiveness of traditional diagnostic methods. We sought to evaluate the comparative accuracy of multiple machine learning classifiers to select the optimal model for predicting PCOS based on variables obtained via a blood test and routine clinical examination, given considerations surrounding false positives and the specificity of our predictive model.  
 
@@ -73,7 +73,7 @@ The dataset consists of physical and clinical parameters collected from 10 hospi
 
 Our objectives were twofold: 
 
-1: Develop a simple model that can predict PCOS status using clinical and physiologic data that can be acquired using a routine blood test and assessment by a general practitioner clinician. 
+1: Develop a simple model that can predict PCOS status using data that can be acquired using a routine blood test and/or assessment by a general practitioner clinician. 
 
 2: Optimize the model for specificity, thus minimizing the risk of a false positive in model predictions. 
 
@@ -89,10 +89,10 @@ To ensure data privacy, we worked with de-identified anonymized data. Following 
 The rationale for our variable selection and model building incorporated a mix of clinical and statistical perspectives. Within our constraints of using easily obtainable data that did not include self-reported measures, We chose initially to construct three models, one using physiological data only, one using clinical data only, and one using a mix of both. Variables for the models were identified as potentially relevant using a mix of exploratory data analysis and background knowledge. The resulting three models are described below: 
 
 * (1) Model 1 is the physiological model which includes six hormones and micronutrients of interest, namely hormone measurements of n=5 different types of hormones commonly included or easily measured/acquired as a part of a standard routine blood test, as well as vitamin D.
-* (2) Model 2 is the clinical model, including as variables clinical symptoms associated with PCOS, and specifically clinical symptoms which may be easily determined as a part of a routine examination by a physician. These are the variables included in the clinical model: weight gain, hair growth + skin darkening, hair loss and pimples.
+* (2) Model 2 is the clinical model, including as variables clinical symptoms associated with PCOS, and specifically clinical symptoms which may be easily determined as a part of a routine examination by a physician. These are the variables included in the clinical model: weight gain, hair growth, skin darkening, hair loss, and acne.
 * (3) Model 3 includes both the physiological and clinical variables, that is the n=5 the hormone measurement levels, vitamin D, as well as the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples (clinical symptoms which may be easily identified or tracked in a basic clinical setting). 
 
-To assess the relative fit and performance of these three models, we started with a simple logistic regression method. We fit the three models described above and compared the Akaike Information Criteria (AIC) as well as the Area Under the Receiving Operator Characteristic (AUC). At this stage,  was used. Following this initial selection, we selected the two models with the best balance between both of these parameters, as well as clinical utility and applied various machine learning training methods to optimize model performance. We used the caret package to implement our various machine learning models. 
+To assess the relative fit and performance of these three models, we started with a simple logistic regression method. We fit the three models described above and compared the Akaike Information Criteria (AIC) as well as the Area Under the Receiving Operator Characteristic (AUC). Following this initial selection, we selected the two models with the best balance between both of these parameters, as well as clinical utility and applied various machine learning training methods to optimize model performance. We used the caret package to implement our various machine learning models. 
 
 We applied regularization methods, boosting methods, as well as random forest modelling using the variable combinations identified using the simple logistic regression approach. 
 
@@ -192,9 +192,9 @@ PCOS_data_without_infertility_formatted$PCOS_Status <- as.factor(ifelse(PCOS_dat
 ```
 
 
-#### Table 1: Clinical and sociodemographic characteristics of the study cohort (n=541, women from Kerala, India) stratified by PCOS status
+### Table 1: Clinical and sociodemographic characteristics of the study cohort (n=541, women from Kerala, India) stratified by PCOS status
 
-Now that the data is cleaned, we can produce the standard table 1, common in biomedical research for describing the study cohort.
+
 
 ```{r eval=FALSE, include=FALSE}
 
@@ -253,7 +253,7 @@ data=PCOS_data_without_infertility_formatted)%>%as.data.frame()
 
 
 
-For this table, we have included only the parameters we deemed eligible for the model. Thus, we have excluded self-report variables, expensive and/or invasive tests, and clinical variables not easily measured by a routine clinical examination or a blood test.   
+
 
 ```{r pruned_table, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -312,6 +312,8 @@ table1::table1(~
 data=tableData)
 ```
 
+For this table, we have included only the parameters we deemed eligible for the model. Thus, we have excluded self-report variables, expensive and/or invasive tests, and clinical variables not easily measured by a routine clinical examination or a blood test.   
+
 From table 1, we can observe some qualitative differences among women with and without PCOS in the following parameters: 
 Clinical: cycle_r_i, cycle_length_days, weight_gain_y_n, hair_growth_y_n, skin_darkening_y_n, hair_loss_y_n, pimples_y_n, reg_exercise_y_n
 
@@ -340,7 +342,7 @@ plot_bar(barPlotdata,
 ```
 
 
-From the figure, we can see that the proportion of individuals with weight gain and a positive PCOS status is greater than the proportion of individuals with no weight gain and a positive PCOS status. We observe similar associations for hair growth and skin darkening. We also observe a similar but much weaker association for the categorical variables of hair loss and pimples. Interestingly, we observe the inverse trend for the categorical variable for fast food consumption. As these predictors appear to be visually associated with the outcome, as well as physiologically feasible to be associated with PCOS, they should be considered for inclusion in the predictive model. 
+From the figure, we can see that the proportion of individuals with weight gain and a positive PCOS status is greater than the proportion of individuals with no weight gain and a positive PCOS status. We observe similar associations for hair growth and skin darkening. We also observe a similar but much weaker association for the categorical variables of hair loss and pimples. As these predictors appear to be visually associated with the outcome, as well as physiologically feasible to be associated with PCOS, they should be considered for inclusion in the predictive model. 
 
 The bar plots for regular exercise and pregnancy do not appear to show a significant difference in proportion of positive PCOS cases, but we would need to perform a statistical analyses (such as an unpaired t-test) to know for sure. To ascertain the relationship between PCOS status and continuous predictors, we also plotted boxplots to visualize any associations between PCOS status and a continuous variable. Please refer to the appendix for these boxplots.
 
@@ -426,9 +428,6 @@ eda_compare_plot6 <- PCOS_data_without_infertility_formatted %>%
 
 cowplot::plot_grid(eda_compare_plot1, eda_compare_plot2, eda_compare_plot3, eda_compare_plot4, eda_compare_plot5, eda_compare_plot6, ncol=2, nrow=3)
 ```
-
-
-To get a sense of the variation in our dataset, we plotted histograms for each continuous variable using the plot_histogram() from the DataExplorer Package. We see that the age distribution in our dataset reveals most individuals are in the range of 20 to 40 years. No individuals in the dataset are younger than 20 or older than 50. As we would expect, the BMI values follow an approximately normal distribution. The most common blood type we observe is O+, which is consistent with the fact that O+ is the most frequent bloodtype globally. The most common cycle length is 5 days. The endometrium thickness data suggests there are two most most common thickness values (two clear peaks in the distribution).
 
 ### Modelling
 
@@ -575,7 +574,7 @@ tidyr::extract_numeric(auc3$auc)
 
 ```
 
-#### Table 2. Assessing fit and accuracy for three different variable combinations
+### Table 2. Assessing fit and accuracy for three different variable combinations
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::kable(data.frame("Model"=c("Physiologic Model", "Clinical Model", "Physiologic and Clinical Model"),
@@ -1082,7 +1081,7 @@ knitr::kable(data.frame("Model"=c("Clinical and Physiologic", "Clinical",
                    )))
 ```
 
-
+ElasticNet appeared to outperform both LASSO and Ridge regression in terms of classification performance. We selected ElasticNet as the top performer among regularization methods and compared it with boosting and tree-based methods.  
 
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 # library(bestglm)
@@ -1446,10 +1445,12 @@ randomForest.clinical.physiologic
 
 ### Summarizing performance
 
-#### Table 4. Comparative performance of two models across three different modelling methodologies on the test data
+### Table 4. Comparative performance of two models across three different modelling methodologies on the test data
 
 
-```{r, echo=FALSE}
+
+
+```{r echo=FALSE}
 row <-  c("ElasticNet: Clinical Parameters", 
 round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,3])),4), 
 round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,4])),4), 
@@ -1516,10 +1517,7 @@ knitr::kable(df%>%select(Model, Accuracy, Sensitivity, Specificity))
 
 The tested modelling strategies produced a wide variability in accuracy, sensitivity, and specificity. While we observed higher sensitivity when using ElasticNet to fit the models, regardless of whether physiologic variables were included, XGBoost and Random Forest methods were better suited to optimizing specificity, and tended to have similar accuracy when compared to ElasticNet methods.The model that best balanced accuracy, specificity and clinical utility was the Random Forest model with clinical parameters (n=5 clinical symptoms: weight gain, hair growth + skin darkening, hair loss and pimples). This model performed with the highest accuracy, second highest specificity, and incorporated the simplest set of parameters to make predictions. This finding is supported by recent commentaries in the literature that indicate Random Forest models perform the most accurately on a wide variety of datasets^6^. 
 
-One of the drawbacks of the Random Forest is its black box nature, making it harder to determine and/or interpret how the model is making its predictions. This could pose a challenge to clinicians trying to troubleshoot or improve upon the model. 
-
-
-An additional advantage of our clinical model is the fact that we do not require the collection and storage of physiological parameters such as the hormones human chorionic gonadotropin (HCG) and anti-mullerian hormone (AMH), which may be used as indicators/proxies to determine pregnancy status and fertility respectively. This is sensitive data to patients and limiting the scope and invasiveness of data collection allows for better control of risk of harm to patients, as less data is vulnerable to access by predatory actors. 
+One of the drawbacks of the Random Forest is its black box nature, making it harder to determine and/or interpret how the model is making its predictions. This could pose a challenge to clinicians trying to troubleshoot or improve upon the model. Our model is simple and requires few parameters, which may offset this inherent lack of interpretability. An additional advantage of our clinical model is the fact that we do not require the collection and storage of physiological parameters such as the hormones human chorionic gonadotropin (HCG) and anti-mullerian hormone (AMH), which may be used as indicators/proxies to determine pregnancy status and fertility respectively. This is sensitive data to patients and limiting the scope and invasiveness of data collection allows for better control of risk of harm to patients, as less data is vulnerable to access by predatory actors.
 
 ### 5.2 Conclusions
 
