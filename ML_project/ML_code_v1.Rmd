@@ -92,7 +92,7 @@ The rationale for our variable selection and model building incorporated a mix o
 * (2) Model 2 is the clinical model, including as variables clinical symptoms associated with PCOS, and specifically clinical symptoms which may be easily determined as a part of a routine examination by a physician. These are the variables included in the clinical model: weight gain, hair growth + skin darkening, hair loss and pimples.
 * (3) Model 3 includes both the physiological and clinical variables, that is the n=5 the hormone measurement levels, vitamin D, as well as the clinical symptoms that have been known to be associated with PCOS: weight gain, hair growth + skin darkening, hair loss and pimples (clinical symptoms which may be easily identified or tracked in a basic clinical setting). 
 
-To assess the relative fit and performance of these three models, we started with a simple logistic regression method. We fit the three models described above and compared the Akaike Information Criteria (AIC) as well as the Area Under the Receiving Operator Characteristic (AUC). At this stage,  was used. Following this initial selection, we selected the two models with the best balance between both of these parameters, as well as clinical utility and applied various machine learning training methods to optimize model performance. 
+To assess the relative fit and performance of these three models, we started with a simple logistic regression method. We fit the three models described above and compared the Akaike Information Criteria (AIC) as well as the Area Under the Receiving Operator Characteristic (AUC). At this stage,  was used. Following this initial selection, we selected the two models with the best balance between both of these parameters, as well as clinical utility and applied various machine learning training methods to optimize model performance. We used the caret package to implement our various machine learning models. 
 
 We applied regularization methods, boosting methods, as well as random forest modelling using the variable combinations identified using the simple logistic regression approach. 
 
@@ -1572,7 +1572,7 @@ plot_correlation(PCOS_data_without_infertility_formatted, title = "Bivariate ana
 
 ```{r boxplots, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 
-plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "Boxplots for continous variables by PCOS status")
+plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "Boxplots for continous variables by PCOS status", ggtheme = theme_bw())
 
 
 
