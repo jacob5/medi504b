@@ -590,7 +590,7 @@ Based on these results, we will compare the clinical model to the full clinical 
 
 Of our three logistic regression models, Model 2 had the lowest AIC score of 317, followed by Model 3 with an AIC score of 566. However, the predictive performance as assesed by AUC was higher for model 3 (0.99) than model 2 (0.88). While model 3 was better performing, it also required more parameters for prediction that require blood testing. 
 
-```{r echo=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, results = "hide"}
+```{r eval=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, include=FALSE}
 
 # glimpse(train.data)
 # 
@@ -713,7 +713,7 @@ fit.cv.bin.model.all
 ## model 2 with only hormone variables 
 fit.cv.bin.model2 <-train(pcos_y_n ~ ., 
                           trControl = ctrl,
-                                 data = train.data.2, method = "glmnet",
+                                 data = train.data.clinical, method = "glmnet",
                                  lambda= 0,
                                  tuneGrid = expand.grid(alpha = 0,  
                                                         lambda = 0),
@@ -825,7 +825,257 @@ fit.cv.bin.elastic.model_3
 
 ```
 
+### Appendix Plot 4 - Penalized logistic regression with cross-validation (RIDGE and LASSO), and Elastic Net
+* 
+```{r echo=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, results = "hide"}
 
+# glimpse(train.data)
+# 
+# summary(train.data)
+
+train.data.covariates.all <- train.data %>% 
+                                 mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No")) %>%
+                                 drop_na()%>%
+  mutate_at(c("pcos_y_n",
+              "weight_gain_y_n", 
+              "hair_growth_y_n",
+              "skin_darkening_y_n",
+              "hair_loss_y_n",
+              "pimples_y_n"),as.factor) %>%
+  mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric) 
+
+glimpse(train.data.covariates.all)
+
+baselinevars_all <- names(dplyr::select(train.data.covariates.all, 
+                         !c(pcos_y_n)))
+baselinevars_all
+
+model_formula_all <- as.formula(paste("pcos_y_n~ ", 
+                               paste(baselinevars_all, 
+                                     collapse = "+")))
+
+model_formula_all
+
+
+
+  
+
+train.data.covariates.1 <- train.data %>%
+  select(
+    pcos_y_n,
+    i_beta_hcg_m_iu_m_l,
+    fsh_m_iu_m_l,
+    lh_m_iu_m_l,
+    tsh_m_iu_l,
+    amh_ng_m_l ,
+    weight_gain_y_n ,
+    hair_growth_y_n,
+    skin_darkening_y_n,
+    hair_loss_y_n ,
+    pimples_y_n
+  ) %>%
+  mutate_at(c("pcos_y_n",
+              "weight_gain_y_n", 
+              "hair_growth_y_n",
+              "skin_darkening_y_n",
+              "hair_loss_y_n",
+              "pimples_y_n"),as.factor) %>%
+  mutate_at(c(
+    "i_beta_hcg_m_iu_m_l",
+    "fsh_m_iu_m_l" ,
+    "lh_m_iu_m_l" ,
+    "tsh_m_iu_l" ,
+    "amh_ng_m_l"), as.numeric) 
+
+train.data.clinical <- train.data.covariates.all %>%
+  select(
+    pcos_y_n,
+    weight_gain_y_n ,
+    hair_growth_y_n,
+    skin_darkening_y_n,
+    hair_loss_y_n,
+    pimples_y_n
+  ) %>%
+  mutate_at(c("pcos_y_n",
+              "weight_gain_y_n", 
+              "hair_growth_y_n",
+              "skin_darkening_y_n",
+              "hair_loss_y_n",
+              "pimples_y_n"),as.factor) 
+
+# train.data.2 <- train.data.covariates.1 %>%
+#                  drop_na() %>%
+#                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
+
+
+train.data.3 <- train.data.covariates.1 %>%
+                  drop_na() %>%
+                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
+
+# view(train.data.1)
+
+# summary(train.data.1)
+
+baselinevars_3 <- names(dplyr::select(train.data.3, 
+                         !c(pcos_y_n)))
+
+
+model_formula_3 <- as.formula(paste("pcos_y_n~ ", 
+                               paste(baselinevars_3, 
+                                     collapse = "+")))
+
+
+
+## RIDGE cross-validation of our logistic regression models (with binary outcome)
+set.seed(504)
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
+
+
+## model 1 with all variables
+fit.cv.bin.model.all <-train(model_formula_all, trControl = ctrl,
+                                 data = train.data.covariates.all, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+
+
+# model 1 ROC output (RIDGE): 0.5662222
+
+## model 2 with only hormone variables 
+fit.cv.bin.model2 <-train(pcos_y_n ~., trControl = ctrl,
+                                 data = train.data.clinical, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model2
+
+# model 2 ROC output (RIDGE): 0.6045425
+
+## model 3 with hormone variables and clinical symptoms 
+fit.cv.bin.model3 <-train(model_formula_3, trControl = ctrl,
+                                 data = train.data.3, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 0,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model3
+# model 3 ROC output (RIDGE): 0.8737665
+
+## LASSO cross-validation of our logistic regression models
+
+set.seed(504)
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
+
+
+## model 1 with all variables
+fit.cv.bin.model.all.lasso <-train(model_formula_all, trControl = ctrl,
+                                 data = train.data.covariates.all, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model.all.lasso
+
+# model 1 output (LASSO): 0.6005752
+
+## model 2 with only hormone variables 
+fit.cv.bin.model2.lasso <-train(pcos_y_n ~ ., trControl = ctrl,
+                                 data = train.data.clinical, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+fit.cv.bin.model2.lasso
+
+# model 2 output (LASSO): 0.6286078
+
+## model 3 with hormone variables and clinical symptoms 
+fit.cv.bin.model3.lasso <-train(model_formula_3, trControl = ctrl,
+                                 data = train.data.3, method = "glmnet",
+                                 lambda= 0,
+                                 tuneGrid = expand.grid(alpha = 1,  
+                                                        lambda = 0),
+                                 verbose = FALSE,
+                                 metric="ROC")
+
+fit.cv.bin.model3.lasso
+
+# model 3 output (LASSO): 0.8756765
+
+## Cross-validation using ElasticNet
+
+# CV using ElasticNet (for model 1)
+set.seed(504)
+ctrl<-trainControl(method = "cv", number = 5,
+                   classProbs = TRUE,
+                   summaryFunction = twoClassSummary)
+
+fit.cv.bin.elastic.model_1 <-train(model_formula_all, trControl = ctrl,
+                                   data = train.data.covariates.all, method = "glmnet",
+                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
+                                                          lambda = seq(0.05,0.3,by = 0.05)),
+                                   verbose = FALSE,
+                                   metric="ROC")
+
+fit.cv.bin.elastic.model_1
+
+elastic_model1 <- plot(fit.cv.bin.elastic.model_1)
+
+# CV using ElasticNet (for model 2) 
+
+fit.cv.bin.elastic.model_2 <-train(pcos_y_n ~ ., trControl = ctrl,
+                                   data = train.data.clinical, method = "glmnet",
+                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
+                                                          lambda = seq(0.05,0.3,by = 0.05)),
+                                   verbose = FALSE,
+                                   metric="ROC")
+
+elastic_model2 <- plot(fit.cv.bin.elastic.model_2)
+
+# CV using ElasticNet (for model 3) 
+fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
+                                   data = train.data.3, method = "glmnet",
+                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
+                                                          lambda = seq(0.05,0.3,by = 0.05)),
+                                   verbose = FALSE,
+                                   metric="ROC")
+
+fit.cv.bin.elastic.model_3
+
+elastic_model3 <- plot(fit.cv.bin.elastic.model_3, title = "Cross Validation with ElasticNet for Model 3")
+
+cowplot::plot_grid(elastic_model2, elastic_model3, title = "Elastic Net Models Comparison")
+
+
+knitr::kable(data.frame("Model"=c("Clinical and Physiologic", "Clinical", 
+                     "Clinical and Physiologic", "Clinical", 
+                     "Clinical and Physiologic", "Clinical" 
+),
+           "Method"=c("ElasticNet", "ElasticNet", "LASSO", "LASSO", "Ridge", "Ridge"),
+           "ROC"=c(mean(fit.cv.bin.elastic.model_2$results[,3]), 
+                   mean(fit.cv.bin.elastic.model_3$results[,3]), 
+                   mean(fit.cv.bin.model.all.lasso$results[,3]),
+                   mean(fit.cv.bin.model2.lasso$results[,3]), 
+                   mean(fit.cv.bin.model.all$results[,3]),
+                   mean(fit.cv.bin.model2$results[,3])
+                   )))
+```
 
 #### Figure 1. ROC curves: clinical model (blue) vs. clinical and physiologic model (green)
 
@@ -1309,238 +1559,7 @@ plot_histogram(PCOS_data_without_infertility_formatted, theme_config = list("plo
 
 ```
 
-### Appendix Plot 4 - Penalized logistic regression with cross-validation (RIDGE and LASSO), and Elastic Net
-* 
-```{r echo=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, results = "hide"}
 
-# glimpse(train.data)
-# 
-# summary(train.data)
-
-train.data.covariates.all <- train.data %>% 
-                                 mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No")) %>%
-                                 drop_na()%>%
-  mutate_at(c("pcos_y_n",
-              "weight_gain_y_n", 
-              "hair_growth_y_n",
-              "skin_darkening_y_n",
-              "hair_loss_y_n",
-              "pimples_y_n"),as.factor) %>%
-  mutate_at(c(
-    "i_beta_hcg_m_iu_m_l",
-    "fsh_m_iu_m_l" ,
-    "lh_m_iu_m_l" ,
-    "tsh_m_iu_l" ,
-    "amh_ng_m_l"), as.numeric) 
-
-glimpse(train.data.covariates.all)
-
-baselinevars_all <- names(dplyr::select(train.data.covariates.all, 
-                         !c(pcos_y_n)))
-baselinevars_all
-
-model_formula_all <- as.formula(paste("pcos_y_n~ ", 
-                               paste(baselinevars_all, 
-                                     collapse = "+")))
-
-model_formula_all
-
-train.data.2 <- train.data.covariates.all %>%
-                  select(pcos_y_n,
-                         i_beta_hcg_m_iu_m_l,
-                         fsh_m_iu_m_l,
-                         lh_m_iu_m_l,
-                         tsh_m_iu_l ,
-                         amh_ng_m_l)%>%mutate(
-                           pcos_y_n=as.factor(pcos_y_n)
-                         )
-  
-
-glimpse(train.data.2)
-
-train.data.covariates.1 <- train.data %>%
-  select(
-    pcos_y_n,
-    i_beta_hcg_m_iu_m_l,
-    fsh_m_iu_m_l,
-    lh_m_iu_m_l,
-    tsh_m_iu_l,
-    amh_ng_m_l ,
-    weight_gain_y_n ,
-    hair_growth_y_n,
-    skin_darkening_y_n,
-    hair_loss_y_n ,
-    pimples_y_n
-  ) %>%
-  mutate_at(c("pcos_y_n",
-              "weight_gain_y_n", 
-              "hair_growth_y_n",
-              "skin_darkening_y_n",
-              "hair_loss_y_n",
-              "pimples_y_n"),as.factor) %>%
-  mutate_at(c(
-    "i_beta_hcg_m_iu_m_l",
-    "fsh_m_iu_m_l" ,
-    "lh_m_iu_m_l" ,
-    "tsh_m_iu_l" ,
-    "amh_ng_m_l"), as.numeric) 
-
-# train.data.2 <- train.data.covariates.1 %>%
-#                  drop_na() %>%
-#                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
-
-glimpse(train.data.2)
-
-train.data.3 <- train.data.covariates.1 %>%
-                  drop_na() %>%
-                  mutate(pcos_y_n = ifelse(pcos_y_n == "1", "Yes", "No"))
-
-# view(train.data.1)
-
-# summary(train.data.1)
-
-baselinevars_3 <- names(dplyr::select(train.data.3, 
-                         !c(pcos_y_n)))
-baselinevars_3
-
-model_formula_3 <- as.formula(paste("pcos_y_n~ ", 
-                               paste(baselinevars_3, 
-                                     collapse = "+")))
-
-model_formula_3
-
-## RIDGE cross-validation of our logistic regression models (with binary outcome)
-set.seed(504)
-ctrl<-trainControl(method = "cv", number = 5,
-                   classProbs = TRUE,
-                   summaryFunction = twoClassSummary)
-
-
-## model 1 with all variables
-fit.cv.bin.model.all <-train(model_formula_all, trControl = ctrl,
-                                 data = train.data.covariates.all, method = "glmnet",
-                                 lambda= 0,
-                                 tuneGrid = expand.grid(alpha = 0,  
-                                                        lambda = 0),
-                                 verbose = FALSE,
-                                 metric="ROC")
-fit.cv.bin.model.all
-
-# model 1 ROC output (RIDGE): 0.5662222
-
-## model 2 with only hormone variables 
-fit.cv.bin.model2 <-train(pcos_y_n ~ ., trControl = ctrl,
-                                 data = train.data.2, method = "glmnet",
-                                 lambda= 0,
-                                 tuneGrid = expand.grid(alpha = 0,  
-                                                        lambda = 0),
-                                 verbose = FALSE,
-                                 metric="ROC")
-fit.cv.bin.model2
-
-# model 2 ROC output (RIDGE): 0.6045425
-
-## model 3 with hormone variables and clinical symptoms 
-fit.cv.bin.model3 <-train(model_formula_3, trControl = ctrl,
-                                 data = train.data.3, method = "glmnet",
-                                 lambda= 0,
-                                 tuneGrid = expand.grid(alpha = 0,  
-                                                        lambda = 0),
-                                 verbose = FALSE,
-                                 metric="ROC")
-fit.cv.bin.model3
-# model 3 ROC output (RIDGE): 0.8737665
-
-## LASSO cross-validation of our logistic regression models
-
-set.seed(504)
-ctrl<-trainControl(method = "cv", number = 5,
-                   classProbs = TRUE,
-                   summaryFunction = twoClassSummary)
-
-
-## model 1 with all variables
-fit.cv.bin.model.all.lasso <-train(model_formula_all, trControl = ctrl,
-                                 data = train.data.covariates.all, method = "glmnet",
-                                 lambda= 0,
-                                 tuneGrid = expand.grid(alpha = 1,  
-                                                        lambda = 0),
-                                 verbose = FALSE,
-                                 metric="ROC")
-fit.cv.bin.model.all.lasso
-
-# model 1 output (LASSO): 0.6005752
-
-## model 2 with only hormone variables 
-fit.cv.bin.model2.lasso <-train(pcos_y_n ~ ., trControl = ctrl,
-                                 data = train.data.2, method = "glmnet",
-                                 lambda= 0,
-                                 tuneGrid = expand.grid(alpha = 1,  
-                                                        lambda = 0),
-                                 verbose = FALSE,
-                                 metric="ROC")
-fit.cv.bin.model2.lasso
-
-# model 2 output (LASSO): 0.6286078
-
-## model 3 with hormone variables and clinical symptoms 
-fit.cv.bin.model3.lasso <-train(model_formula_3, trControl = ctrl,
-                                 data = train.data.3, method = "glmnet",
-                                 lambda= 0,
-                                 tuneGrid = expand.grid(alpha = 1,  
-                                                        lambda = 0),
-                                 verbose = FALSE,
-                                 metric="ROC")
-
-fit.cv.bin.model3.lasso
-
-# model 3 output (LASSO): 0.8756765
-
-## Cross-validation using ElasticNet
-
-# CV using ElasticNet (for model 1)
-set.seed(504)
-ctrl<-trainControl(method = "cv", number = 5,
-                   classProbs = TRUE,
-                   summaryFunction = twoClassSummary)
-
-fit.cv.bin.elastic.model_1 <-train(model_formula_all, trControl = ctrl,
-                                   data = train.data.covariates.all, method = "glmnet",
-                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
-                                                          lambda = seq(0.05,0.3,by = 0.05)),
-                                   verbose = FALSE,
-                                   metric="ROC")
-
-fit.cv.bin.elastic.model_1
-
-elastic_model1 <- plot(fit.cv.bin.elastic.model_1)
-
-# CV using ElasticNet (for model 2) 
-
-fit.cv.bin.elastic.model_2 <-train(pcos_y_n ~ ., trControl = ctrl,
-                                   data = train.data.2, method = "glmnet",
-                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
-                                                          lambda = seq(0.05,0.3,by = 0.05)),
-                                   verbose = FALSE,
-                                   metric="ROC")
-
-elastic_model2 <- plot(fit.cv.bin.elastic.model_2)
-
-# CV using ElasticNet (for model 3) 
-fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
-                                   data = train.data.3, method = "glmnet",
-                                   tuneGrid = expand.grid(alpha = seq(0.1,.2,by = 0.05),  
-                                                          lambda = seq(0.05,0.3,by = 0.05)),
-                                   verbose = FALSE,
-                                   metric="ROC")
-
-fit.cv.bin.elastic.model_3
-
-elastic_model3 <- plot(fit.cv.bin.elastic.model_3, title = "Cross Validation with ElasticNet for Model 3")
-
-cowplot::plot_grid(elastic_model2, elastic_model3, title = "Elastic Net Models Comparison")
-
-```
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results = "hide"}
