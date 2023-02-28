@@ -324,6 +324,8 @@ We can visualize these distributions in the following figures.
 
 We visualized associations for selected categorical predictors and the outcome (PCOS) by constructing bivariate plots for the predictors stratified by PCOS status^4^. 
 
+#### Figure 1. Plotting categorical associations
+
 ```{r EDA4, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 # plotting bar plots for each categorical feature
 barPlotdata <- PCOS_data_without_infertility_formatted %>% select(
@@ -338,6 +340,7 @@ plot_bar(barPlotdata,
 
 ```
 
+
 From the figure, we can see that the proportion of individuals with weight gain and a positive PCOS status is greater than the proportion of individuals with no weight gain and a positive PCOS status. We observe similar associations for hair growth and skin darkening. We also observe a similar but much weaker association for the categorical variables of hair loss and pimples. Interestingly, we observe the inverse trend for the categorical variable for fast food consumption. As these predictors appear to be visually associated with the outcome, as well as physiologically feasible to be associated with PCOS, they should be considered for inclusion in the predictive model. 
 
 The bar plots for regular exercise and pregnancy do not appear to show a significant difference in proportion of positive PCOS cases, but we would need to perform a statistical analyses (such as an unpaired t-test) to know for sure. 
@@ -345,7 +348,7 @@ To ascertain the relationship between PCOS status and continuous predictors, we 
 
 For this section of the EDA, we looked more closely at the relationships between selected variables and our outcome variable of interest (for this project: yes or no for PCOS), based on how our boxplots looked initially (please refer to Appendix for all boxplots) and on some knowledge gained via our literature survey, we will highlight the relatiionship of select variables with our outcome variable (PCOS status). While the etiology for PCOS is not known, our literature survey suggests PCOS is associated with abnormal hormone levels. Thus, to look into this further as part of the EDA, we compared measurements of hormone levels and PCOS status to get a sense of the relationships between these variables.
 
-### Boxplots looking at relationship of selected physiologic parameters and PCOS status (note log-scale)
+#### Figure 2. Boxplots looking at relationship of selected physiologic parameters and PCOS status (note log-scale on y-axis)
 ```{r hormonevariables, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
 
 ## looking more closely and the relationships between selected variables and our outcome variable of interest (PCOS yes or no)
@@ -826,7 +829,7 @@ fit.cv.bin.elastic.model_3
 ```
 
 ### 4.1.1 - Assessing penalized logistic regression with cross-validation for (RIDGE and LASSO), and Elastic Net (comparison of regularization methods)
-* 
+
 ```{r echo=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, results = "hide"}
 
 # glimpse(train.data)
@@ -1059,9 +1062,9 @@ fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
 
 ```
 
-### Table X. Comparison of regularization methods across two models for predicting PCOS status
+### Table 2. Comparison of regularization methods across two models for predicting PCOS status
 
-```{r}
+```{r eval=F}
 knitr::kable(data.frame("Model"=c("Clinical and Physiologic", "Clinical", 
                      "Clinical and Physiologic", "Clinical", 
                      "Clinical and Physiologic", "Clinical" 
@@ -1076,7 +1079,7 @@ knitr::kable(data.frame("Model"=c("Clinical and Physiologic", "Clinical",
                    )))
 ```
 
-#### Figure 1. ROC curves: clinical model (blue) vs. clinical and physiologic model (green)
+#### Figure 2. ROC curves: clinical model (blue) vs. clinical and physiologic model (green)
 
 ```{r echo=FALSE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE}
 ## plotting ROC and AUC 
@@ -1183,7 +1186,6 @@ train.data.covariates.model3 <- train.data %>%
 ```
 
 
-Random Forest 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)#Can also fit with caret
@@ -1207,14 +1209,14 @@ caret_rf_model3 <- train(
   trControl = trainControl(method = "cv", number = 5, classProbs = TRUE, summaryFunction = twoClassSummary),
   importance="impurity"
 )
-
-knitr::kable(data.frame(
-  "Model" = c("Clinical and Physiologic Model", 
-              "Clinical Model"),
-  "ROC"=c(mean(caret_rf_model3$resample$ROC),mean(caret_rf_model2$resample$ROC)), 
-  "Sensitivity" = c(mean(caret_rf_model3$resample$Sens), mean(caret_rf_model2$resample$Sens)),
-  "Specificity" = c(mean(caret_rf_model3$resample$Spec), mean(caret_rf_model2$resample$Spec)
-           )))
+# 
+# knitr::kable(data.frame(
+#   "Model" = c("Clinical and Physiologic Model", 
+#               "Clinical Model"),
+#   "ROC"=c(mean(caret_rf_model3$resample$ROC),mean(caret_rf_model2$resample$ROC)), 
+#   "Sensitivity" = c(mean(caret_rf_model3$resample$Sens), mean(caret_rf_model2$resample$Sens)),
+#   "Specificity" = c(mean(caret_rf_model3$resample$Spec), mean(caret_rf_model2$resample$Spec)
+#            )))
 
 ```
 
@@ -1323,13 +1325,15 @@ test.data <- test.data %>%
 ```
 
 
-### Figure X. Comparative performance on the training data
+#### Figure 4. Comparative performance on the training data
 
 ```{r echo=FALSE, include=TRUE, fig.width=8, fig.height=6}
 model_list <- list(RF.Clinical.Physiological = caret_rf_model3,
                    XG.Clinical.Physiological = caret_xgb_model3, 
                    RF.Clinical = caret_rf_model2,
-                   XG.Clinical = caret_xgb_model2
+                   XG.Clinical = caret_xgb_model2, 
+                   ElasticNet.Clinical.Physiological=fit.cv.bin.elastic.model_2, 
+                   ElasticNet.Clinical=fit.cv.bin.elastic.model_3  
                    # , Rpart_DT = caret_tree, Bagging = caret_bag
                    )
 resamples <- resamples(model_list)
@@ -1462,10 +1466,32 @@ randomForest.clinical.physiologic
 
 #### Table 2. Comparative performance of two models across three different modelling methodologies
 
+
+```{r}
+row <-  c("ElasticNet: Clinical Parameters", 
+round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,3])),4), 
+round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,4])),4), 
+round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,5])),4))
+row2 <-  c("ElasticNet: Clinical and Physiological Parameters", 
+round(as.numeric(mean(fit.cv.bin.elastic.model_2$results[,3])),4), 
+round(as.numeric(mean(fit.cv.bin.elastic.model_2$results[,4])),4), 
+round(as.numeric(mean(fit.cv.bin.elastic.model_2$results[,5])),4))
+
+rows<-rbind(row, row2)
+rows<-as.data.frame(rows)
+rows<-rows%>%
+  rename("Model"=V1, 
+         "Accuracy"=V2, 
+         "Sensitivity"=V3, 
+         "Specificity"=V4)
+
+```
+
+
 ```{r echo=FALSE, message=FALSE, warning = FALSE}
 
 
-knitr::kable(
+df<-
   rbind(data.frame(
   "Model"=c("Clinical Parameters: Random Forest", 
             "Clinical and Physiologic Parameters: Random Forest", 
@@ -1489,11 +1515,13 @@ knitr::kable(
     randomForest.clinical.physiologic$byClass[2], 
     xgboost.clinical$byClass[2], 
     xgboost.clinical.physiologic$byClass[2]
-  )), 
-  clinical.lasso.row,
-  clinical.physiologic.lasso.row))
+  )
+  ))
+  
+df<-df %>% 
+ mutate_if(is.numeric, round, digits=3)
 # randomForest.clinical$overall[1]
-
+knitr::kable(df)
 ```
 
 ## 5. Discussion and Conclusion
