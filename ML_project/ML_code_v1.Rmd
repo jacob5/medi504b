@@ -1536,7 +1536,7 @@ PCOS status can be predicted with a reasonably high level of accuracy (88.1% wit
 
 ## Appendix 
 
-* Appendix Plot 1, as part of EDA, showing missing values in our dataset
+#### Appendix Plot 1, as part of EDA, showing missing values in our dataset
 ```{r EDA1, echo=FALSE, fig.align = "center", fig.height=10, fig.width=10, message=FALSE, warning=FALSE, results="hide"}
 # checking for missing values in dataset 
 plot_missing(PCOS_data_without_infertility_formatted, title = "Plot showing missing values")
@@ -1550,7 +1550,7 @@ PCOS_data_without_infertility_formatted <- PCOS_data_without_infertility_formatt
 
 ```
 
-* Appendix plot 2, as part of EDA, examining correlations between continuous features 
+#### Appendix plot 2, as part of EDA, bivariate analysis examining correlations between continuous features 
 
 ```{r EDA3, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE}
 # performing a correlation analysis for continuous features 
@@ -1571,6 +1571,7 @@ plot_boxplot(PCOS_data_without_infertility_formatted, by = "pcos_y_n", title = "
 
 
 ```
+* Boxplots showing the distributions of continuous variables in our dataset, stratified by PCOS status. 
 
 ```{r EDA2, eval=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, include=FALSE}
 # plotting a histogram for each continuous feature 
@@ -1674,8 +1675,11 @@ plot(pROC::roc(train.data$pcos_y_n,
      print.auc.y=.4)
 
 ```
+* ROC plot showing the ROC curves for our simple logistic regression modelling using three different variable selections (based on clinical variables only, physiological variables only, and both clinical and physiological variables). 
 
 ### Appendix Plot 5 - Variable importance (based on Random Forest model)
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 vip::vip(caret_rf_model3)+theme_bw()
 ```
+
+* Plot showing variable importance based on random forest modelling. We decided to adopt an approach of utilizing clinical and contextual knowledge for variable selection, and therefore, based on this we did not drop or remove any of the variables we deemed relevant for our modelling. 
