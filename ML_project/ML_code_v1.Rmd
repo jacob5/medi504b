@@ -958,7 +958,7 @@ fit.cv.bin.model2 <-train(pcos_y_n ~., trControl = ctrl,
                                                         lambda = 0),
                                  verbose = FALSE,
                                  metric="ROC")
-fit.cv.bin.model2
+
 
 # model 2 ROC output (RIDGE): 0.6045425
 
@@ -970,7 +970,7 @@ fit.cv.bin.model3 <-train(model_formula_3, trControl = ctrl,
                                                         lambda = 0),
                                  verbose = FALSE,
                                  metric="ROC")
-fit.cv.bin.model3
+
 # model 3 ROC output (RIDGE): 0.8737665
 
 ## LASSO cross-validation of our logistic regression models
@@ -989,7 +989,7 @@ fit.cv.bin.model.all.lasso <-train(model_formula_all, trControl = ctrl,
                                                         lambda = 0),
                                  verbose = FALSE,
                                  metric="ROC")
-fit.cv.bin.model.all.lasso
+
 
 # model 1 output (LASSO): 0.6005752
 
@@ -1001,7 +1001,7 @@ fit.cv.bin.model2.lasso <-train(pcos_y_n ~ ., trControl = ctrl,
                                                         lambda = 0),
                                  verbose = FALSE,
                                  metric="ROC")
-fit.cv.bin.model2.lasso
+
 
 # model 2 output (LASSO): 0.6286078
 
@@ -1014,7 +1014,7 @@ fit.cv.bin.model3.lasso <-train(model_formula_3, trControl = ctrl,
                                  verbose = FALSE,
                                  metric="ROC")
 
-fit.cv.bin.model3.lasso
+
 
 # model 3 output (LASSO): 0.8756765
 
@@ -1033,9 +1033,8 @@ fit.cv.bin.elastic.model_1 <-train(model_formula_all, trControl = ctrl,
                                    verbose = FALSE,
                                    metric="ROC")
 
-fit.cv.bin.elastic.model_1
 
-elastic_model1 <- plot(fit.cv.bin.elastic.model_1)
+
 
 # CV using ElasticNet (for model 2) 
 
@@ -1046,7 +1045,6 @@ fit.cv.bin.elastic.model_2 <-train(pcos_y_n ~ ., trControl = ctrl,
                                    verbose = FALSE,
                                    metric="ROC")
 
-elastic_model2 <- plot(fit.cv.bin.elastic.model_2)
 
 # CV using ElasticNet (for model 3) 
 fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
@@ -1056,13 +1054,14 @@ fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
                                    verbose = FALSE,
                                    metric="ROC")
 
-fit.cv.bin.elastic.model_3
-
-elastic_model3 <- plot(fit.cv.bin.elastic.model_3, title = "Cross Validation with ElasticNet for Model 3")
-
-cowplot::plot_grid(elastic_model2, elastic_model3, title = "Elastic Net Models Comparison")
 
 
+
+```
+
+### Table X. Comparison of regularization methods across two models for predicting PCOS status
+
+```{r}
 knitr::kable(data.frame("Model"=c("Clinical and Physiologic", "Clinical", 
                      "Clinical and Physiologic", "Clinical", 
                      "Clinical and Physiologic", "Clinical" 
@@ -1326,7 +1325,7 @@ test.data <- test.data %>%
 
 ### Figure X. Comparative performance on the training data
 
-```{r echo=FALSE, include=TRUE}
+```{r echo=FALSE, include=TRUE, fig.width=8, fig.height=6}
 model_list <- list(RF.Clinical.Physiological = caret_rf_model3,
                    XG.Clinical.Physiological = caret_xgb_model3, 
                    RF.Clinical = caret_rf_model2,
