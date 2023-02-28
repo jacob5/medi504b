@@ -825,7 +825,7 @@ fit.cv.bin.elastic.model_3
 
 ```
 
-### Appendix Plot 4 - Penalized logistic regression with cross-validation (RIDGE and LASSO), and Elastic Net
+### 4.1.1 - Assessing penalized logistic regression with cross-validation for (RIDGE and LASSO), and Elastic Net (comparison of regularization methods)
 * 
 ```{r echo=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, results = "hide"}
 
