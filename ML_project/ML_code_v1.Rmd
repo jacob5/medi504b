@@ -492,7 +492,7 @@ unique(PCOS_data_without_infertility_formatted_final$pcos_y_n)
 PCOS_data_without_infertility_formatted_final$pcos_y_n <- as.factor(PCOS_data_without_infertility_formatted_final$pcos_y_n)
 ```
 
-```{r, data split, echo=FALSE, message=FALSE, warning = FALSE, results='hide`}
+```{r, data split, echo=FALSE, message=FALSE, warning = FALSE, results='hide'}
 #####
 ## setting the seed (enables randomization in a reproducible way)
 set.seed(504)
