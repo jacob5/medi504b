@@ -1640,7 +1640,7 @@ cv_of_data <- caret::trainControl(
 
 ```
 
-#### Appendix Plot 3. ROC curves: physiological model (red) vs. clinical model (blue) vs. clinical and physiologic model (green)
+#### Appendix Plot 4. ROC curves: physiological model (red) vs. clinical model (blue) vs. clinical and physiologic model (green)
 
 ```{r echo=FALSE, fig.height=3, fig.width=3, message=FALSE, warning=FALSE, , fig.align = 'center'}
 ## plotting ROC and AUC 
@@ -1670,7 +1670,7 @@ plot(pROC::roc(train.data$pcos_y_n,
 
 ```
 
-### Appendix Plot 4 - Variable importance (based on Random Forest model)
+### Appendix Plot 5 - Variable importance (based on Random Forest model)
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 vip::vip(caret_rf_model3)+theme_bw()
 ```
