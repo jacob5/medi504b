@@ -493,7 +493,7 @@ unique(PCOS_data_without_infertility_formatted_final$pcos_y_n)
 PCOS_data_without_infertility_formatted_final$pcos_y_n <- as.factor(PCOS_data_without_infertility_formatted_final$pcos_y_n)
 ```
 
-```{r, data split, echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
+```{r, data split, echo=FALSE, message=FALSE, warning = FALSE, results='hide`}
 #####
 ## setting the seed (enables randomization in a reproducible way)
 set.seed(504)
@@ -574,6 +574,11 @@ auc3 <- pROC::roc(train.data$pcos_y_n,
                    fitted(logistic_model3))
 tidyr::extract_numeric(auc3$auc)
 
+```
+
+#### Table 3. Assessing fit and accuracy for three different variable combinations
+
+```{r}
 knitr::kable(data.frame("Model"=c("Physiologic Model", "Clinical Model", "Physiologic and Clinical Model"),
            "AIC"=c(logistic_model1$aic, logistic_model2$aic, logistic_model3$aic), 
            "ROC"=c(tidyr::extract_numeric(auc1$auc), tidyr::extract_numeric(auc2$auc), tidyr::extract_numeric(auc3$auc)
@@ -588,7 +593,7 @@ knitr::kable(data.frame("Model"=c("Physiologic Model", "Clinical Model", "Physio
 
 ### 4.1 Assessing model classification performance 
 
-Of our three logistic regression models, Model 2 had the lowest AIC score of 317, followed by Model 3 with an AIC score of 566. However, the predictive performance as assessed by AUC was higher for model 3 (0.99) than model 2 (0.88). While model 3 was better performing, it also required more parameters for prediction that require blood testing. 
+Of our three logistic regression models, the clinical and physiological model had the lowest AIC score of 320, followed by the clincal model with an AIC score of 330. However, the predictive performance as assessed by AUC was higher for the clinical and physiological model (0.88) than the clinical model (0.86). The clinical and physiologic model also required more parameters for prediction that require blood testing. 
 
 Based on these results, we will compare the clinical model to the full clinical and physiological model. While the model including clinical predictors only is more simple both technically (as evidenced by the AIC) and practically (less inputs and no blood testing required), there is an approximate 10% drop in accuracy when excluding the physiological data. We will select these two models and compare performance in applying various machine learning methods below. 
 
@@ -1078,28 +1083,7 @@ knitr::kable(data.frame("Model"=c("Clinical and Physiologic", "Clinical",
                    )))
 ```
 
-#### Figure 3. ROC curves: clinical model (blue) vs. clinical and physiologic model (green)
 
-```{r echo=FALSE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, , fig.align = 'center'}
-## plotting ROC and AUC 
-
-# plot(pROC::roc(train.data$pcos_y_n,
-#                    fitted(logistic_model1)),
-#                col = "red", 
-#                main = "ROC curves: model 1 (red) vs. model 2 (blue) \n vs. model 3 (green)")
-plot(pROC::roc(train.data$pcos_y_n,
-                   fitted(logistic_model2)),
-               print.auc = T, 
-               col = "blue",
-                print.auc.y = .6)
-plot(pROC::roc(train.data$pcos_y_n,
-                   fitted(logistic_model3)),
-               print.auc = T, 
-               col = "green", 
-               add = T,
-     print.auc.y=.4)
-
-```
 
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 # library(bestglm)
@@ -1326,7 +1310,7 @@ test.data <- test.data %>%
 
 #### Figure 4. Comparative performance on the training data
 
-```{r echo=FALSE, include=TRUE, fig.width=6, fig.height=4, fig.align = 'center'}
+```{r echo=FALSE, include=TRUE, fig.width=3, fig.height=3, fig.align = 'center'}
 model_list <- list(RF.Clinical.Physiological = caret_rf_model3,
                    XG.Clinical.Physiological = caret_xgb_model3, 
                    RF.Clinical = caret_rf_model2,
@@ -1517,10 +1501,15 @@ df<-
   )
   ), rows)
   
+df$Accuracy <- as.numeric(df$Accuracy)
+df$Sensitivity<-as.numeric(df$Sensitivity)
+df$Specificity<-as.numeric(df$Specificity)
 df<-df %>% 
  mutate_if(is.numeric, round, digits=3)
 # randomForest.clinical$overall[1]
-knitr::kable(df)
+
+
+knitr::kable(df%>%select(Model, Accuracy, Sensitivity, Specificity))
 ```
 
 ## 5. Discussion and Conclusion
@@ -1649,6 +1638,36 @@ cv_of_data <- caret::trainControl(
   repeats = 3 # repeat 3 times
 )
 
+
+```
+
+#### Appendix Plot 3. ROC curves: physiological model (red) vs. clinical model (blue) vs. clinical and physiologic model (green)
+
+```{r echo=FALSE, fig.height=3, fig.width=3, message=FALSE, warning=FALSE, , fig.align = 'center'}
+## plotting ROC and AUC 
+
+# plot(pROC::roc(train.data$pcos_y_n,
+#                    fitted(logistic_model1)),
+#                col = "red", 
+#                main = "ROC curves: model 1 (red) vs. model 2 (blue) \n vs. model 3 (green)")
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model1)),
+               print.auc = T, 
+               col = "red",
+                print.auc.y = .6)
+
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model2)),
+               print.auc = T, 
+               col = "blue",
+     add=T,
+                print.auc.y = .6)
+plot(pROC::roc(train.data$pcos_y_n,
+                   fitted(logistic_model3)),
+               print.auc = T, 
+               col = "green", 
+               add = T,
+     print.auc.y=.4)
 
 ```
 
