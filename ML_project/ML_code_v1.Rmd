@@ -575,9 +575,9 @@ tidyr::extract_numeric(auc3$auc)
 
 ```
 
-#### Table 3. Assessing fit and accuracy for three different variable combinations
+#### Table 2. Assessing fit and accuracy for three different variable combinations
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::kable(data.frame("Model"=c("Physiologic Model", "Clinical Model", "Physiologic and Clinical Model"),
            "AIC"=c(logistic_model1$aic, logistic_model2$aic, logistic_model3$aic), 
            "ROC"=c(tidyr::extract_numeric(auc1$auc), tidyr::extract_numeric(auc2$auc), tidyr::extract_numeric(auc3$auc)
@@ -1065,7 +1065,7 @@ fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
 
 ```
 
-### Table 2. Comparison of regularization methods across two models for predicting PCOS status
+### Table 3. Comparison of regularization methods across two models for predicting PCOS status
 
 ```{r echo=FALSE}
 knitr::kable(data.frame("Model"=c("Clinical and Physiologic", "Clinical", 
@@ -1307,9 +1307,9 @@ test.data <- test.data %>%
 ```
 
 
-#### Figure 4. Comparative performance on the training data
+#### Figure 3. Comparative performance on the training data
 
-```{r echo=FALSE, include=TRUE, fig.width=3, fig.height=3, fig.align = 'center'}
+```{r echo=FALSE, include=TRUE, fig.width=6, fig.height=4, fig.align = 'center'}
 model_list <- list(RF.Clinical.Physiological = caret_rf_model3,
                    XG.Clinical.Physiological = caret_xgb_model3, 
                    RF.Clinical = caret_rf_model2,
@@ -1446,7 +1446,7 @@ randomForest.clinical.physiologic
 
 ### Summarizing performance
 
-#### Table 3. Comparative performance of two models across three different modelling methodologies
+#### Table 4. Comparative performance of two models across three different modelling methodologies on the test data
 
 
 ```{r, echo=FALSE}
