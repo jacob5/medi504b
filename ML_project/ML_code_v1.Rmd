@@ -3,9 +3,9 @@ title: "Building a Predictive Machine Learning Model to Identify Polycystic Ovar
 author: "Jacob and Hanwei"
 date: "`r Sys.Date()`"
 output:
-  word_document: default
-  html_document: default
   pdf_document: default
+  html_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -60,7 +60,6 @@ We sought to build a PCOS predictive model that could be used to assist clinicia
 The appropriate ethical approval from Ethics Research Boards was obtained for this ML project. To help ensure privacy fo this ML project, we worked with de-identified anonymized data. In the event an individual was identified as being pregnant or may be at risk of a life-threatening condition, we followed-up immediately with the individual's physician. 
 
 The rationale for developing this predictive ML model is based on the motivation to (1) provide a data-driven method of diagnosis that is cheaper and less invasive than current methods, (2) develop a method which may be applied without expensive diagnostic equipment (such as an ultrasound imaging device), (3) develop a method which may be used with just a blood test and the review of clinical symptoms and (4) construct a method which relies minimally on self-reported data (as this data can be highly variable and sometimes unreliable). As discussed in the background section of this report, current diagnosis of PCOS can be time-consuming and invasive, and replacing these methods with a model is advantageous for reasons related to clinical care, resource utilization and accessibility. This influenced our variable selection, as we did not consider the inclusion of predictors that cannot be measured in the above stated context in model development. We therefore, for example, exclude self-reported variables or variables which required ultrasound imaging (for example, endometrium thickness). Moreover, as our dataset was derived from a population of women in Kerala, a part of India with resource challenges and an often strained healthcare system, we felt it important to produce a model that could be clinically useful and practically beneficial to the local population of women (whose data we used to build our machine learning model).  
->>>>>>> a6021bb1f206628b41057e493ca5678ed30b7b3e
 
 While accuracy was a key consideration for evaluating model performance, we also focused on optimizing the specificity of the model predictions. The rationale for optimizing specificity was based on the relatively high prevalence of PCOS^7^ as well as the relatively low mortality associated with the disease^1,2,5^. Since patients flagged for high risk of PCOS would receive a confirmatory ultrasound, we wanted to select a model that would be biased towards reducing false positives, as one of our goals was reducing the cost and burden of care. 
 
@@ -287,7 +286,7 @@ mutate(`Recent weight gain`=ifelse(`Recent weight gain`==1, "Yes", "No"),
 `Recent onset acne`=ifelse(`Recent onset acne`==1, "Yes", "No"), 
 `Pregnancy status`=ifelse(`Pregnancy status`==1, "Yes", "No"))
   
-table1::table1(~
+tab1.1<-table1::table1(~
 `Age`+
 `BMI`+
 `Pulse rate`+
@@ -310,7 +309,9 @@ table1::table1(~
 `Recent onset acne`
 |
   as.factor(PCOS_Status), 
-data=tableData)
+data=tableData)%>%as.data.frame()
+
+knitr::kable(tab1.1)
 ```
 
 For this table, we have included only the parameters we deemed eligible for the model. Thus, we have excluded self-report variables, expensive and/or invasive tests, and clinical variables not easily measured by a routine clinical examination or a blood test.   
@@ -1452,22 +1453,24 @@ randomForest.clinical.physiologic
 
 
 ```{r echo=FALSE}
-row <-  c("ElasticNet: Clinical Parameters", 
-round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,3])),4), 
-round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,4])),4), 
-round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,5])),4))
-row2 <-  c("ElasticNet: Clinical and Physiological Parameters", 
-round(as.numeric(mean(fit.cv.bin.elastic.model_2$results[,3])),4), 
-round(as.numeric(mean(fit.cv.bin.elastic.model_2$results[,4])),4), 
-round(as.numeric(mean(fit.cv.bin.elastic.model_2$results[,5])),4))
+row <-  
+  data.frame("Model"="ElasticNet: Clinical Parameters", 
+             "Accuracy"=round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,3])),4), 
+             "Sensitivity"=round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,4])),4), 
+             "Specificity"=round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,5])),4))
+
+row2 <-  data.frame("Model"="ElasticNet: Clinical and Physiological Parameters",
+                    "Accuracy"=round(as.numeric(mean(fit.cv.bin.elastic.model_2$results[,3])),4), 
+                    "Sensitivity"=round(as.numeric(mean(fit.cv.bin.elastic.model_2$results[,4])),4), 
+                    "Specificity"=round(as.numeric(mean(fit.cv.bin.elastic.model_2$results[,5])),4))
 
 rows<-rbind(row, row2)
-rows<-as.data.frame(rows)
-rows<-rows%>%
-  rename("Model"=V1, 
-         "Accuracy"=V2, 
-         "Sensitivity"=V3, 
-         "Specificity"=V4)
+# rows<-as.data.frame(rows)
+# rows<-rows%>%
+#   rename("Model"=V1, 
+#          "Accuracy"=V2, 
+#          "Sensitivity"=V3, 
+#          "Specificity"=V4)
 
 ```
 
