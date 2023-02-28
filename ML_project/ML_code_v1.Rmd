@@ -192,7 +192,7 @@ PCOS_data_without_infertility_formatted$PCOS_Status <- as.factor(ifelse(PCOS_dat
 ```
 
 
-### Table 1: Clinical and sociodemographic characteristics of the study cohort (n=541, women from Kerala, India)
+#### Table 1: Clinical and sociodemographic characteristics of the study cohort (n=541, women from Kerala, India) stratified by PCOS status
 
 Now that the data is cleaned, we can produce the standard table 1, common in biomedical research for describing the study cohort.
 
@@ -252,7 +252,6 @@ data=PCOS_data_without_infertility_formatted)%>%as.data.frame()
 ```
 
 
-### Table 1. Selected patient characteristics stratified by PCOS status
 
 For this table, we have included only the parameters we deemed eligible for the model. Thus, we have excluded self-report variables, expensive and/or invasive tests, and clinical variables not easily measured by a routine clinical examination or a blood test.   
 
@@ -326,7 +325,9 @@ We visualized associations for selected categorical predictors and the outcome (
 
 #### Figure 1. Plotting categorical associations
 
-```{r EDA4, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+
+
+```{r EDA4, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide", fig.align = 'center'}
 # plotting bar plots for each categorical feature
 barPlotdata <- PCOS_data_without_infertility_formatted %>% select(
   weight_gain_y_n, hair_growth_y_n, skin_darkening_y_n, hair_loss_y_n, 
@@ -349,7 +350,7 @@ To ascertain the relationship between PCOS status and continuous predictors, we 
 For this section of the EDA, we looked more closely at the relationships between selected variables and our outcome variable of interest (for this project: yes or no for PCOS), based on how our boxplots looked initially (please refer to Appendix for all boxplots) and on some knowledge gained via our literature survey, we will highlight the relatiionship of select variables with our outcome variable (PCOS status). While the etiology for PCOS is not known, our literature survey suggests PCOS is associated with abnormal hormone levels. Thus, to look into this further as part of the EDA, we compared measurements of hormone levels and PCOS status to get a sense of the relationships between these variables.
 
 #### Figure 2. Boxplots looking at relationship of selected physiologic parameters and PCOS status (note log-scale on y-axis)
-```{r hormonevariables, echo=FALSE, fig.height=10, fig.width=20, message=FALSE, warning=FALSE, results= "hide"}
+```{r hormonevariables, echo=FALSE, fig.height=12, fig.width=20, message=FALSE, warning=FALSE, results= "hide", fig.align = 'center'}
 
 ## looking more closely and the relationships between selected variables and our outcome variable of interest (PCOS yes or no)
 
@@ -1064,7 +1065,7 @@ fit.cv.bin.elastic.model_3 <-train(model_formula_3, trControl = ctrl,
 
 ### Table 2. Comparison of regularization methods across two models for predicting PCOS status
 
-```{r eval=F}
+```{r echo=FALSE}
 knitr::kable(data.frame("Model"=c("Clinical and Physiologic", "Clinical", 
                      "Clinical and Physiologic", "Clinical", 
                      "Clinical and Physiologic", "Clinical" 
@@ -1079,9 +1080,9 @@ knitr::kable(data.frame("Model"=c("Clinical and Physiologic", "Clinical",
                    )))
 ```
 
-#### Figure 2. ROC curves: clinical model (blue) vs. clinical and physiologic model (green)
+#### Figure 3. ROC curves: clinical model (blue) vs. clinical and physiologic model (green)
 
-```{r echo=FALSE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, , fig.align = 'center'}
 ## plotting ROC and AUC 
 
 # plot(pROC::roc(train.data$pcos_y_n,
@@ -1327,7 +1328,7 @@ test.data <- test.data %>%
 
 #### Figure 4. Comparative performance on the training data
 
-```{r echo=FALSE, include=TRUE, fig.width=8, fig.height=6}
+```{r echo=FALSE, include=TRUE, fig.width=6, fig.height=4, fig.align = 'center'}
 model_list <- list(RF.Clinical.Physiological = caret_rf_model3,
                    XG.Clinical.Physiological = caret_xgb_model3, 
                    RF.Clinical = caret_rf_model2,
@@ -1462,12 +1463,12 @@ roc_rf <- pROC::roc(test.data$pcos_labelled, pred_prob_rf$yes)
 randomForest.clinical.physiologic
 ```
 
-### Summarised performance
+### Summarizing performance
 
 #### Table 2. Comparative performance of two models across three different modelling methodologies
 
 
-```{r}
+```{r, echo=FALSE}
 row <-  c("ElasticNet: Clinical Parameters", 
 round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,3])),4), 
 round(as.numeric(mean(fit.cv.bin.elastic.model_3$results[,4])),4), 
