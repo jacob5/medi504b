@@ -312,12 +312,10 @@ table1::table1(~
 data=tableData)
 ```
 
-From table 1, we can observe some differences among women with and without PCOS in the following parameters: 
+From table 1, we can observe some qualitative differences among women with and without PCOS in the following parameters: 
 Clinical: cycle_r_i, cycle_length_days, weight_gain_y_n, hair_growth_y_n, skin_darkening_y_n, hair_loss_y_n, pimples_y_n, reg_exercise_y_n
 
 Physiologic: i_beta_hcg_m_iu_m_l (Human chorionic gonadotropin), fsh_m_iu_m_l (Follicle Stimulating hormone), lh_m_iu_m_l (Lutenizing hormone), amh_ng_m_l (Anti-mullerian hormone), vit_d3_ng_m_l (Vitamin D), prg_ng_m_l (Progesterone). 
-
-We can visualize these distributions in the following figures. 
 
 ### 4a.2 Bivariate associations 
 
@@ -588,11 +586,11 @@ knitr::kable(data.frame("Model"=c("Physiologic Model", "Clinical Model", "Physio
 
 ```
 
-Based on these results, we will compare the clinical model to the full clinical and physiological model. While the model including clinical predictors only is more simple both technically (as evidenced by the AIC) and practically (less inputs and no blood testing required), there is an approximately 10% drop in accuracy when excluding the physiological data. We will select these two models and compare performance in applying various machine learning methods below. 
-
 ### 4.1 Assessing model classification performance 
 
-Of our three logistic regression models, Model 2 had the lowest AIC score of 317, followed by Model 3 with an AIC score of 566. However, the predictive performance as assesed by AUC was higher for model 3 (0.99) than model 2 (0.88). While model 3 was better performing, it also required more parameters for prediction that require blood testing. 
+Of our three logistic regression models, Model 2 had the lowest AIC score of 317, followed by Model 3 with an AIC score of 566. However, the predictive performance as assessed by AUC was higher for model 3 (0.99) than model 2 (0.88). While model 3 was better performing, it also required more parameters for prediction that require blood testing. 
+
+Based on these results, we will compare the clinical model to the full clinical and physiological model. While the model including clinical predictors only is more simple both technically (as evidenced by the AIC) and practically (less inputs and no blood testing required), there is an approximate 10% drop in accuracy when excluding the physiological data. We will select these two models and compare performance in applying various machine learning methods below. 
 
 ```{r eval=FALSE, fig.height=3, fig.width=5, message=FALSE, warning=FALSE, include=FALSE}
 
@@ -1465,7 +1463,7 @@ randomForest.clinical.physiologic
 
 ### Summarizing performance
 
-#### Table 2. Comparative performance of two models across three different modelling methodologies
+#### Table 3. Comparative performance of two models across three different modelling methodologies
 
 
 ```{r, echo=FALSE}
@@ -1517,7 +1515,7 @@ df<-
     xgboost.clinical$byClass[2], 
     xgboost.clinical.physiologic$byClass[2]
   )
-  ))
+  ), rows)
   
 df<-df %>% 
  mutate_if(is.numeric, round, digits=3)
@@ -1654,7 +1652,7 @@ cv_of_data <- caret::trainControl(
 
 ```
 
-### Appendix Plot 5 - Variable importance (based on Random Forest model)
+### Appendix Plot 4 - Variable importance (based on Random Forest model)
 ```{r echo=FALSE, message=FALSE, warning = FALSE, results = "hide"}
 vip::vip(caret_rf_model3)+theme_bw()
 ```
